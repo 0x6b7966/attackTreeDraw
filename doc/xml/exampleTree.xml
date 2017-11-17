@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<attackTree
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns=""
+        xsi:noNamespaceSchemaLocation="attacktree.xsd">
+<meta>
+    <title>Web-Server attack</title>
+    <author>Daniel Fischer</author>
+    <date>2017-11-13</date>
+    <description>This tree </description>
+</meta>
+<nodes>
+    <node id="node-01">
+        <name>Social Engineering</name>
+    </node>
+    <node id="node-02">
+        <name>spear phishing attack</name>
+    </node>
+    <node id="node-03">
+        <name>lost usb stick</name>
+    </node>
+</nodes>
+<connections>
+    <connection type="or">
+        <from>node-01</from>
+        <to>node-02</to>
+        <to>node-03</to>
+    </connection>
+</connections>
+</attackTree>

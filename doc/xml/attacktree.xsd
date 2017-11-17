@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Simple element declarations -->
+    <xs:element name="title" type="xs:string"/>
+    <xs:element name="author" type="xs:string"/>
+    <xs:element name="date" type="xs:date"/>
+    <xs:element name="description" type="xs:string"/>
+    <xs:element name="name" type="xs:string"/>
+    <xs:element name="from" type="xs:IDREF"/>
+    <xs:element name="to" type="xs:IDREF"/>
+
+    <!-- Simple attribute declarations -->
+    <xs:attribute name="id"  type="xs:ID"/>
+    <xs:attribute name="type">
+        <xs:simpleType>
+            <xs:restriction base="xs:string">
+                <xs:pattern value="or|and|sequence"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:attribute>
+
+    <!-- Complex element declarations -->
+    <xs:element name="meta">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="title"/>
+                <xs:element ref="author"/>
+                <xs:element ref="date"/>
+                <xs:element ref="description"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="node">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="name"/>
+            </xs:sequence>
+            <xs:attribute ref="id" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="connection">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="from" maxOccurs="unbounded"/>
+                <xs:element ref="to" maxOccurs="unbounded"/>
+            </xs:sequence>
+            <xs:attribute ref="type" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="nodes">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="node" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="connections">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="connection" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="attackTree">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="meta"/>
+                <xs:element ref="nodes"/>
+                <xs:element ref="connections"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
