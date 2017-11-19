@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <attackTree
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns=""
-        xsi:noNamespaceSchemaLocation="attacktree.xsd">
+        xsi:noNamespaceSchemaLocation="attackTreeExtended.xsd">
 <meta>
     <title>Web-Server attack</title>
     <author>Daniel Fischer</author>
     <date>2017-11-13</date>
-    <description>This tree </description>
+    <description>This tree visualises the attack on an Web Server</description>
 </meta>
 <nodes>
     <node id="node-01">

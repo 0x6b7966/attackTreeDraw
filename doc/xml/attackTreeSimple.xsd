@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Simple element declarations -->
+    <xs:element name="title" type="xs:string"/>
+    <xs:element name="author" type="xs:string"/>
+    <xs:element name="date" type="xs:date"/>
+    <xs:element name="description" type="xs:string"/>
+    <xs:element name="name" type="xs:string"/>
+
+    <!-- Complex element declarations -->
+    <xs:element name="meta">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="title"/>
+                <xs:element ref="author"/>
+                <xs:element ref="date"/>
+                <xs:element ref="description"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="countermeasure">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="title"/>
+                <xs:element ref="description"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="threat">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="title"/>
+                <xs:element ref="description"/>
+                <xs:element name="subtree" minOccurs="0">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="or">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="threat" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="and">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="threat" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="sequence">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="threat" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="countermeasures" minOccurs="0">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="or">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="and">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="sequence">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="tree">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="threat"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="attackTree">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element ref="meta"/>
+                <xs:element ref="tree"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<attackTree
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns=""
+        xsi:noNamespaceSchemaLocation="attackTreeSimple.xsd">
+    <meta>
+        <title>Attack on an Web Server</title>
+        <author>Daniel Fischer</author>
+        <date>2017-11-19</date>
+        <description>Example attack on an web server</description>
+    </meta>
+    <tree>
+        <threat>
+            <title>Attack on web server</title>
+            <description>attacking an web server</description>
+            <subtree>
+                <or>
+                    <threat>
+                        <title>Social Engineering</title>
+                        <description>Get password through social engineering</description>
+                        <subtree>
+                            <or>
+                                <threat>
+                                    <title>Spear-Phishing attack</title>
+                                    <description>execute a spear-phishing attack</description>
+                                </threat>
+                                <threat>
+                                    <title>Job Interview attack</title>
+                                    <description>Do a job interview and get informations</description>
+                                </threat>
+                            </or>
+                        </subtree>
+                    </threat>
+                    <threat>
+                        <title>Password Brute-Force</title>
+                        <description>Brute-forcing the password</description>
+                        <countermeasures>
+                            <and>
+                                <countermeasure>
+                                    <title>Long password</title>
+                                    <description>Set a long password</description>
+                                </countermeasure>
+                                <countermeasure>
+                                    <title>Brute-Force protection</title>
+                                    <description>set brute force protection</description>
+                                </countermeasure>
+                            </and>
+                        </countermeasures>
+                    </threat>
+                </or>
+            </subtree>
+        </threat>
+    </tree>
+
+</attackTree>
