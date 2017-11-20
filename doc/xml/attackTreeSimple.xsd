@@ -9,6 +9,16 @@
     <xs:element name="name" type="xs:string"/>
 
     <!-- Complex element declarations -->
+    <xs:element name="attribute">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute name="key" type="xs:string"/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
     <xs:element name="meta">
         <xs:complexType>
             <xs:sequence>
@@ -25,7 +35,9 @@
             <xs:sequence>
                 <xs:element ref="title"/>
                 <xs:element ref="description"/>
+                <xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded"/>
             </xs:sequence>
+            <xs:attribute name="id" type="xs:ID" use="required"/>
         </xs:complexType>
     </xs:element>
 
@@ -34,6 +46,7 @@
             <xs:sequence>
                 <xs:element ref="title"/>
                 <xs:element ref="description"/>
+                <xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded"/>
                 <xs:element name="subtree" minOccurs="0">
                     <xs:complexType>
                         <xs:choice>
@@ -89,6 +102,7 @@
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
+            <xs:attribute name="id" type="xs:ID" use="required"/>
         </xs:complexType>
     </xs:element>
 
