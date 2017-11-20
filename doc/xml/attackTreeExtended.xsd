@@ -44,7 +44,7 @@
     <xs:element name="connection">
         <xs:complexType>
             <xs:sequence>
-                <xs:element ref="from" maxOccurs="unbounded"/>
+                <xs:element ref="from"/>
                 <xs:element ref="to" maxOccurs="unbounded"/>
             </xs:sequence>
             <xs:attribute ref="type" use="required"/>

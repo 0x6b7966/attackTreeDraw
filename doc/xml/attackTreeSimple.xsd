@@ -37,14 +37,14 @@
                 <xs:element name="subtree" minOccurs="0">
                     <xs:complexType>
                         <xs:choice>
-                            <xs:element name="or">
+                            <xs:element name="alternative">
                                 <xs:complexType>
                                     <xs:sequence>
                                         <xs:element ref="threat" maxOccurs="unbounded"/>
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
-                            <xs:element name="and">
+                            <xs:element name="composition">
                                 <xs:complexType>
                                     <xs:sequence>
                                         <xs:element ref="threat" maxOccurs="unbounded"/>
@@ -64,14 +64,14 @@
                 <xs:element name="countermeasures" minOccurs="0">
                     <xs:complexType>
                         <xs:choice>
-                            <xs:element name="or">
+                            <xs:element name="alternative">
                                 <xs:complexType>
                                     <xs:sequence>
                                         <xs:element ref="countermeasure" maxOccurs="unbounded"/>
                                     </xs:sequence>
                                 </xs:complexType>
                             </xs:element>
-                            <xs:element name="and">
+                            <xs:element name="composition">
                                 <xs:complexType>
                                     <xs:sequence>
                                         <xs:element ref="countermeasure" maxOccurs="unbounded"/>
