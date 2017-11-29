@@ -7,7 +7,6 @@
     <xs:element name="date" type="xs:date"/>
     <xs:element name="description" type="xs:string"/>
     <xs:element name="name" type="xs:string"/>
-    <xs:element name="to" type="xs:IDREF"/>
 
     <!-- Simple attribute declarations -->
     <xs:element name="attribute">
@@ -20,8 +19,6 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:attribute name="id" type="xs:ID"/>
-    <xs:attribute name="from" type="xs:IDREF"/>
     <xs:attribute name="type">
         <xs:simpleType>
             <xs:restriction base="xs:string">
@@ -93,9 +90,9 @@
                             <xs:element name="connection" maxOccurs="unbounded">
                                 <xs:complexType>
                                     <xs:sequence>
-                                        <xs:element ref="to" maxOccurs="unbounded"/>
+                                        <xs:element name="to" type="xs:IDREF" maxOccurs="unbounded"/>
                                     </xs:sequence>
-                                    <xs:attribute ref="from" use="required"/>
+                                    <xs:attribute  name="from" type="xs:IDREF" use="required"/>
                                     <xs:attribute ref="type" use="required"/>
                                 </xs:complexType>
                             </xs:element>
