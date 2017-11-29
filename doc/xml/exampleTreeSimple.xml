@@ -26,7 +26,7 @@
                                 </threat>
                                 <threat id="T0004">
                                     <title>Job Interview attack</title>
-                                    <description>Do a job interview and get informations</description>
+                                    <description>Do a job interview and get information</description>
                                     <attribute key="difficulty">8</attribute>
                                 </threat>
                             </alternative>

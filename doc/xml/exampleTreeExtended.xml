@@ -48,7 +48,7 @@
             <to>T0002</to>
             <to>T0003</to>
         </connection>
-        <connection from="T0002" type="alternative">
+        <connection from="T0001" type="alternative">
             <to>C0001</to>
             <to>C0002</to>
         </connection>
