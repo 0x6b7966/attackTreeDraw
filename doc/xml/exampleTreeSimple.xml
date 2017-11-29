@@ -9,22 +9,22 @@
         <description>Example attack on an web server</description>
     </meta>
     <tree>
-        <threat id="N0001">
+        <threat id="T0001">
             <title>Attack on web server</title>
             <description>attacking an web server</description>
             <subtree>
                 <alternative>
-                    <threat id="N0002">
+                    <threat id="T0002">
                         <title>Social Engineering</title>
                         <description>Get password through social engineering</description>
                         <subtree>
                             <alternative>
-                                <threat id="N0003">
+                                <threat id="T0003">
                                     <title>Spear-Phishing attack</title>
                                     <description>execute a spear-phishing attack</description>
                                     <attribute key="difficulty">5.5</attribute>
                                 </threat>
-                                <threat id="N0004">
+                                <threat id="T0004">
                                     <title>Job Interview attack</title>
                                     <description>Do a job interview and get informations</description>
                                     <attribute key="difficulty">8</attribute>
@@ -32,18 +32,18 @@
                             </alternative>
                         </subtree>
                     </threat>
-                    <threat id="N0005">
+                    <threat id="T0005">
                         <title>Password Brute-Force</title>
                         <description>Brute-forcing the password</description>
                         <attribute key="difficulty">3</attribute>
                         <countermeasures>
                             <composition>
-                                <countermeasure id="N0006">
+                                <countermeasure id="C0006">
                                     <title>Long password</title>
                                     <description>Set a long password</description>
                                     <attribute key="difficulty">1</attribute>
                                 </countermeasure>
-                                <countermeasure id="N0007">
+                                <countermeasure id="C0007">
                                     <title>Brute-Force protection</title>
                                     <description>set brute force protection</description>
                                      <attribute key="difficulty">6</attribute>

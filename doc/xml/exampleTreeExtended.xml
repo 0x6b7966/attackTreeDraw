@@ -2,28 +2,58 @@
 <attackTree
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns=""
         xsi:noNamespaceSchemaLocation="attackTreeExtended.xsd">
-<meta>
-    <title>Web-Server attack</title>
-    <author>Daniel Fischer</author>
-    <date>2017-11-13</date>
-    <description>This tree visualises the attack on an Web Server</description>
-</meta>
-<nodes>
-    <node id="node-01">
-        <name>Social Engineering</name>
-    </node>
-    <node id="node-02">
-        <name>spear phishing attack</name>
-    </node>
-    <node id="node-03">
-        <name>lost usb stick</name>
-    </node>
-</nodes>
-<connections>
-    <connection type="or">
-        <from>node-01</from>
-        <to>node-02</to>
-        <to>node-03</to>
-    </connection>
-</connections>
+    <meta>
+        <title>Web-Server attack</title>
+        <author>Daniel Fischer</author>
+        <date>2017-11-13</date>
+        <description>This tree visualises the attack on an Web Server</description>
+    </meta>
+    <threats>
+        <threat id="T0000">
+            <title>Web-Server attack</title>
+            <description>Attack on an Web-Server</description>
+        </threat>
+        <threat id="T0001">
+            <title>Password gathering</title>
+            <description>Get the passwords</description>
+        </threat>
+        <threat id="T0002">
+            <title>Brute Forcing</title>
+            <description>Brute Forcing the password</description>
+        </threat>
+        <threat id="T0003">
+            <title>Social Engineering the password</title>
+            <description>Social Engineering the password</description>
+        </threat>
+    </threats>
+    <countermeasures>
+        <countermeasure id="C0001">
+            <title>Long Passwords</title>
+            <description>Set password length > 20</description>
+        </countermeasure>
+        <countermeasure id="C0002">
+            <title>IDS for password forms</title>
+            <description>Set up a IDS to find brute force attempts</description>
+        </countermeasure>
+        <countermeasure id="C0003">
+            <title>Social engineering seminars</title>
+            <description>Set up seminars to counter social engineering</description>
+        </countermeasure>
+    </countermeasures>
+    <connections>
+        <connection from="T0000" type="alternative">
+            <to>T0001</to>
+        </connection>
+        <connection from="T0001" type="alternative">
+            <to>T0002</to>
+            <to>T0003</to>
+        </connection>
+        <connection from="T0002" type="alternative">
+            <to>C0001</to>
+            <to>C0002</to>
+        </connection>
+        <connection from="T0003" type="alternative">
+            <to>C0003</to>
+        </connection>
+    </connections>
 </attackTree>

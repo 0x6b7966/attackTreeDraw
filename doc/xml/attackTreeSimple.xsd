@@ -36,11 +36,43 @@
                 <xs:element ref="title"/>
                 <xs:element ref="description"/>
                 <xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded"/>
+                <xs:element name="subtree" minOccurs="0">
+                    <xs:complexType>
+                        <xs:choice>
+                            <xs:element name="alternative">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="composition">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="sequence">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:choice>
+                    </xs:complexType>
+                </xs:element>
             </xs:sequence>
-            <xs:attribute name="id" type="xs:ID" use="required"/>
+            <xs:attribute name="id" type="xs:ID" use="required">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:pattern value="C[0-9]{4}"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
         </xs:complexType>
     </xs:element>
-
     <xs:element name="threat">
         <xs:complexType>
             <xs:sequence>
@@ -102,7 +134,13 @@
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
-            <xs:attribute name="id" type="xs:ID" use="required"/>
+            <xs:attribute name="id" type="xs:ID" use="required">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:pattern value="T[0-9]{4}"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:attribute>
         </xs:complexType>
     </xs:element>
 
