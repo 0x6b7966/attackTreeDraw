@@ -73,6 +73,7 @@
             </xs:attribute>
         </xs:complexType>
     </xs:element>
+
     <xs:element name="threat">
         <xs:complexType>
             <xs:sequence>
