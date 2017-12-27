@@ -4,7 +4,7 @@ if __name__ == "__main__":
 
     h = Handler()
 
-    tree = h.buildFromXML('../doc/xml/exampleTreeSimple.xml')
+    tree = h.buildFromXML('../doc/xml/exampleTreeExtended.xml')
 
     print(tree.nodeList)
     print(tree.edgeList)
