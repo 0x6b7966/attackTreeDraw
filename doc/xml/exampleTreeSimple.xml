@@ -46,13 +46,21 @@
                                 <countermeasure id="C0007">
                                     <title>Brute-Force protection</title>
                                     <description>set brute force protection</description>
-                                     <attribute key="difficulty">6</attribute>
+                                    <attribute key="difficulty">6</attribute>
                                 </countermeasure>
                             </composition>
                         </countermeasures>
                     </threat>
                 </alternative>
             </subtree>
+            <countermeasures>
+                <composition>
+                    <countermeasure id="C0003">
+                        <title>Secure Webserver</title>
+                        <description>Do stuff</description>
+                    </countermeasure>
+                </composition>
+            </countermeasures>
         </threat>
     </tree>
 </attackTree>

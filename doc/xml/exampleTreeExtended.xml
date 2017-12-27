@@ -41,19 +41,22 @@
         </countermeasure>
     </countermeasures>
     <connections>
-        <connection from="T0000" type="alternative">
-            <to>T0001</to>
+        <connection source="T0000" type="alternative">
+            <destination>T0001</destination>
         </connection>
-        <connection from="T0001" type="alternative">
-            <to>T0002</to>
-            <to>T0003</to>
+        <connection source="T0001" type="alternative">
+            <destination>T0002</destination>
+            <destination>T0003</destination>
         </connection>
-        <connection from="T0001" type="alternative">
-            <to>C0001</to>
-            <to>C0002</to>
+        <connection source="T0001" type="alternative">
+            <destination>C0001</destination>
+            <destination>C0002</destination>
         </connection>
-        <connection from="T0003" type="alternative">
-            <to>C0003</to>
+        <connection source="T0002" type="alternative">
+            <destination>C0003</destination>
+        </connection>
+        <connection source="T0003" type="alternative">
+            <destination>C0003</destination>
         </connection>
     </connections>
 </attackTree>
