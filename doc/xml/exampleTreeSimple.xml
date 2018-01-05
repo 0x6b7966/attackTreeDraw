@@ -31,6 +31,14 @@
                                 </threat>
                             </alternative>
                         </subtree>
+                        <countermeasures>
+                            <composition>
+                                <countermeasure id="C0010">
+                                    <title>Bla</title>
+                                    <description>Bla</description>
+                                </countermeasure>
+                            </composition>
+                        </countermeasures>
                     </threat>
                     <threat id="T0005">
                         <title>Password Brute-Force</title>
@@ -47,6 +55,14 @@
                                     <title>Brute-Force protection</title>
                                     <description>set brute force protection</description>
                                     <attribute key="difficulty">6</attribute>
+                                    <subtree>
+                                        <composition>
+                                            <countermeasure id="C0008">
+                                                <title>BlubAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</title>
+                                                <description>Bla</description>
+                                            </countermeasure>
+                                        </composition>
+                                    </subtree>
                                 </countermeasure>
                             </composition>
                         </countermeasures>

@@ -1,0 +1,177 @@
+@startuml
+skinparam monochrome true
+skinparam classAttributeIconSize 0
+scale 2
+
+namespace __init__ {
+}
+namespace data {
+  namespace handler {
+    class Handler {
+      +buildFromXML(self, file)
+      +saveToXML(self, tree, file)
+      +checkRemoveEdge(self, edge)
+      +checkAddEdge(self, edge)
+      +checkRemoveNode(self, node)
+      +checkAddNode(self, node)
+      +getFreeID(self, node)
+      +setNextID(self, node)
+    }
+
+  }
+  namespace parsers {
+  }
+  namespace types {
+    class Node {
+      {static} +type
+      +isRoot
+      +id
+      +title
+      +description
+      +attributes
+      +parents
+      +edges
+      +visited
+      +finished
+      -__init__(self)
+      +toString(self)
+      +initDFS(self)
+    }
+
+    Node <|-- Threat
+    class Threat {
+      {static} +type
+    }
+
+    Node <|-- Countermeasure
+    class Countermeasure {
+      {static} +type
+    }
+
+    class Edge {
+      +source
+      +destination
+      +conjunction
+      -__init__(self, source, destination, conjunction)
+      -__hash__(self)
+    }
+
+    class Tree {
+      {static} +nodeList
+      {static} +edgeList
+      {static} +extended
+      {static} +root
+      {static} +meta
+      +extended
+      -__init__(self, extended)
+      +addNode(self, node)
+      +addEdge(self, source, destination, conjunction)
+      +checkExtended(self)
+      +checkCycle(self)
+      +dfs(self, node)
+    }
+
+  }
+}
+namespace fileHandler {
+  namespace __init__ {
+  }
+  namespace xml {
+    class Handler {
+      +parser
+      +xml
+      +extended
+      +simpleXSD
+      +extendedXSD
+      -__init__(self)
+      +loadFile(self, file)
+      +validate(self)
+      +validateSimple(self)
+      +validateExtended(self)
+      +generateTemplate(self, extended)
+      +generateMetaElements(self, elements)
+      +generateTree(self, tree)
+      +generateSimpleTree(self, tree)
+      +generateExtendedTree(self, tree)
+      +addSimpleNode(self, tree, root, element)
+      +addExtendedNodes(self, tree)
+      +addExtendedEdges(self, tree)
+      +addNode(self, root, element)
+      +saveToFile(self, file)
+    }
+
+  }
+}
+namespace gui {
+  namespace design {
+    class Ui_MainWindow {
+      +setupUi(self, MainWindow)
+      +retranslateUi(self, MainWindow)
+    }
+
+  }
+  namespace items {
+    QGraphicsItemGroup <|-- Node
+    class Node {
+      +node
+      +attributes
+      +title
+      +typeRect
+      +titleRect
+      +headerHeight
+      -__init__(self, node)
+      +setPosition(self, x, y)
+      +printAttributes(self)
+      +paint(self, painter, options, widget=None)
+    }
+
+    Node <|-- Threat
+    class Threat {
+      +type
+      -__init__(self, node)
+    }
+
+    Node <|-- Countermeasure
+    class Countermeasure {
+      +type
+      -__init__(self, node)
+    }
+
+    Node <|-- Conjunction
+    class Conjunction {
+    }
+
+    QGraphicsLineItem <|-- Arrow
+    class Arrow {
+      +arrowHead
+      +start
+      +end
+      -__init__(self, start, end)
+      +boundingRect(self)
+      +shape(self)
+      +updatePosition(self)
+      +paint(self, painter, options, widget=None)
+    }
+
+  }
+  namespace windows {
+    QMainWindow <|-- Main
+    class Main {
+      +tree
+      +itemList
+      -__init__(self, tree)
+      +initUI(self)
+      +printGraph(self)
+      +printGraphRecursion(self, node, x, y, parent=None)
+      +reorderTree(self, g)
+      +fixCollision(self, left, right)
+      +checkCollRec(self, item, toCheckList)
+      +moveRec(self, item, x, y)
+      +resizeEvent(self, QResizeEvent)
+    }
+
+  }
+}
+namespace main {
+}
+@enduml
