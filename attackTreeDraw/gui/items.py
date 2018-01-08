@@ -14,7 +14,7 @@ class Node(QGraphicsItemGroup):  # QGraphicsItemGroup as parent?
         self.attributes = QGraphicsItemGroup()
 
         self.title = QGraphicsTextItem()
-        self.title.setFont(QFont('Arial'))
+        self.title.setFont(QFont('Arial', 10))
         self.title.setTextWidth(200)  # @TODO: change to variable width
         self.title.setPlainText(node.title)
 
@@ -49,13 +49,13 @@ class Node(QGraphicsItemGroup):  # QGraphicsItemGroup as parent?
 
         for k, v in self.node.attributes.items():
             key = QGraphicsTextItem()
-            key.setFont(QFont('Arial'))
+            key.setFont(QFont('Arial', 10))
             key.setTextWidth(100)  # @TODO: change to variable width
             key.setPlainText(k)
             keyHeight = int(key.boundingRect().height() / 20 + 0.5) * 20
 
             value = QGraphicsTextItem()
-            value.setFont(QFont('Arial'))
+            value.setFont(QFont('Arial', 10))
             value.setTextWidth(100)  # @TODO: change to variable width
             value.setPlainText(v)
             valueHeight = int(key.boundingRect().height() / 20 + 0.5) * 20
@@ -97,7 +97,7 @@ class Threat(Node):
         super().__init__(node)
 
         self.type = QGraphicsTextItem()
-        self.type.setFont(QFont('Arial'))
+        self.type.setFont(QFont('Arial', 10))
         self.type.setPlainText(node.type)
 
         self.type.setPos(81, 0)
@@ -111,7 +111,7 @@ class Countermeasure(Node):
         super().__init__(node)
 
         self.type = QGraphicsTextItem()
-        self.type.setFont(QFont('Arial'))
+        self.type.setFont(QFont('Arial', 10))
         self.type.setPlainText(node.type)
 
         self.type.setPos(53, 0)

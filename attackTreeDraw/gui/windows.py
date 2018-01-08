@@ -4,25 +4,31 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction, QApplication, QToolBox, QGraphicsScene, QGraphicsItem, \
-    QGraphicsItemGroup
+    QGraphicsItemGroup, QWidget, QFileDialog, QMessageBox
 from PyQt5.QtGui import QIcon
 
 from .items import Node, Arrow, Threat, Countermeasure
 
+from attackTreeDraw.data.handler import Handler
+
+from attackTreeDraw.data import types
+
 
 class Main(QMainWindow):
 
-    def __init__(self, tree):
+    def __init__(self):
         super().__init__()
 
-        self.tree = tree
+        self.tree = types.Tree(False)
+
+        self.saved = True
 
         self.itemList = []
 
         self.initUI()
 
         # For testing
-        self.printGraph()
+        # self.printGraph()
 
     def initUI(self):
 
@@ -33,53 +39,11 @@ class Main(QMainWindow):
 
         # return
 
-        self.setObjectName("MainWindow")
-
-        self.resize(814, 581)
-        self.setMinimumSize(QtCore.QSize(0, 0))
-        self.setWindowTitle("attackTreeDraw")
-        self.setDocumentMode(True)
-        self.centralWidget = QtWidgets.QWidget(self)
-        self.centralWidget.setObjectName("centralWidget")
-        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralWidget)
-        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
-        self.verticalLayout.setSpacing(0)
-
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.scrollArea = QtWidgets.QScrollArea(self.centralWidget)
-        self.scrollArea.setEnabled(True)
-        self.scrollArea.setStatusTip("")
-        self.scrollArea.setAccessibleName("")
-        self.scrollArea.setLineWidth(0)
-        self.scrollArea.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setObjectName("scrollArea")
-        self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        # self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1032, 1024))
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.formLayout = QtWidgets.QFormLayout(self.scrollAreaWidgetContents)
-        self.formLayout.setContentsMargins(0, 0, 0, 0)
-        self.formLayout.setSpacing(0)
-        self.formLayout.setObjectName("formLayout")
-        self.graphicsView = QtWidgets.QGraphicsView(self.scrollAreaWidgetContents)
-
-        self.graphicsView.setMinimumSize(QtCore.QSize(self.width(), self.width()))
-        self.graphicsView.setSizeIncrement(QtCore.QSize(0, 0))
-        self.graphicsView.setBaseSize(QtCore.QSize(0, 0))
-        self.graphicsView.setObjectName("graphicsView")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.graphicsView)
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        self.verticalLayout.addWidget(self.scrollArea)
-        self.setCentralWidget(self.centralWidget)
-        self.statusBar = QtWidgets.QStatusBar(self)
-        self.statusBar.setObjectName("statusBar")
-        self.setStatusBar(self.statusBar)
-
         menuBarItems = {
             'File': {
                 # Name     shortcut   tip          action
                 '&New': ['Ctrl+N', 'New Tree', self.close],
-                '&Open': ['Ctrl+O', 'Open File', self.close],
+                '&Open': ['Ctrl+O', 'Open File', self.loadFile],
                 '&Save': ['Ctrl+S', 'Print Tree', self.close],
                 'Save &As ...': ['Ctrl+Shift+S', 'Print Tree', self.close],
                 'SEPARATOR01': [],
@@ -107,7 +71,7 @@ class Main(QMainWindow):
 
         mainToolbarItems = {
             'New': ['gui/assets/icons/new.png', 'Ctrl+N', 'New Tree', self.close],
-            'Open': ['gui/assets/icons/open.png', 'Ctrl+O', 'Open Tree', self.close],
+            'Open': ['gui/assets/icons/open.png', 'Ctrl+O', 'Open Tree', self.loadFile],
             'Save': ['gui/assets/icons/save.png', 'Ctrl+S', 'Save Tree', self.close],
             'Print': ['gui/assets/icons/print.png', 'Ctrl+P', 'Print File', self.close],
             'Undo': ['gui/assets/icons/undo.png', 'Ctrl+U', 'Undo', self.close],
@@ -115,7 +79,15 @@ class Main(QMainWindow):
 
         }
 
-        menubar = QtWidgets.QMenuBar(self)
+
+        self.setObjectName("MainWindow")
+
+        self.resize(814, 581)
+        self.setMinimumSize(QtCore.QSize(0, 0))
+        self.setWindowTitle("attackTreeDraw")
+        self.setDocumentMode(True)
+
+        menubar = self.menuBar()
         for k, v in menuBarItems.items():
             menuItem = menubar.addMenu(k)
             for ks, s in v.items():
@@ -128,13 +100,49 @@ class Main(QMainWindow):
                     action.triggered.connect(s[2])
                     menuItem.addAction(action)
 
+        self.centralWidget = QtWidgets.QWidget(self)
+        self.centralWidget.setObjectName("centralWidget")
+        self.verticalLayout = QtWidgets.QVBoxLayout(self.centralWidget)
+        self.verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout.setSpacing(0)
+
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.scrollArea = QtWidgets.QScrollArea(self.centralWidget)
+        self.scrollArea.setEnabled(True)
+        self.scrollArea.setStatusTip("")
+        self.scrollArea.setAccessibleName("")
+        self.scrollArea.setLineWidth(0)
+        self.scrollArea.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+        self.scrollArea.setWidgetResizable(True)
+        self.scrollArea.setObjectName("scrollArea")
+        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+        # self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1032, 1024))
+        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
+        self.formLayout = QtWidgets.QFormLayout(self.scrollAreaWidgetContents)
+        self.formLayout.setContentsMargins(0, 0, 0, 0)
+        self.formLayout.setSpacing(0)
+        self.formLayout.setObjectName("formLayout")
+        self.graphicsView = QtWidgets.QGraphicsView(self.scrollAreaWidgetContents)
+
+        self.graphicsView.setMinimumSize(QtCore.QSize(self.width(), self.height()))
+        self.graphicsView.setSizeIncrement(QtCore.QSize(0, 0))
+        self.graphicsView.setBaseSize(QtCore.QSize(0, 0))
+        self.graphicsView.setObjectName("graphicsView")
+        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.graphicsView)
+        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+        self.verticalLayout.addWidget(self.scrollArea)
+        self.setCentralWidget(self.centralWidget)
+        self.statusBar = QtWidgets.QStatusBar(self)
+        self.statusBar.setObjectName("statusBar")
+        self.setStatusBar(self.statusBar)
+
         mainToolBar = QtWidgets.QToolBar(self)
         self.addToolBar(QtCore.Qt.TopToolBarArea, mainToolBar)
         for k, v in mainToolbarItems.items():
             action = QAction(QIcon(v[0]), k, self)
             action.setShortcut(v[2])
             action.setStatusTip(v[2])
-            action.triggered.connect(self.close)
+            action.triggered.connect(v[3])
 
             mainToolBar.addAction(action)
 
@@ -158,6 +166,13 @@ class Main(QMainWindow):
 
         self.show()
 
+        self.graphicsView.setMinimumSize(QtCore.QSize(self.width() + 200, self.height() + 200))
+        self.scene.setSceneRect(self.scene.itemsBoundingRect())
+        width = self.scrollArea.frameSize().width() if self.scrollArea.frameSize().width() > self.scene.sceneRect().width() else self.scene.sceneRect().width()
+        height = self.scrollArea.frameSize().height() if self.scrollArea.frameSize().height() > self.scene.sceneRect().height() else self.scene.sceneRect().height()
+
+        self.graphicsView.setFixedSize(width + 10, height + 10)
+
     def printGraph(self):
 
         g = self.printGraphRecursion(self.tree.nodeList[self.tree.root], 0, 10)
@@ -166,6 +181,14 @@ class Main(QMainWindow):
             pass
 
         self.scene.setSceneRect(QRectF(self.scene.itemsBoundingRect().x() - 100, 0, self.scene.itemsBoundingRect().width() + 200, self.scene.itemsBoundingRect().height() + 100))
+
+        width = self.scrollArea.frameSize().width() if self.scrollArea.frameSize().width() > self.scene.sceneRect().width() else self.scene.sceneRect().width()
+        height = self.scrollArea.frameSize().height() if self.scrollArea.frameSize().height() > self.scene.sceneRect().height() else self.scene.sceneRect().height()
+
+        viewport = self.graphicsView.viewport()
+        viewport.update()
+
+        self.graphicsView.setFixedSize(width + 10, height + 10)
         print('----- DONE -----')
 
     def printGraphRecursion(self, node, x, y, parent=None):
@@ -259,3 +282,40 @@ class Main(QMainWindow):
     def resizeEvent(self, QResizeEvent):
         self.graphicsView.setMinimumSize(QtCore.QSize(self.width() + 200, self.height() + 200))
         self.scene.setSceneRect(self.scene.itemsBoundingRect())
+        width = self.scrollArea.frameSize().width() if self.scrollArea.frameSize().width() > self.scene.sceneRect().width() else self.scene.sceneRect().width()
+        height = self.scrollArea.frameSize().height() if self.scrollArea.frameSize().height() > self.scene.sceneRect().height() else self.scene.sceneRect().height()
+
+        self.graphicsView.setFixedSize(width + 10, height + 10)
+
+    def loadFile(self):
+
+        if len(self.tree.nodeList) > 0 and self.saved is False:
+            reply = QMessageBox.question(self, "Save Tree?", "Save Tree?", QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+
+            if reply == QMessageBox.Yes:
+                self.saveFile()
+            elif reply == QMessageBox.Cancel:
+                return
+
+        fileName = QFileDialog.getOpenFileName(self, 'Open Attack Tree', '', 'attack tree file (*.xml);;All Files (*)')
+
+        print(fileName)
+
+        h = Handler()
+
+        self.tree = h.buildFromXML(fileName[0])
+
+        self.printGraph()
+        # For Testing
+        self.saved = False
+
+    def saveFile(self):
+
+        fileName = QFileDialog.getSaveFileName(self, 'Save Attack Tree', '', 'Simple Attack Tree File (*.xml);;Extended Attack Tree File (*.xml);;All Files (*)')
+
+        # @TODO: Add extended check/cyle check
+
+
+        print(fileName)
+
+        pass

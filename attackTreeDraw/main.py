@@ -8,8 +8,8 @@ from attackTreeDraw.data.handler import Handler
 
 if __name__ == "__main__":
 
-    h = Handler()
-    tree = h.buildFromXML('../doc/xml/exampleTreeSimple.xml')
+#    h = Handler()
+#    tree = h.buildFromXML('../doc/xml/exampleTreeSimple.xml')
 
 
 #    print(tree.nodeList)
@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
 #    h.saveToXML(tree, 'test.xml')
     app = QApplication(sys.argv)
-    ex = Main(tree)
+    ex = Main()
     sys.exit(app.exec_())
 
 

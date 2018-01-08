@@ -44,15 +44,17 @@ class Edge:
 
 
 class Tree:
-    nodeList = {}
-    edgeList = []
-    extended = False
-    # @TODO: check if there is only one root / move to Tree()
-    root = None
-    meta = {}
 
     def __init__(self, extended):
         self.extended = extended
+
+        self.nodeList = {}
+        self.edgeList = []
+        self.extended = False
+        # @TODO: check if there is only one root / move to Tree()
+        self.root = None
+        self.meta = {}
+
 
     def addNode(self, node):
         if node.id in self.nodeList:

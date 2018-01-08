@@ -9,54 +9,54 @@
         <description>This tree visualises the attack on an Web Server</description>
     </meta>
     <threats>
-        <threat id="T0000">
+        <threat id="N0000">
             <title>Web-Server attack</title>
             <description>Attack on an Web-Server</description>
         </threat>
-        <threat id="T0001">
+        <threat id="N0001">
             <title>Password gathering</title>
             <description>Get the passwords</description>
         </threat>
-        <threat id="T0002">
+        <threat id="N0002">
             <title>Brute Forcing</title>
             <description>Brute Forcing the password</description>
         </threat>
-        <threat id="T0003">
+        <threat id="N0003">
             <title>Social Engineering the password</title>
             <description>Social Engineering the password</description>
         </threat>
     </threats>
     <countermeasures>
-        <countermeasure id="C0001">
+        <countermeasure id="N0004">
             <title>Long Passwords</title>
             <description>Set password length > 20</description>
         </countermeasure>
-        <countermeasure id="C0002">
+        <countermeasure id="N0005">
             <title>IDS for password forms</title>
             <description>Set up a IDS to find brute force attempts</description>
         </countermeasure>
-        <countermeasure id="C0003">
+        <countermeasure id="N0006">
             <title>Social engineering seminars</title>
             <description>Set up seminars to counter social engineering</description>
         </countermeasure>
     </countermeasures>
     <connections>
-        <connection source="T0000" type="alternative">
-            <destination>T0001</destination>
+        <connection source="N0000" type="alternative">
+            <destination>N0001</destination>
         </connection>
-        <connection source="T0001" type="composition">
-            <destination>T0002</destination>
-            <destination>T0003</destination>
+        <connection source="N0001" type="composition">
+            <destination>N0002</destination>
+            <destination>N0003</destination>
         </connection>
-        <connection source="T0001" type="alternative">
-            <destination>C0001</destination>
-            <destination>C0002</destination>
+        <connection source="N0001" type="alternative">
+            <destination>N0004</destination>
+            <destination>N0005</destination>
         </connection>
-        <connection source="T0002" type="alternative">
-            <destination>C0003</destination>
+        <connection source="N0002" type="alternative">
+            <destination>N0003</destination>
         </connection>
-        <connection source="T0003" type="alternative">
-            <destination>C0003</destination>
+        <connection source="N0003" type="alternative">
+            <destination>N0006</destination>
         </connection>
     </connections>
 </attackTree>
