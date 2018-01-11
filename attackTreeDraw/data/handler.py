@@ -1,6 +1,7 @@
+from .exceptions import ParserError
 from .types import *
 from .parsers import parseExtendedConnection, parseExtendedNode, parseSimpleNode
-from fileHandler.xml import Handler as XmlHandler
+from ..fileHandler.xml import Handler as XmlHandler
 
 
 class Handler:
@@ -26,6 +27,11 @@ class Handler:
             connections = xmlHandler.xml.find('connections')
             for c in connections.iterchildren():
                 parseExtendedConnection(tree, c)
+            tree.root = meta.find('root').text
+            if tree.root in tree.nodeList.keys():
+                tree.nodeList[tree.root].isRoot = True
+            else:
+                raise ParserError('Root Element with ID %s not found in node list' % tree.root)
         else:
             return None
         return tree
@@ -35,24 +41,4 @@ class Handler:
         xmlHandler = XmlHandler()
         xmlHandler.generateTree(tree)
         xmlHandler.saveToFile(file)
-        pass
-
-    def checkRemoveEdge(self, edge):
-        pass
-
-    def checkAddEdge(self, edge):
-        pass
-
-    def checkRemoveNode(self, node):
-        pass
-
-    def checkAddNode(self, node):
-        pass
-
-    def getFreeID(self, node):
-        pass
-
-    def setNextID(self, node):
-        pass
-
-
+        return True  # @TODO: check if file is saved

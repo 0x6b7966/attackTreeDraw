@@ -55,7 +55,6 @@ class Tree:
         self.root = None
         self.meta = {}
 
-
     def addNode(self, node):
         if node.id in self.nodeList:
             return False
@@ -105,10 +104,9 @@ class Tree:
     def checkCycle(self):
         for k, n in self.nodeList.items():
             n.initDFS()
-
         for k, n in self.nodeList.items():
             c = self.dfs(n)
-            if c is False:
+            if c is not True:
                 return False
         return True
 
@@ -116,11 +114,11 @@ class Tree:
         if node.finished:
             return True
         if node.visited:
-            return False
+            return node
         node.visited = True
         for subN in node.edges.keys():
             c = self.dfs(self.nodeList[subN])
-            if c is False:
+            if c is not True:
                 return False
         node.finished = True
         return True

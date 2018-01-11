@@ -5,9 +5,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction, QApplication, QToolBox, QGraphicsScene, QGraphicsItem, \
     QGraphicsItemGroup, QWidget, QFileDialog, QMessageBox
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QImage, QPainter
 
-from .items import Node, Arrow, Threat, Countermeasure
+from .items import Node, Arrow, Threat, Countermeasure, Conjunction
 
 from attackTreeDraw.data.handler import Handler
 
@@ -22,6 +22,7 @@ class Main(QMainWindow):
         self.tree = types.Tree(False)
 
         self.saved = True
+        self.file = ('', '')
 
         self.itemList = []
 
@@ -44,18 +45,28 @@ class Main(QMainWindow):
                 # Name     shortcut   tip          action
                 '&New': ['Ctrl+N', 'New Tree', self.close],
                 '&Open': ['Ctrl+O', 'Open File', self.loadFile],
-                '&Save': ['Ctrl+S', 'Print Tree', self.close],
-                'Save &As ...': ['Ctrl+Shift+S', 'Print Tree', self.close],
+                '&Save': ['Ctrl+S', 'Print Tree', self.saveFile],
+                'Save &As ...': ['Ctrl+Shift+S', 'Print Tree', self.saveFileAs],
                 'SEPARATOR01': [],
+                'Export as P&DF': ['Ctrl+Shift+E', 'Export Tree', self.close],
+                'Export as PN&G': ['Ctrl+Shift+Alt+E', 'Export Tree', self.exportPNG],
+                'SEPARATOR02': [],
                 '&Close Tree': ['Ctrl+W', 'Open File', self.close],
                 '&Print': ['Ctrl+P', 'Print Tree', self.close],
                 '&Exit': ['Ctrl+Q', 'Print Tree', self.close],
 
             },
+
             'Edit': {
                 # Name     shortcut   tip          action
                 '&Undo': ['Ctrl+U', 'Undo Action', self.close],
                 '&Redo': ['Ctrl+Shift+U', 'Redo Action', self.close],
+                'SEPARATOR01': [],
+
+            },
+            'Tree': {
+                # Name     shortcut   tip          action
+                '&Redraw Tree': ['Ctrl++Shift+R', 'Redraw and reorder Tree', self.redrawGraph],
                 'SEPARATOR01': [],
 
             },
@@ -72,13 +83,12 @@ class Main(QMainWindow):
         mainToolbarItems = {
             'New': ['gui/assets/icons/new.png', 'Ctrl+N', 'New Tree', self.close],
             'Open': ['gui/assets/icons/open.png', 'Ctrl+O', 'Open Tree', self.loadFile],
-            'Save': ['gui/assets/icons/save.png', 'Ctrl+S', 'Save Tree', self.close],
+            'Save': ['gui/assets/icons/save.png', 'Ctrl+S', 'Save Tree', self.saveFile],
             'Print': ['gui/assets/icons/print.png', 'Ctrl+P', 'Print File', self.close],
             'Undo': ['gui/assets/icons/undo.png', 'Ctrl+U', 'Undo', self.close],
             'Redo': ['gui/assets/icons/redo.png', 'Ctrl+Shift+U', 'Redo', self.close],
 
         }
-
 
         self.setObjectName("MainWindow")
 
@@ -158,7 +168,7 @@ class Main(QMainWindow):
 
         workToolbar = self.addToolBar('WorkToolbar')
         toolbox = QToolBox()
-        # toolbox.add
+
         workToolbar.setOrientation(Qt.Vertical)
         self.addToolBar(Qt.LeftToolBarArea, workToolbar)
 
@@ -176,9 +186,9 @@ class Main(QMainWindow):
     def printGraph(self):
 
         g = self.printGraphRecursion(self.tree.nodeList[self.tree.root], 0, 10)
-
-        while self.reorderTree(g) is not True:
-            pass
+        i = 0
+        while self.reorderTree(g) is not True and i < 100:
+            i += 1
 
         self.scene.setSceneRect(QRectF(self.scene.itemsBoundingRect().x() - 100, 0, self.scene.itemsBoundingRect().width() + 200, self.scene.itemsBoundingRect().height() + 100))
 
@@ -205,19 +215,53 @@ class Main(QMainWindow):
 
         n.setPos(x, y)
 
-        startX = (n.x() + n.boundingRect().center().x()) - ((len(node.edges.keys()) / 2) * 250)
-
         g.append(n)
 
+        startX = (n.x() + n.boundingRect().center().x()) - ((len(node.edges.keys()) / 2) * 250)
+
         if parent is not None:
-            a = Arrow(parent, n)
-            self.scene.addItem(a)
+            if parent.node.type == 'threat' and n.node.type == 'threat':
+                self.scene.addItem(parent.threatConjunction.addArrow(n))
+            elif n.node.type == 'countermeasure':
+                self.scene.addItem(parent.counterConjunction.addArrow(n))
 
         it = 0
+        threatConj = False
+        counterConj = False
+
         for k, v in node.edges.items():
-            subG = self.printGraphRecursion(self.tree.nodeList[v.destination], startX + (it * 250), n.y() + n.boundingRect().height() + 100, n)
+            if self.tree.nodeList[v.destination].type == 'threat' and n.threatConjunction is None:
+                n.threatConjunction = Conjunction(n, v.conjunction)
+                self.scene.addItem(n.threatConjunction)
+                self.scene.addItem(n.threatConjunction.addParentArrow())
+                g.append(n.threatConjunction)
+                n.threatConjunction.setPos(n.x() + n.boundingRect().center().x() - 100, n.y() + n.boundingRect().height() + 100)
+                threatConj = True
+            elif self.tree.nodeList[v.destination].type == 'countermeasure' and n.counterConjunction is None:
+                n.counterConjunction = Conjunction(n, v.conjunction)
+                self.scene.addItem(n.counterConjunction)
+                self.scene.addItem(n.counterConjunction.addParentArrow())
+                g.append(n.counterConjunction)
+                n.counterConjunction.setPos(n.x() + n.boundingRect().center().x() + 25, n.y() + n.boundingRect().height() + 100)
+                counterConj = True
+
+            if threatConj is True:
+                conj = n.threatConjunction
+            elif counterConj is True:
+                conj = n.counterConjunction
+            else:
+                print('blub')
+
+            subG = self.printGraphRecursion(self.tree.nodeList[v.destination], startX + (it * 250), conj.y() + conj.boundingRect().height() + 100, n)
             g.append(subG)
             it += 1
+
+        if threatConj is not counterConj:
+            if n.threatConjunction is not None:
+                n.threatConjunction.setPos(n.x() + n.boundingRect().x() + 50, n.y() + n.boundingRect().height() + 100)
+            if n.counterConjunction is not None:
+                n.counterConjunction.setPos(n.x() + n.boundingRect().x() + 50, n.y() + n.boundingRect().height() + 100)
+
         return g
 
     def reorderTree(self, g):
@@ -290,20 +334,27 @@ class Main(QMainWindow):
     def loadFile(self):
 
         if len(self.tree.nodeList) > 0 and self.saved is False:
-            reply = QMessageBox.question(self, "Save Tree?", "Save Tree?", QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
+
+            reply = QMessageBox().question("Save Tree?", "Save Tree?", QMessageBox.Yes | QMessageBox.No | QMessageBox.Cancel)
 
             if reply == QMessageBox.Yes:
                 self.saveFile()
             elif reply == QMessageBox.Cancel:
                 return
 
-        fileName = QFileDialog.getOpenFileName(self, 'Open Attack Tree', '', 'attack tree file (*.xml);;All Files (*)')
+        dialog = QFileDialog()
+        fileName = dialog.getOpenFileName(self, 'Open Attack Tree', '', 'attack tree file (*.xml);;All Files (*)')
 
         print(fileName)
+
+        if fileName == ('', ''):
+            return
 
         h = Handler()
 
         self.tree = h.buildFromXML(fileName[0])
+
+        self.scene.clear()
 
         self.printGraph()
         # For Testing
@@ -311,11 +362,66 @@ class Main(QMainWindow):
 
     def saveFile(self):
 
-        fileName = QFileDialog.getSaveFileName(self, 'Save Attack Tree', '', 'Simple Attack Tree File (*.xml);;Extended Attack Tree File (*.xml);;All Files (*)')
+        if len(self.tree.nodeList) == 0:
+            msgBox = QMessageBox()
+            msgBox.setText('Saving is not possible')
+            msgBox.setInformativeText('Won\'t save an empty tree')
+            msgBox.exec()
+            return False
 
-        # @TODO: Add extended check/cyle check
+        if self.tree.checkCycle():
+            msgBox = QMessageBox()
+            msgBox.setText('Saving is not possible')
+            msgBox.setInformativeText('There is a cycle in the graph at node: %s')
+            msgBox.exec()
+            return False
 
+        if self.tree.checkExtended():
+            msgBox = QMessageBox()
+            msgBox.setText('Simple Mode not available')
+            msgBox.setInformativeText("Do you want to save your changes?")
+            msgBox.exec()
+            fileExt = 'Extended Attack Tree File (*.xml)'
+        else:
+            fileExt = 'Simple Attack Tree File (*.xml);;Extended Attack Tree File (*.xml)'
 
-        print(fileName)
+        if self.file == ('', ''):
+            dialog = QFileDialog()
+            self.file = dialog.getSaveFileName(self, 'Save Attack Tree', '', fileExt)  # TODO: check if saving was good
+        handler = Handler()
 
-        pass
+        if self.file == ('', ''):
+            return
+
+        if self.file[1] == 'Extended Attack Tree File (*.xml)':
+            self.tree.extended = True
+
+        return handler.saveToXML(self.tree, self.file[0])
+
+    def saveFileAs(self):
+        file = self.file
+        self.file = ('', '')
+
+        if self.saveFile():
+            pass
+
+    def exportPNG(self):
+
+        dialog = QFileDialog()
+        fileName = dialog.getSaveFileName(self, 'Export as PNG', '', 'PNG (*.png)')
+
+        if fileName != ('', ''):
+            try:
+                image = QImage(self.scene.sceneRect().size().toSize(), QImage.Format_ARGB32)
+                image.fill(Qt.white)
+                painter = QPainter(image)
+                self.scene.render(painter)
+                painter.end()
+                image.save(fileName[0])
+            except Exception as e:
+                print(e)
+            return True
+
+    def redrawGraph(self):
+        self.scene.clear()
+        self.printGraph()

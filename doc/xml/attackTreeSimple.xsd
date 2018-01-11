@@ -24,8 +24,8 @@
             <xs:sequence>
                 <xs:element ref="title"/>
                 <xs:element ref="author"/>
-                <xs:element ref="date"/>
-                <xs:element ref="description"/>
+                <xs:element ref="date" minOccurs="0"/>
+                <xs:element ref="description" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>
@@ -54,6 +54,13 @@
                                 </xs:complexType>
                             </xs:element>
                             <xs:element name="sequence">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="threshold">
                                 <xs:complexType>
                                     <xs:sequence>
                                         <xs:element ref="countermeasure" maxOccurs="unbounded"/>
@@ -125,6 +132,13 @@
                                 </xs:complexType>
                             </xs:element>
                             <xs:element name="sequence">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                </xs:complexType>
+                            </xs:element>
+                            <xs:element name="threshold">
                                 <xs:complexType>
                                     <xs:sequence>
                                         <xs:element ref="countermeasure" maxOccurs="unbounded"/>

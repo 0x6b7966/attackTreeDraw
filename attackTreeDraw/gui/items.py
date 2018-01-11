@@ -11,6 +11,9 @@ class Node(QGraphicsItemGroup):  # QGraphicsItemGroup as parent?
 
         self.node = node
 
+        self.threatConjunction = None
+        self.counterConjunction = None
+
         self.attributes = QGraphicsItemGroup()
 
         self.title = QGraphicsTextItem()
@@ -39,10 +42,6 @@ class Node(QGraphicsItemGroup):  # QGraphicsItemGroup as parent?
 
         self.headerHeight = titleHeight + 20
 
-    def setPosition(self, x, y):
-        self.setX(x)
-        self.setY(y)
-
     def printAttributes(self):
 
         y = self.headerHeight
@@ -66,6 +65,9 @@ class Node(QGraphicsItemGroup):  # QGraphicsItemGroup as parent?
             keyRect.setRect(0, y, 100, height)
             valueRect = QGraphicsRectItem()
             valueRect.setRect(100, y, 100, height)
+
+            keyRect.setBrush(QBrush(Qt.white))
+            valueRect.setBrush(QBrush(Qt.white))
 
             key.setPos(0, y)
             value.setPos(100, y)
@@ -120,8 +122,67 @@ class Countermeasure(Node):
         self.printAttributes()
 
 
-class Conjunction(Node):
-    pass
+class Conjunction(QGraphicsItemGroup):
+    def __init__(self, parent, conjType):
+        super().__init__()
+
+        self.parent = parent
+
+        self.parentArrow = None
+
+        self.childs = []
+        self.arrows = []
+
+        self.title = QGraphicsTextItem()
+        self.title.setFont(QFont('Arial', 10))
+        self.title.setPlainText(conjType)
+
+        self.conRect = ConjunctionRect()
+        self.conRect.setRect(0, 0, 100, 40)
+
+        self.title.setPos(10, 10)
+
+        self.conRect.setBrush(QBrush(Qt.white))
+
+        self.addToGroup(self.conRect)
+        self.addToGroup(self.title)
+
+        self.setFlag(QGraphicsItem.ItemIsMovable, True)
+        self.setFlag(QGraphicsItem.ItemIsSelectable, True)
+
+    def addArrow(self, child):
+        self.arrows.append(Arrow(self, child))
+        self.childs.append(child)
+
+        return self.arrows[-1]
+
+    def addParentArrow(self):
+        self.parentArrow = Arrow(self.parent, self)
+        return self.parentArrow
+
+    def paint(self, painter, options, widget=None):
+
+        myOption = QStyleOptionGraphicsItem(options)
+        myOption.state &= ~QStyle.State_Selected
+
+        super().paint(painter, myOption, widget=None)
+
+        if self.isSelected():
+            painter.setPen(QPen(Qt.black, 1, Qt.DashLine))
+            rect = QRect(self.boundingRect().x() - 2, self.boundingRect().y() - 2, self.boundingRect().x() + self.boundingRect().width() + 4, self.boundingRect().y() + self.boundingRect().height() + 3)
+            painter.drawRect(rect)
+
+
+class ConjunctionRect(QGraphicsRectItem):
+    def paint(self, painter, options, widget=None):
+
+        if self.isSelected():
+            painter.setPen(QPen(Qt.black, 1, Qt.DashLine))
+            rect = QRect(self.boundingRect().x() - 2, self.boundingRect().y() - 2, self.boundingRect().x() + self.boundingRect().width() + 4, self.boundingRect().y() + self.boundingRect().height() + 3)
+            painter.drawRect(rect)
+
+        painter.drawRoundedRect(self.boundingRect(), 20, 20)
+
 
 
 class Arrow(QGraphicsLineItem):
