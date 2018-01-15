@@ -6,16 +6,16 @@ scale 2
 namespace __init__ {
 }
 namespace data {
+  namespace exceptions {
+    Exception <|-- ParserError
+    class ParserError {
+    }
+
+  }
   namespace handler {
     class Handler {
       +buildFromXML(self, file)
       +saveToXML(self, tree, file)
-      +checkRemoveEdge(self, edge)
-      +checkAddEdge(self, edge)
-      +checkRemoveNode(self, node)
-      +checkAddNode(self, node)
-      +getFreeID(self, node)
-      +setNextID(self, node)
     }
 
   }
@@ -57,12 +57,11 @@ namespace data {
     }
 
     class Tree {
-      {static} +nodeList
-      {static} +edgeList
-      {static} +extended
-      {static} +root
-      {static} +meta
       +extended
+      +nodeList
+      +edgeList
+      +root
+      +meta
       -__init__(self, extended)
       +addNode(self, node)
       +addEdge(self, source, destination, conjunction)
@@ -103,26 +102,22 @@ namespace fileHandler {
   }
 }
 namespace gui {
-  namespace design {
-    class Ui_MainWindow {
-      +setupUi(self, MainWindow)
-      +retranslateUi(self, MainWindow)
-    }
-
-  }
   namespace items {
     QGraphicsItemGroup <|-- Node
     class Node {
       +node
+      +edit
+      +threatConjunction
+      +counterConjunction
       +attributes
       +title
       +typeRect
       +titleRect
       +headerHeight
       -__init__(self, node)
-      +setPosition(self, x, y)
       +printAttributes(self)
       +paint(self, painter, options, widget=None)
+      +mouseDoubleClickEvent(self, event)
     }
 
     Node <|-- Threat
@@ -137,8 +132,24 @@ namespace gui {
       -__init__(self, node)
     }
 
-    Node <|-- Conjunction
+    QGraphicsItemGroup <|-- Conjunction
     class Conjunction {
+      +parent
+      +parentArrow
+      +childs
+      +arrows
+      +title
+      +conRect
+      -__init__(self, parent, conjType)
+      +addArrow(self, child)
+      +addParentArrow(self)
+      +paint(self, painter, options, widget=None)
+      +repaint(self)
+    }
+
+    QGraphicsRectItem <|-- ConjunctionRect
+    class ConjunctionRect {
+      +paint(self, painter, options, widget=None)
     }
 
     QGraphicsLineItem <|-- Arrow
@@ -154,12 +165,14 @@ namespace gui {
     }
 
   }
-  namespace windows {
+  namespace main {
     QMainWindow <|-- Main
     class Main {
       +tree
+      +saved
+      +file
       +itemList
-      -__init__(self, tree)
+      -__init__(self)
       +initUI(self)
       +printGraph(self)
       +printGraphRecursion(self, node, x, y, parent=None)
@@ -168,6 +181,23 @@ namespace gui {
       +checkCollRec(self, item, toCheckList)
       +moveRec(self, item, x, y)
       +resizeEvent(self, QResizeEvent)
+      +loadFile(self)
+      +saveFile(self)
+      +saveFileAs(self)
+      +exportPNG(self)
+      +exportPDF(self)
+      +print(self)
+      +new(self)
+      +redrawGraph(self)
+    }
+
+  }
+  namespace windows {
+    QWidget <|-- NodeEdit
+    class NodeEdit {
+      +nodeItem
+      -__init__(self, node)
+      +setupUi(self)
     }
 
   }
