@@ -1,0 +1,36 @@
+@startuml
+skinparam monochrome true
+skinparam classAttributeIconSize 0
+scale 2
+
+namespace fileHandler {
+  namespace __init__ {
+  }
+  namespace xml {
+    class Handler {
+      +parser
+      +xml
+      +extended
+      +simpleXSD
+      +extendedXSD
+      -__init__(self)
+      +loadFile(self, file)
+      +validate(self)
+      +validateSimple(self)
+      +validateExtended(self)
+      +generateTemplate(self, extended)
+      +generateMetaElements(self, elements)
+      +generateTree(self, tree)
+      +generateSimpleTree(self, tree)
+      +generateExtendedTree(self, tree)
+      +addSimpleNode(self, tree, root, element)
+      +addExtendedNodes(self, tree)
+      +addExtendedEdges(self, tree)
+      +addNode(self, root, element)
+      +saveToFile(self, file)
+    }
+
+  }
+}
+
+@enduml
