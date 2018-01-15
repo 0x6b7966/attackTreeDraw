@@ -1,7 +1,7 @@
 import sys
 
 from PyQt5.QtWidgets import QApplication
-from attackTreeDraw.gui.windows import Main
+from attackTreeDraw.gui.main import Main
 
 
 from attackTreeDraw.data.handler import Handler

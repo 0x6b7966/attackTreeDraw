@@ -1,15 +1,19 @@
 import math
 from PyQt5.QtCore import Qt, QRectF, QSizeF, QLineF, QPointF, QRect
 
-from PyQt5.QtGui import QBrush, QFontMetrics, QFont, QPen, QPolygonF
-from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle
+from PyQt5.QtGui import QBrush, QFontMetrics, QFont, QPen, QPolygonF, QPainter
+from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QWidget
+
+from .windows import NodeEdit
 
 
-class Node(QGraphicsItemGroup):  # QGraphicsItemGroup as parent?
+class Node(QGraphicsItemGroup):
     def __init__(self, node):
         super().__init__()
 
         self.node = node
+
+        self.edit = None
 
         self.threatConjunction = None
         self.counterConjunction = None
@@ -93,6 +97,9 @@ class Node(QGraphicsItemGroup):  # QGraphicsItemGroup as parent?
             rect = QRect(self.boundingRect().x() - 2, self.boundingRect().y() - 2, self.boundingRect().x() + self.boundingRect().width() + 4, self.boundingRect().y() + self.boundingRect().height() + 3)
             painter.drawRect(rect)
 
+    def mouseDoubleClickEvent(self, event):
+        self.edit = NodeEdit(self)
+
 
 class Threat(Node):
     def __init__(self, node):
@@ -172,6 +179,12 @@ class Conjunction(QGraphicsItemGroup):
             rect = QRect(self.boundingRect().x() - 2, self.boundingRect().y() - 2, self.boundingRect().x() + self.boundingRect().width() + 4, self.boundingRect().y() + self.boundingRect().height() + 3)
             painter.drawRect(rect)
 
+    def repaint(self):
+        self.update()
+        self.parentArrow.update()
+        for a in self.arrows:
+            a.update()
+
 
 class ConjunctionRect(QGraphicsRectItem):
     def paint(self, painter, options, widget=None):
@@ -182,7 +195,6 @@ class ConjunctionRect(QGraphicsRectItem):
             painter.drawRect(rect)
 
         painter.drawRoundedRect(self.boundingRect(), 20, 20)
-
 
 
 class Arrow(QGraphicsLineItem):
@@ -257,3 +269,4 @@ class Arrow(QGraphicsLineItem):
             painter.drawLine(myLine)
             myLine.translate(0, -8.0)
             painter.drawLine(myLine)
+
