@@ -3,7 +3,7 @@ skinparam monochrome true
 skinparam classAttributeIconSize 0
 scale 2
 
-amespace data {
+namespace data {
   namespace exceptions {
     Exception <|-- ParserError
     class ParserError {
