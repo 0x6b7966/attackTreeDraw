@@ -10,9 +10,9 @@ from PyQt5.QtGui import QIcon, QImage, QPainter
 
 from .items import Node, Arrow, Threat, Countermeasure, Conjunction
 
-from attackTreeDraw.data.handler import Handler
+from data.handler import Handler
 
-from attackTreeDraw.data import types
+from data import types
 
 
 class Main(QMainWindow):

@@ -1,7 +1,7 @@
 from .exceptions import ParserError
 from .types import *
 from .parsers import parseExtendedConnection, parseExtendedNode, parseSimpleNode
-from ..fileHandler.xml import Handler as XmlHandler
+from fileHandler.xml import Handler as XmlHandler
 
 
 class Handler:

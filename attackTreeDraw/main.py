@@ -1,10 +1,10 @@
 import sys
 
 from PyQt5.QtWidgets import QApplication
-from attackTreeDraw.gui.main import Main
+from gui.main import Main
 
 
-from attackTreeDraw.data.handler import Handler
+from data.handler import Handler
 
 if __name__ == "__main__":
 
