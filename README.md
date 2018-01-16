@@ -8,6 +8,14 @@
 
 * Knoten ID N{0-9}{4}
 
-## Qt5 links:
+* Zoom
+* Child Pfeil bei Child heraus, Countermeasure pfeil bei CM heraus
+* Bei and/or schreiben was für ein Typ (counter / child)
+* Add description
 
+## Qt5 links:
 * http://www.qtcentre.org/threads/10975-Help-Export-QGraphicsView-to-Image-File
+
+
+## Code Styple:
+* max 80 Zeichen in der Zeile
