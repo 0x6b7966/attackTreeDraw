@@ -19,52 +19,56 @@ class NodeEdit(QWidget):
     def setupUi(self):
         self.resize(320, 440)
         self.setWindowTitle("Node: %s" % self.nodeItem.node.title)
-        self.gridLayout = QtWidgets.QGridLayout(self)
-        self.tableView = QtWidgets.QTableView(self)
-        self.gridLayout.addWidget(self.tableView, 0, 0, 1, 1)
 
-        self.horizontalLayout = QtWidgets.QHBoxLayout()
-        self.ok = QtWidgets.QPushButton(self)
-        self.horizontalLayout.addWidget(self.ok)
-        self.cancel = QtWidgets.QPushButton(self)
-        self.horizontalLayout.addWidget(self.cancel)
+        self.verticalLayout = QtWidgets.QVBoxLayout(self)
+        self.idLayout = QtWidgets.QHBoxLayout()
+        self.idLabel = QtWidgets.QLabel(self)
+        self.idLabel.setMaximumSize(QtCore.QSize(70, 16777215))
+        self.idLayout.addWidget(self.idLabel)
+        self.idTextLabel = QtWidgets.QLabel(self)
+        self.idLayout.addWidget(self.idTextLabel)
+        self.verticalLayout.addLayout(self.idLayout)
 
-        self.label3 = QtWidgets.QLabel(self)
-        self.gridLayout.addWidget(self.label3, 1, 0, 1, 1)
-        self.id = QtWidgets.QLabel(self)
-        self.gridLayout.addWidget(self.id, 1, 0, 1, 1)
+        self.titleLayout = QtWidgets.QHBoxLayout()
+        self.titleLabel = QtWidgets.QLabel(self)
+        self.titleLayout.addWidget(self.titleLabel)
+        self.titleEdit = QtWidgets.QLineEdit(self)
+        self.titleLayout.addWidget(self.titleEdit)
+        self.verticalLayout.addLayout(self.titleLayout)
 
-        self.gridLayout.addLayout(self.horizontalLayout, 5, 0, 1, 1)
+        self.descriptionLabel = QtWidgets.QLabel(self)
+        self.verticalLayout.addWidget(self.descriptionLabel)
+        self.descriptionEdit = QtWidgets.QPlainTextEdit(self)
+        self.descriptionEdit.setMaximumSize(QtCore.QSize(16777215, 100))
+        self.verticalLayout.addWidget(self.descriptionEdit)
+
         self.line = QtWidgets.QFrame(self)
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.gridLayout.addWidget(self.line, 3, 0, 1, 1)
-        self.horizontalLayout2 = QtWidgets.QHBoxLayout()
-        self.label = QtWidgets.QLabel(self)
-        self.horizontalLayout2.addWidget(self.label)
-        self.title = QtWidgets.QLineEdit(self)
-        self.horizontalLayout2.addWidget(self.title)
-        self.gridLayout.addLayout(self.horizontalLayout2, 0, 0, 1, 1)
+        self.verticalLayout.addWidget(self.line)
 
-        self.gridLayout.addWidget(self.tableView, 4, 0, 1, 1)
-        self.label2 = QtWidgets.QLabel(self)
-        self.gridLayout.addWidget(self.label2, 1, 0, 1, 1)
-        self.description = QtWidgets.QPlainTextEdit(self)
-        self.description.setMaximumSize(QtCore.QSize(16777215, 100))
-        self.gridLayout.addWidget(self.description, 2, 0, 1, 1)
+        self.tableView = QtWidgets.QTableView(self)
+        self.verticalLayout.addWidget(self.tableView)
+
+        self.buttonLayout = QtWidgets.QHBoxLayout()
+        self.ok = QtWidgets.QPushButton(self)
+        self.buttonLayout.addWidget(self.ok)
+        self.cancel = QtWidgets.QPushButton(self)
+        self.buttonLayout.addWidget(self.cancel)
+        self.verticalLayout.addLayout(self.buttonLayout)
 
         self.ok.setText('Ok')
         self.cancel.setText('Cancel')
-        self.label.setText('Title: ')
-        self.label2.setText('Description:')
-        self.label3.setText('Node-ID: ')
-        self.id.setText(self.nodeItem.node.id)
+        self.titleLabel.setText('Title: ')
+        self.descriptionLabel.setText('Description:')
+        self.idLabel.setText('Node-ID: ')
+        self.idTextLabel.setText(self.nodeItem.node.id)
 
         self.cancel.clicked.connect(self.close)
         self.ok.clicked.connect(self.submit)
 
-        self.title.setText(self.nodeItem.node.title)
-        self.description.setPlainText(self.nodeItem.node.description)
+        self.titleEdit.setText(self.nodeItem.node.title)
+        self.descriptionEdit.setPlainText(self.nodeItem.node.description)
 
         self.model = QStandardItemModel(0, 2, self)
 
@@ -103,7 +107,7 @@ class NodeEdit(QWidget):
 
         newEntires = {}
 
-        if self.title.text() == '':
+        if self.titleEdit.text() == '':
             msgBox = QMessageBox()
             msgBox.setText("Error in with the title")
             msgBox.setInformativeText("The title can't be none")
@@ -143,7 +147,8 @@ class NodeEdit(QWidget):
             newEntires[self.model.item(i, 0).text()] = self.model.item(i, 1).text()
 
         self.nodeItem.node.attributes = newEntires.copy()
-        self.nodeItem.node.title = self.title.text()
+        self.nodeItem.node.title = self.titleEdit.text()
+        self.nodeItem.node.description = self.descriptionEdit.toPlainText()
 
         self.nodeItem.redraw()
 
