@@ -1,14 +1,16 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-from PyQt5.QtWidgets import QWidget, QHeaderView
+from PyQt5.QtWidgets import QWidget, QHeaderView, QMessageBox
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class NodeEdit(QWidget):
-    def __init__(self, node):
+    def __init__(self, node, parent):
         QWidget.__init__(self)
 
         self.nodeItem = node
+
+        self.parentWidget = parent
 
         self.setupUi()
 
@@ -26,6 +28,11 @@ class NodeEdit(QWidget):
         self.horizontalLayout.addWidget(self.ok)
         self.cancel = QtWidgets.QPushButton(self)
         self.horizontalLayout.addWidget(self.cancel)
+
+        self.label3 = QtWidgets.QLabel(self)
+        self.gridLayout.addWidget(self.label3, 1, 0, 1, 1)
+        self.id = QtWidgets.QLabel(self)
+        self.gridLayout.addWidget(self.id, 1, 0, 1, 1)
 
         self.gridLayout.addLayout(self.horizontalLayout, 5, 0, 1, 1)
         self.line = QtWidgets.QFrame(self)
@@ -50,13 +57,16 @@ class NodeEdit(QWidget):
         self.cancel.setText('Cancel')
         self.label.setText('Title: ')
         self.label2.setText('Description:')
+        self.label3.setText('Node-ID: ')
+        self.id.setText(self.nodeItem.node.id)
 
         self.cancel.clicked.connect(self.close)
+        self.ok.clicked.connect(self.submit)
 
         self.title.setText(self.nodeItem.node.title)
         self.description.setPlainText(self.nodeItem.node.description)
 
-        self.model = QStandardItemModel(1, 2, self)
+        self.model = QStandardItemModel(0, 2, self)
 
         self.tableView.horizontalHeader().setStretchLastSection(True)
 
@@ -73,8 +83,71 @@ class NodeEdit(QWidget):
             self.model.insertRow(self.rows, [QStandardItem(k), QStandardItem(v)])
             self.rows += 1
 
+        self.model.insertRow(self.rows, [])
+
     def rowCheck(self):
-        if self.model.item(self.rows, 0) is not None or self.model.item(self.rows, 1) is not None:
+        if (self.model.item(self.rows, 0) is not None and self.model.item(self.rows, 0).text() != '') \
+                or (self.model.item(self.rows, 1) is not None and self.model.item(self.rows, 1).text() != ''):
             self.rows += 1
             self.model.insertRow(self.rows, [])
 
+        for i in range(self.rows):
+            if (self.model.item(i, 0) is None or self.model.item(i, 0).text() == '') \
+                    and (self.model.item(i, 1) is None or self.model.item(i, 1).text() == ''):
+                self.model.removeRow(i)
+                self.rows -= 1
+
+    def submit(self):
+        self.model.removeRow(self.rows)
+        self.rows -= 1
+
+        newEntires = {}
+
+        if self.title.text() == '':
+            msgBox = QMessageBox()
+            msgBox.setText("Error in with the title")
+            msgBox.setInformativeText("The title can't be none")
+            msgBox.setStandardButtons(QMessageBox.Ok)
+            msgBox.setDefaultButton(QMessageBox.Ok)
+            msgBox.exec()
+            return
+
+        for i in range(self.rows + 1):
+            if self.model.item(i, 0) is None or self.model.item(i, 0).text() == '':
+                msgBox = QMessageBox()
+                msgBox.setText("Error in key at row %s" % (i + 1))
+                msgBox.setInformativeText("The key can't be none")
+                msgBox.setStandardButtons(QMessageBox.Ok)
+                msgBox.setDefaultButton(QMessageBox.Ok)
+                msgBox.exec()
+                return
+
+            if self.model.item(i, 1) is None or self.model.item(i, 1).text() == '':
+                msgBox = QMessageBox()
+                msgBox.setText("Error in value at row %s" % (i + 1))
+                msgBox.setInformativeText("The value can't be none")
+                msgBox.setStandardButtons(QMessageBox.Ok)
+                msgBox.setDefaultButton(QMessageBox.Ok)
+                msgBox.exec()
+                return
+
+            if self.model.item(self.rows, 0).text() in newEntires.keys():
+                msgBox = QMessageBox()
+                msgBox.setText("Error in with the key at row %s" % (i + 1))
+                msgBox.setInformativeText("The key already exists")
+                msgBox.setStandardButtons(QMessageBox.Ok)
+                msgBox.setDefaultButton(QMessageBox.Ok)
+                msgBox.exec()
+                return
+
+            newEntires[self.model.item(i, 0).text()] = self.model.item(i, 1).text()
+
+        self.nodeItem.node.attributes = newEntires.copy()
+        self.nodeItem.node.title = self.title.text()
+
+        self.nodeItem.redraw()
+
+        viewport = self.parentWidget.graphicsView.viewport()
+        viewport.update()
+
+        self.close()

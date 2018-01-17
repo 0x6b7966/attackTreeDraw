@@ -1,20 +1,14 @@
 from .types import *
 import sys
 
+# @TODO: Move to handler and rename to parser?
 
 def parseExtendedConnection(tree, edge):
-    srcIn = False
-    for n in tree.nodeList.keys():
-        if edge.get('source') == n:
-            srcIn = True
-    if srcIn is True:
+    if edge.get('source') in tree.nodeList.keys():
         source = edge.get('source')
         for dst in edge.iterchildren(tag='destination'):
             dstIn = False
-            for n in tree.nodeList.keys():
-                if dst.text == n:
-                    dstIn = True
-            if dstIn is True:
+            if dst.text in tree.nodeList.keys():
                 fail = False
                 for c in tree.edgeList:
                     if (source, dst.text) == c:

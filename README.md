@@ -3,7 +3,6 @@
 
 ## TODO:
 * description/date optional
-* auf python3.4 umsteigen?
 * Zusätzlliche Composition Threshhold
 
 * Knoten ID N{0-9}{4}
@@ -12,6 +11,7 @@
 * Child Pfeil bei Child heraus, Countermeasure pfeil bei CM heraus
 * Bei and/or schreiben was für ein Typ (counter / child)
 * Add description
+* fix dfs
 
 ## Qt5 links:
 * http://www.qtcentre.org/threads/10975-Help-Export-QGraphicsView-to-Image-File

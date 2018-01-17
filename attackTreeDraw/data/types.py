@@ -13,6 +13,8 @@ class Node:
         self.parents = []
         self.edges = {}
 
+        self.view = None
+
         self.visited = False
         self.finished = False
 
@@ -50,6 +52,7 @@ class Tree:
 
         self.nodeList = {}
         self.edgeList = []
+        self.cycleNode = None
         self.extended = False
         # @TODO: check if there is only one root / move to Tree()
         self.root = None
@@ -114,7 +117,8 @@ class Tree:
         if node.finished:
             return True
         if node.visited:
-            return node
+            self.cycleNode = node
+            return False
         node.visited = True
         for subN in node.edges.keys():
             c = self.dfs(self.nodeList[subN])

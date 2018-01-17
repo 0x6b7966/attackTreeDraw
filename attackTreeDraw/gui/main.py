@@ -202,20 +202,23 @@ class Main(QMainWindow):
         print('----- DONE -----')
 
     def printGraphRecursion(self, node, x, y, parent=None):
-
-        if node.type == 'threat':
-            n = Threat(node)
-        elif node.type == 'countermeasure':
-            n = Countermeasure(node)
-        else:
-            n = Node(node)
-
         g = []
-        self.scene.addItem(n)
+        rec = False
+        if node.view is None:
+            if node.type == 'threat':
+                n = Threat(node, self)
+            elif node.type == 'countermeasure':
+                n = Countermeasure(node, self)
+            else:
+                n = Node(node, self)
 
-        n.setPos(x, y)
-
-        g.append(n)
+            node.view = n
+            self.scene.addItem(n)
+            n.setPos(x, y)
+            g.append(n)
+        else:
+            n = node.view
+            rec = True
 
         startX = (n.x() + n.boundingRect().center().x()) - ((len(node.edges.keys()) / 2) * 250)
 
@@ -250,10 +253,12 @@ class Main(QMainWindow):
             elif counterConj is True:
                 conj = n.counterConjunction
             else:
-                print('blub')
+                pass
+            #    print('blub')
 
-            subG = self.printGraphRecursion(self.tree.nodeList[v.destination], startX + (it * 250), conj.y() + conj.boundingRect().height() + 100, n)
-            g.append(subG)
+            if rec is False:
+                subG = self.printGraphRecursion(self.tree.nodeList[v.destination], startX + (it * 250), conj.y() + conj.boundingRect().height() + 100, n)
+                g.append(subG)
             it += 1
 
         if threatConj is not counterConj:
@@ -283,7 +288,6 @@ class Main(QMainWindow):
             return r
 
     def fixCollision(self, left, right):
-
         collisions = self.checkCollRec(left, right)
 
         collision = collisions
@@ -364,7 +368,6 @@ class Main(QMainWindow):
         self.saved = False
 
     def saveFile(self):
-
         if len(self.tree.nodeList) == 0:
             msgBox = QMessageBox()
             msgBox.setText('Saving is not possible')
@@ -372,17 +375,17 @@ class Main(QMainWindow):
             msgBox.exec()
             return False
 
-        if self.tree.checkCycle():
+        if self.tree.checkCycle() is False:
             msgBox = QMessageBox()
             msgBox.setText('Saving is not possible')
-            msgBox.setInformativeText('There is a cycle in the graph at node: %s')
+            msgBox.setInformativeText('There is a cycle in the graph at node ID: %s\nTitle: %s' % (self.tree.cycleNode.id, self.tree.cycleNode.title))
             msgBox.exec()
             return False
 
         if self.tree.checkExtended():
             msgBox = QMessageBox()
             msgBox.setText('Simple Mode not available')
-            msgBox.setInformativeText("Do you want to save your changes?")
+            msgBox.setInformativeText("There is only the extended mode available")
             msgBox.exec()
             fileExt = 'Extended Attack Tree File (*.xml)'
         else:

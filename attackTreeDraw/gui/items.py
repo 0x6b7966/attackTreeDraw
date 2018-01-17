@@ -8,10 +8,12 @@ from .windows import NodeEdit
 
 
 class Node(QGraphicsItemGroup):
-    def __init__(self, node):
+    def __init__(self, node, parent):
         super().__init__()
 
         self.node = node
+
+        self.parent = parent
 
         self.edit = None
 
@@ -47,8 +49,8 @@ class Node(QGraphicsItemGroup):
         self.headerHeight = titleHeight + 20
 
     def printAttributes(self):
-
-        y = self.headerHeight
+        y = self.y() + self.headerHeight
+        x = self.x()
 
         for k, v in self.node.attributes.items():
             key = QGraphicsTextItem()
@@ -66,15 +68,15 @@ class Node(QGraphicsItemGroup):
             height = valueHeight if valueHeight > keyHeight else keyHeight
 
             keyRect = QGraphicsRectItem()
-            keyRect.setRect(0, y, 100, height)
+            keyRect.setRect(x, y, 100, height)
             valueRect = QGraphicsRectItem()
-            valueRect.setRect(100, y, 100, height)
+            valueRect.setRect(x + 100, y, 100, height)
 
             keyRect.setBrush(QBrush(Qt.white))
             valueRect.setBrush(QBrush(Qt.white))
 
-            key.setPos(0, y)
-            value.setPos(100, y)
+            key.setPos(x, y)
+            value.setPos(x + 100, y)
 
             self.attributes.addToGroup(keyRect)
             self.attributes.addToGroup(valueRect)
@@ -85,8 +87,25 @@ class Node(QGraphicsItemGroup):
 
         self.addToGroup(self.attributes)
 
-    def paint(self, painter, options, widget=None):
+    def redraw(self):
+        for i in self.attributes.childItems():
+            self.attributes.removeFromGroup(i)
+            self.parent.scene.removeItem(i)
 
+        self.removeFromGroup(self.attributes)
+
+        self.title.setPlainText(self.node.title)
+
+        titleHeight = int(self.title.boundingRect().height()/20 + 0.5) * 20
+
+        self.typeRect.setRect(0, 0, 200, 20)
+        self.titleRect.setRect(0, 20, 200, titleHeight)
+
+        self.headerHeight = titleHeight + 20
+
+        self.printAttributes()
+
+    def paint(self, painter, options, widget=None):
         myOption = QStyleOptionGraphicsItem(options)
         myOption.state &= ~QStyle.State_Selected
 
@@ -98,12 +117,12 @@ class Node(QGraphicsItemGroup):
             painter.drawRect(rect)
 
     def mouseDoubleClickEvent(self, event):
-        self.edit = NodeEdit(self)
+        self.edit = NodeEdit(self, self.parent)
 
 
 class Threat(Node):
-    def __init__(self, node):
-        super().__init__(node)
+    def __init__(self, node, parent):
+        super().__init__(node, parent)
 
         self.type = QGraphicsTextItem()
         self.type.setFont(QFont('Arial', 10))
@@ -116,8 +135,8 @@ class Threat(Node):
 
 
 class Countermeasure(Node):
-    def __init__(self, node):
-        super().__init__(node)
+    def __init__(self, node, parent):
+        super().__init__(node, parent)
 
         self.type = QGraphicsTextItem()
         self.type.setFont(QFont('Arial', 10))

@@ -57,7 +57,7 @@
             <destination>N0003</destination>
         </connection>
         <connection source="N0003" type="alternative">
-            <destination>N0006</destination>
+            <destination>N0002</destination>
         </connection>
     </connections>
 </attackTree>
