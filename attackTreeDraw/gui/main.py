@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction, QApplication, QTool
     QGraphicsItemGroup, QWidget, QFileDialog, QMessageBox, QDialog
 from PyQt5.QtGui import QIcon, QImage, QPainter
 
-from .items import Node, Arrow, Threat, Countermeasure, Conjunction
+from .items import Node, Arrow, Threat, Countermeasure, Conjunction, AttackTreeScene
 
 from data.handler import Handler
 
@@ -21,16 +21,14 @@ class Main(QMainWindow):
         super().__init__()
 
         self.tree = types.Tree(False)
-
         self.saved = True
         self.file = ('', '')
-
         self.itemList = []
-
         self.initUI()
 
-        # For testing
-        # self.printGraph()
+        self.mode = 0  # 0: default, 1: add threat, 2: add countermeasure, 3: add composition
+
+        self.scene.clear()
 
     def initUI(self):
 
@@ -87,7 +85,12 @@ class Main(QMainWindow):
             'Print': ['gui/assets/icons/print.png', 'Ctrl+P', 'Print File', self.print],
             'Undo': ['gui/assets/icons/undo.png', 'Ctrl+U', 'Undo', self.close],
             'Redo': ['gui/assets/icons/redo.png', 'Ctrl+Shift+U', 'Redo', self.close],
+        }
 
+        editToolbarItems = {
+            'New Threat': ['gui/assets/icons/threat.png', '', 'New Threat', self.newThreat],
+            'New Counter': ['gui/assets/icons/counter.png', '', 'New Countermeasure', self.newCountermeasure],
+            'New Composition': ['gui/assets/icons/arrow.png', '', 'New Composition', self.newComposition],
         }
 
         self.setObjectName("MainWindow")
@@ -97,9 +100,9 @@ class Main(QMainWindow):
         self.setWindowTitle("attackTreeDraw")
         self.setDocumentMode(True)
 
-        menubar = self.menuBar()
+        menuBar = self.menuBar()
         for k, v in menuBarItems.items():
-            menuItem = menubar.addMenu(k)
+            menuItem = menuBar.addMenu(k)
             for ks, s in v.items():
                 if ks.startswith('SEPARATOR'):
                     menuItem.addSeparator()
@@ -111,39 +114,34 @@ class Main(QMainWindow):
                     menuItem.addAction(action)
 
         self.centralWidget = QtWidgets.QWidget(self)
-        self.centralWidget.setObjectName("centralWidget")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.centralWidget)
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setSpacing(0)
 
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.scrollArea = QtWidgets.QScrollArea(self.centralWidget)
-        self.scrollArea.setEnabled(True)
-        self.scrollArea.setStatusTip("")
-        self.scrollArea.setAccessibleName("")
-        self.scrollArea.setLineWidth(0)
-        self.scrollArea.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-        self.scrollArea.setWidgetResizable(True)
-        self.scrollArea.setObjectName("scrollArea")
-        self.scrollAreaWidgetContents = QtWidgets.QWidget()
-        # self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1032, 1024))
-        self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
-        self.formLayout = QtWidgets.QFormLayout(self.scrollAreaWidgetContents)
-        self.formLayout.setContentsMargins(0, 0, 0, 0)
-        self.formLayout.setSpacing(0)
-        self.formLayout.setObjectName("formLayout")
-        self.graphicsView = QtWidgets.QGraphicsView(self.scrollAreaWidgetContents)
+#        self.scrollArea = QtWidgets.QScrollArea(self.centralWidget)
+#        self.scrollArea.setEnabled(True)
+#        self.scrollArea.setStatusTip("")
+#        self.scrollArea.setAccessibleName("")
+#        self.scrollArea.setLineWidth(0)
+#        self.scrollArea.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
+#        self.scrollArea.setWidgetResizable(True)
+#        self.scrollAreaWidgetContents = QtWidgets.QWidget()
+#        # self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1032, 1024))
+#        self.formLayout = QtWidgets.QFormLayout(self.scrollAreaWidgetContents)
+#        self.formLayout.setContentsMargins(0, 0, 0, 0)
+#        self.formLayout.setSpacing(0)
+#        self.graphicsView = QtWidgets.QGraphicsView(self.scrollAreaWidgetContents)
+
+        self.graphicsView = QtWidgets.QGraphicsView(self.centralWidget)
 
         self.graphicsView.setMinimumSize(QtCore.QSize(self.width(), self.height()))
         self.graphicsView.setSizeIncrement(QtCore.QSize(0, 0))
         self.graphicsView.setBaseSize(QtCore.QSize(0, 0))
-        self.graphicsView.setObjectName("graphicsView")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.graphicsView)
-        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-        self.verticalLayout.addWidget(self.scrollArea)
+#        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.graphicsView)
+#        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
+#        self.verticalLayout.addWidget(self.scrollArea)
         self.setCentralWidget(self.centralWidget)
         self.statusBar = QtWidgets.QStatusBar(self)
-        self.statusBar.setObjectName("statusBar")
         self.setStatusBar(self.statusBar)
 
         mainToolBar = QtWidgets.QToolBar(self)
@@ -156,7 +154,7 @@ class Main(QMainWindow):
 
             mainToolBar.addAction(action)
 
-        self.scene = QGraphicsScene(self)
+        self.scene = AttackTreeScene(self)
 
         self.graphicsView.setScene(self.scene)
 
@@ -168,9 +166,16 @@ class Main(QMainWindow):
 
         workToolbar = self.addToolBar('WorkToolbar')
         toolbox = QToolBox()
-
         workToolbar.setOrientation(Qt.Vertical)
         self.addToolBar(Qt.LeftToolBarArea, workToolbar)
+
+        for k, v in editToolbarItems.items():
+            action = QAction(QIcon(v[0]), k, self)
+            action.setShortcut(v[2])
+            action.setStatusTip(v[2])
+            action.triggered.connect(v[3])
+
+            workToolbar.addAction(action)
 
         workToolbar.addWidget(toolbox)
 
@@ -180,6 +185,9 @@ class Main(QMainWindow):
         self.scene.setSceneRect(self.scene.itemsBoundingRect())
         width = self.scrollArea.frameSize().width() if self.scrollArea.frameSize().width() > self.scene.sceneRect().width() else self.scene.sceneRect().width()
         height = self.scrollArea.frameSize().height() if self.scrollArea.frameSize().height() > self.scene.sceneRect().height() else self.scene.sceneRect().height()
+
+        width = self.frameSize().width() if self.frameSize().width() > self.scene.sceneRect().width() else self.scene.sceneRect().width()
+        height = self.frameSize().height() if self.frameSize().height() > self.scene.sceneRect().height() else self.scene.sceneRect().height()
 
         self.graphicsView.setFixedSize(width + 10, height + 10)
 
@@ -481,11 +489,21 @@ class Main(QMainWindow):
                 return
 
         self.tree = types.Tree(False)
-
         self.scene.clear()
 
     def redrawGraph(self):
         self.scene.clear()
         self.printGraph()
 
+    def newThreat(self):
+        self.mode = 1
+        self.setCursor(Qt.CrossCursor)
+
+    def newCountermeasure(self):
+        self.mode = 2
+        self.setCursor(Qt.CrossCursor)
+
+    def newComposition(self):
+        self.mode = 3
+        self.setCursor(Qt.CrossCursor)
 

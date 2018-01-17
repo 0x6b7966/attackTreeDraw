@@ -61,6 +61,10 @@ class Tree:
     def addNode(self, node):
         if node.id in self.nodeList:
             return False
+        if node.id is None:
+            node.id = self.getNextID()
+            if node.id is None:
+                return False  # @TODO: Return error code?
         self.nodeList[node.id] = node
         return True
 
@@ -126,3 +130,9 @@ class Tree:
                 return False
         node.finished = True
         return True
+
+    def getNextID(self):
+        for i in range(10000):
+            if 'N'+str(i).zfill(4) not in self.nodeList.keys():
+                return 'N'+str(i).zfill(4)
+        return None

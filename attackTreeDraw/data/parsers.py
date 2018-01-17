@@ -3,6 +3,7 @@ import sys
 
 # @TODO: Move to handler and rename to parser?
 
+
 def parseExtendedConnection(tree, edge):
     if edge.get('source') in tree.nodeList.keys():
         source = edge.get('source')

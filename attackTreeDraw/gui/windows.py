@@ -7,13 +7,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class NodeEdit(QWidget):
     def __init__(self, node, parent):
         QWidget.__init__(self)
-
         self.nodeItem = node
-
         self.parentWidget = parent
-
         self.setupUi()
-
         self.show()
 
     def setupUi(self):

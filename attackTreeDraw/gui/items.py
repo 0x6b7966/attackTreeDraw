@@ -2,13 +2,15 @@ import math
 from PyQt5.QtCore import Qt, QRectF, QSizeF, QLineF, QPointF, QRect
 
 from PyQt5.QtGui import QBrush, QFontMetrics, QFont, QPen, QPolygonF, QPainter
-from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QWidget
+from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QWidget, QGraphicsScene
 
 from .windows import NodeEdit
 
+from data import types
+
 
 class Node(QGraphicsItemGroup):
-    def __init__(self, node, parent):
+    def __init__(self, node, parent, x=0, y=0):
         super().__init__()
 
         self.node = node
@@ -20,6 +22,8 @@ class Node(QGraphicsItemGroup):
         self.threatConjunction = None
         self.counterConjunction = None
 
+        self.setPos(x, y)
+
         self.attributes = QGraphicsItemGroup()
 
         self.title = QGraphicsTextItem()
@@ -30,11 +34,11 @@ class Node(QGraphicsItemGroup):
         titleHeight = int(self.title.boundingRect().height()/20 + 0.5) * 20
 
         self.typeRect = QGraphicsRectItem()
-        self.typeRect.setRect(0, 0, 200, 20)
+        self.typeRect.setRect(x, y, 200, 20)
         self.titleRect = QGraphicsRectItem()
-        self.titleRect.setRect(0, 20, 200, titleHeight)  # @TODO: add more height if text is broken
+        self.titleRect.setRect(x, y + 20, 200, titleHeight)  # @TODO: add more height if text is broken
 
-        self.title.setPos(0, 20)
+        self.title.setPos(x, y + 20)
 
         self.titleRect.setBrush(QBrush(Qt.white))
         self.typeRect.setBrush(QBrush(Qt.white))
@@ -47,6 +51,8 @@ class Node(QGraphicsItemGroup):
         self.setFlag(QGraphicsItem.ItemIsSelectable, True)
 
         self.headerHeight = titleHeight + 20
+
+
 
     def printAttributes(self):
         y = self.y() + self.headerHeight
@@ -88,6 +94,8 @@ class Node(QGraphicsItemGroup):
         self.addToGroup(self.attributes)
 
     def redraw(self):
+        y = self.y()
+        x = self.x()
         for i in self.attributes.childItems():
             self.attributes.removeFromGroup(i)
             self.parent.scene.removeItem(i)
@@ -98,8 +106,8 @@ class Node(QGraphicsItemGroup):
 
         titleHeight = int(self.title.boundingRect().height()/20 + 0.5) * 20
 
-        self.typeRect.setRect(0, 0, 200, 20)
-        self.titleRect.setRect(0, 20, 200, titleHeight)
+        self.typeRect.setRect(x, y, 200, 20)
+        self.titleRect.setRect(x, y + 20, 200, titleHeight)
 
         self.headerHeight = titleHeight + 20
 
@@ -121,28 +129,28 @@ class Node(QGraphicsItemGroup):
 
 
 class Threat(Node):
-    def __init__(self, node, parent):
-        super().__init__(node, parent)
+    def __init__(self, node, parent, x=0, y=0):
+        super().__init__(node, parent, x, y)
 
         self.type = QGraphicsTextItem()
         self.type.setFont(QFont('Arial', 10))
         self.type.setPlainText(node.type)
 
-        self.type.setPos(81, 0)
+        self.type.setPos(x + 81, y)
         self.addToGroup(self.type)
 
         self.printAttributes()
 
 
 class Countermeasure(Node):
-    def __init__(self, node, parent):
-        super().__init__(node, parent)
+    def __init__(self, node, parent, x=0, y=0):
+        super().__init__(node, parent, x, y)
 
         self.type = QGraphicsTextItem()
         self.type.setFont(QFont('Arial', 10))
         self.type.setPlainText(node.type)
 
-        self.type.setPos(53, 0)
+        self.type.setPos(x + 53, y)
         self.addToGroup(self.type)
 
         self.printAttributes()
@@ -289,3 +297,31 @@ class Arrow(QGraphicsLineItem):
             myLine.translate(0, -8.0)
             painter.drawLine(myLine)
 
+
+class AttackTreeScene(QGraphicsScene):
+    def mousePressEvent(self, mouseEvent):
+        if mouseEvent.button() == Qt.LeftButton:
+            if self.parent().mode == 1:
+                node = types.Threat()
+                print(self.parent().tree.addNode(node))
+                n = Threat(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
+
+                print(mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
+                print(n.x(), n.y())
+
+                self.parent().scene.addItem(n)
+
+                viewport = self.parent().graphicsView.viewport()
+                viewport.update()
+
+            else:
+                pass
+        super().mousePressEvent(mouseEvent)
+
+    def mouseMoveEvent(self, mouseEvent):
+        super().mouseMoveEvent(mouseEvent)
+
+    def mouseReleaseEvent(self, mouseEvent):
+        self.parent().mode = 0
+        self.parent().setCursor(Qt.ArrowCursor)
+        super().mouseReleaseEvent(mouseEvent)
