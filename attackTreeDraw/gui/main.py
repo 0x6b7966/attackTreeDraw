@@ -28,8 +28,6 @@ class Main(QMainWindow):
 
         self.mode = 0  # 0: default, 1: add threat, 2: add countermeasure, 3: add composition
 
-        self.scene.clear()
-
     def initUI(self):
 
         # from PyQt5 import uic
@@ -88,6 +86,7 @@ class Main(QMainWindow):
         }
 
         editToolbarItems = {
+            'Mouse': ['gui/assets/icons/mouse.png', '', 'Use Mouse', self.mouse],
             'New Threat': ['gui/assets/icons/threat.png', '', 'New Threat', self.newThreat],
             'New Counter': ['gui/assets/icons/counter.png', '', 'New Countermeasure', self.newCountermeasure],
             'New Composition': ['gui/assets/icons/arrow.png', '', 'New Composition', self.newComposition],
@@ -118,28 +117,11 @@ class Main(QMainWindow):
         self.verticalLayout.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout.setSpacing(0)
 
-#        self.scrollArea = QtWidgets.QScrollArea(self.centralWidget)
-#        self.scrollArea.setEnabled(True)
-#        self.scrollArea.setStatusTip("")
-#        self.scrollArea.setAccessibleName("")
-#        self.scrollArea.setLineWidth(0)
-#        self.scrollArea.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
-#        self.scrollArea.setWidgetResizable(True)
-#        self.scrollAreaWidgetContents = QtWidgets.QWidget()
-#        # self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 1032, 1024))
-#        self.formLayout = QtWidgets.QFormLayout(self.scrollAreaWidgetContents)
-#        self.formLayout.setContentsMargins(0, 0, 0, 0)
-#        self.formLayout.setSpacing(0)
-#        self.graphicsView = QtWidgets.QGraphicsView(self.scrollAreaWidgetContents)
-
         self.graphicsView = QtWidgets.QGraphicsView(self.centralWidget)
+        self.verticalLayout.addWidget(self.graphicsView)
 
         self.graphicsView.setMinimumSize(QtCore.QSize(self.width(), self.height()))
-        self.graphicsView.setSizeIncrement(QtCore.QSize(0, 0))
-        self.graphicsView.setBaseSize(QtCore.QSize(0, 0))
-#        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.graphicsView)
-#        self.scrollArea.setWidget(self.scrollAreaWidgetContents)
-#        self.verticalLayout.addWidget(self.scrollArea)
+
         self.setCentralWidget(self.centralWidget)
         self.statusBar = QtWidgets.QStatusBar(self)
         self.setStatusBar(self.statusBar)
@@ -158,11 +140,12 @@ class Main(QMainWindow):
 
         self.graphicsView.setScene(self.scene)
 
-        # self.graphicsView.mapToScene(0, 0)
-
         self.scene.setSceneRect(self.scene.itemsBoundingRect())
 
         self.graphicsView.setAlignment(Qt.AlignTop)
+
+        self.graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
+        self.graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
 
         workToolbar = self.addToolBar('WorkToolbar')
         toolbox = QToolBox()
@@ -181,32 +164,17 @@ class Main(QMainWindow):
 
         self.show()
 
-        self.graphicsView.setMinimumSize(QtCore.QSize(self.width() + 200, self.height() + 200))
-        self.scene.setSceneRect(self.scene.itemsBoundingRect())
-        width = self.scrollArea.frameSize().width() if self.scrollArea.frameSize().width() > self.scene.sceneRect().width() else self.scene.sceneRect().width()
-        height = self.scrollArea.frameSize().height() if self.scrollArea.frameSize().height() > self.scene.sceneRect().height() else self.scene.sceneRect().height()
-
-        width = self.frameSize().width() if self.frameSize().width() > self.scene.sceneRect().width() else self.scene.sceneRect().width()
-        height = self.frameSize().height() if self.frameSize().height() > self.scene.sceneRect().height() else self.scene.sceneRect().height()
-
-        self.graphicsView.setFixedSize(width + 10, height + 10)
+        self.scene.setSceneRect(0, 0, self.graphicsView.width(), self.graphicsView.height())
 
     def printGraph(self):
-
         g = self.printGraphRecursion(self.tree.nodeList[self.tree.root], 0, 10)
         i = 0
         while self.reorderTree(g) is not True and i < 100:
             i += 1
 
-        self.scene.setSceneRect(QRectF(self.scene.itemsBoundingRect().x() - 100, 0, self.scene.itemsBoundingRect().width() + 200, self.scene.itemsBoundingRect().height() + 100))
-
-        width = self.scrollArea.frameSize().width() if self.scrollArea.frameSize().width() > self.scene.sceneRect().width() else self.scene.sceneRect().width()
-        height = self.scrollArea.frameSize().height() if self.scrollArea.frameSize().height() > self.scene.sceneRect().height() else self.scene.sceneRect().height()
-
         viewport = self.graphicsView.viewport()
         viewport.update()
 
-        self.graphicsView.setFixedSize(width + 10, height + 10)
         print('----- DONE -----')
 
     def printGraphRecursion(self, node, x, y, parent=None):
@@ -336,12 +304,7 @@ class Main(QMainWindow):
             item.setPos(item.x() + x, item.y() + y)
 
     def resizeEvent(self, QResizeEvent):
-        self.graphicsView.setMinimumSize(QtCore.QSize(self.width() + 200, self.height() + 200))
-        self.scene.setSceneRect(self.scene.itemsBoundingRect())
-        width = self.scrollArea.frameSize().width() if self.scrollArea.frameSize().width() > self.scene.sceneRect().width() else self.scene.sceneRect().width()
-        height = self.scrollArea.frameSize().height() if self.scrollArea.frameSize().height() > self.scene.sceneRect().height() else self.scene.sceneRect().height()
-
-        self.graphicsView.setFixedSize(width + 10, height + 10)
+        pass
 
     def loadFile(self):
 
@@ -376,6 +339,11 @@ class Main(QMainWindow):
         self.saved = False
 
     def saveFile(self):
+        self.tree.meta['author'] = 'Daniel Fischer'
+        self.tree.meta['title'] = 'Test'
+        self.tree.root = 'N0000'
+        self.tree.nodeList['N0000'].isRoot = True
+
         if len(self.tree.nodeList) == 0:
             msgBox = QMessageBox()
             msgBox.setText('Saving is not possible')
@@ -413,6 +381,7 @@ class Main(QMainWindow):
         return handler.saveToXML(self.tree, self.file[0])
 
     def saveFileAs(self):
+        # @TODO: reset file if save as failed
         file = self.file
         self.file = ('', '')
 
@@ -459,7 +428,6 @@ class Main(QMainWindow):
             return True
 
     def print(self):
-
         printer = QPrinter(QPrinter.HighResolution)
         printer.setPageSize(QPrinter.A4)
         printer.setOrientation(QPrinter.Portrait)
@@ -475,7 +443,6 @@ class Main(QMainWindow):
 
     def new(self):
         if len(self.tree.nodeList) > 0 and self.saved is False:
-
             msgBox = QMessageBox()
             msgBox.setText("The document has been modified.")
             msgBox.setInformativeText("Do you want to save your changes?")
@@ -495,6 +462,10 @@ class Main(QMainWindow):
         self.scene.clear()
         self.printGraph()
 
+    def mouse(self):
+        self.mode = 0
+        self.setCursor(Qt.ArrowCursor)
+
     def newThreat(self):
         self.mode = 1
         self.setCursor(Qt.CrossCursor)
@@ -506,4 +477,3 @@ class Main(QMainWindow):
     def newComposition(self):
         self.mode = 3
         self.setCursor(Qt.CrossCursor)
-

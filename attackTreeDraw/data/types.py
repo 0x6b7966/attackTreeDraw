@@ -105,6 +105,13 @@ class Tree:
             else:
                 self.extended = True
                 return True
+        for k, n in self.nodeList.items():
+            n.initDFS()
+        self.dfs(self.nodeList[self.root])
+        for k, n in self.nodeList.items():
+            if n.finished is False:
+                self.extended = True
+                return True
         self.extended = False
         return False
 

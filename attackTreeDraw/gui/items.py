@@ -310,10 +310,17 @@ class AttackTreeScene(QGraphicsScene):
                 print(n.x(), n.y())
 
                 self.parent().scene.addItem(n)
+                self.parent().graphicsView.update()
+            elif self.parent().mode == 2:
+                node = types.Countermeasure()
+                print(self.parent().tree.addNode(node))
+                n = Countermeasure(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
 
-                viewport = self.parent().graphicsView.viewport()
-                viewport.update()
+                print(mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
+                print(n.x(), n.y())
 
+                self.parent().scene.addItem(n)
+                self.parent().graphicsView.update()
             else:
                 pass
         super().mousePressEvent(mouseEvent)
