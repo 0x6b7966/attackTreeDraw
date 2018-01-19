@@ -393,16 +393,13 @@ class Main(QMainWindow):
         dialog = QFileDialog()
         fileName = dialog.getSaveFileName(self, 'Export as PNG', '', 'PNG (*.png)')
 
-        if fileName != ('', ''):
-            try:
-                image = QImage(self.scene.sceneRect().size().toSize(), QImage.Format_ARGB32)
-                image.fill(Qt.white)
-                painter = QPainter(image)
-                self.scene.render(painter)
-                painter.end()
-                image.save(fileName[0])
-            except Exception as e:
-                print(e)
+        if fileName != ('', ''):  # @TODO; Error handling
+            image = QImage(self.scene.sceneRect().size().toSize(), QImage.Format_ARGB32)
+            image.fill(Qt.white)
+            painter = QPainter(image)
+            self.scene.render(painter)
+            painter.end()
+            image.save(fileName[0])
             return True
 
     def exportPDF(self):

@@ -52,32 +52,44 @@ class Tree:
 
         self.nodeList = {}
         self.edgeList = []
-        self.cycleNode = None
         self.extended = False
         # @TODO: check if there is only one root / move to Tree()
         self.root = None
         self.meta = {}
 
     def addNode(self, node):
-        if node.id in self.nodeList:
-            return False
         if node.id is None:
             node.id = self.getNextID()
             if node.id is None:
                 return False  # @TODO: Return error code?
+        if node.id in self.nodeList:
+            return False
         self.nodeList[node.id] = node
         return True
 
-    def addEdge(self, source, destination, conjunction):
+    def addEdge(self, source, destination, conjunction=None):  # @TODO: only IDs as args
         fail = False
-        if source not in self.nodeList:
+        if source.id not in self.nodeList:
             return False
-        if destination not in self.nodeList:
+        if destination.id not in self.nodeList:
             return False
 
         # @TODO: Check if source is C and dst is T,
         # @TODO: Add return value for error
         # @TODO: Add conjunction
+
+        if conjunction is None:
+            for e in self.edgeList:
+                if destination.type == e.destination.type:
+                    conjunction = e.conjunction
+            if conjunction is None:
+                return False
+        else:
+            for e in self.edgeList:
+                if destination.type == e.destination.type:
+                    if destination.conjunction != e.conjunction:
+                        print('Edge %s to %s not equal conjunctions' % (destination.source, destination.destination), file=sys.stderr)  # Better error handling
+                        return False
 
         edge = Edge(source, destination, conjunction)
 
@@ -86,15 +98,14 @@ class Tree:
                 print('Edge %s to %s already exists' % (edge.source, edge.destination), file=sys.stderr)
                 if edge.conjunction != c.conjunction:
                     print('Edge %s to %s not equal conjunctions' % (edge.source, edge.destination), file=sys.stderr)
-                fail = True
-                break
-        if fail is not True and edge.source is not None:
-            self.edgeList.append(edge)  # @TODO: Add addEdge() to tree
-            self.nodeList[edge.source].edges[edge.destination] = edge
-            self.nodeList[edge.destination].parents.append(edge.destination)
-            return True
-        else:
-            return False
+                return False
+        self.edgeList.append(edge)
+        try:
+            self.nodeList[edge.source.id].edges[edge.destination.id] = edge
+            self.nodeList[edge.destination.id].parents.append(edge.destination.id)
+        except Exception as ex:
+            print(ex)
+        return True
 
     def checkExtended(self):
         # @TODO check if edge has no parent (except root)

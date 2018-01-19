@@ -1,8 +1,8 @@
 import math
 from PyQt5.QtCore import Qt, QRectF, QSizeF, QLineF, QPointF, QRect
 
-from PyQt5.QtGui import QBrush, QFontMetrics, QFont, QPen, QPolygonF, QPainter
-from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QWidget, QGraphicsScene
+from PyQt5.QtGui import QBrush, QFontMetrics, QFont, QPen, QPolygonF, QPainter, QTransform
+from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QWidget, QGraphicsScene, QMenu
 
 from .windows import NodeEdit
 
@@ -24,6 +24,7 @@ class Node(QGraphicsItemGroup):
 
         self.setPos(x, y)
 
+        self.type = QGraphicsTextItem()
         self.attributes = QGraphicsItemGroup()
 
         self.title = QGraphicsTextItem()
@@ -51,8 +52,6 @@ class Node(QGraphicsItemGroup):
         self.setFlag(QGraphicsItem.ItemIsSelectable, True)
 
         self.headerHeight = titleHeight + 20
-
-
 
     def printAttributes(self):
         y = self.y() + self.headerHeight
@@ -100,9 +99,15 @@ class Node(QGraphicsItemGroup):
             self.attributes.removeFromGroup(i)
             self.parent.scene.removeItem(i)
 
+#        self.removeFromGroup(self.typeRect)
+#        self.removeFromGroup(self.titleRect)
+#        self.removeFromGroup(self.title)
+#        self.removeFromGroup(self.type)
+
         self.removeFromGroup(self.attributes)
 
         self.title.setPlainText(self.node.title)
+        self.type.setPlainText(self.node.type)
 
         titleHeight = int(self.title.boundingRect().height()/20 + 0.5) * 20
 
@@ -111,7 +116,14 @@ class Node(QGraphicsItemGroup):
 
         self.headerHeight = titleHeight + 20
 
+#        self.addToGroup(self.typeRect)
+#        self.addToGroup(self.type)
+#        self.addToGroup(self.titleRect)
+#        self.addToGroup(self.title)
+
         self.printAttributes()
+
+        self.parent.graphicsView.update()
 
     def paint(self, painter, options, widget=None):
         myOption = QStyleOptionGraphicsItem(options)
@@ -163,6 +175,7 @@ class Conjunction(QGraphicsItemGroup):
         self.parent = parent
 
         self.parentArrow = None
+        self.conjType = conjType
 
         self.childs = []
         self.arrows = []
@@ -299,36 +312,123 @@ class Arrow(QGraphicsLineItem):
 
 
 class AttackTreeScene(QGraphicsScene):
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.startCollisions = None
+        self.endCollisions = None
+        self.conjunction = None
+
+        self.menu = QMenu(parent)
+
+        self.menu.addAction('Alternative', self.addAlternative)
+        self.menu.addAction('Composition', self.addComposition)
+        self.menu.addAction('Sequence', self.addSequence)
+        self.menu.addAction('Threshold', self.addThreshold)
+
+    def addAlternative(self):
+        self.addEdge('alternative')
+
+    def addComposition(self):
+        self.addEdge('composition')
+
+    def addSequence(self):
+        self.addEdge('sequence')
+
+    def addThreshold(self):
+        self.addEdge('threshold')
+
+    def addEdge(self, type):
+        if self.endCollisions.node.type == type:
+            self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type)
+            self.parent().scene.addItem(self.startCollisions.counterConjunction)
+            self.parent().scene.addItem(self.startCollisions.counterConjunction.addParentArrow())
+            self.startCollisions.counterConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
+            self.parent().scene.addItem(self.startCollisions.counterConjunction.addArrow(self.endCollisions))
+        else:
+            self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type)
+            self.parent().scene.addItem(self.startCollisions.threatConjunction)
+            self.parent().scene.addItem(self.startCollisions.threatConjunction.addParentArrow())
+            self.startCollisions.threatConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
+            self.parent().scene.addItem(self.startCollisions.threatConjunction.addArrow(self.endCollisions))
+        self.parent().tree.addEdge(self.startCollisions.node, self.endCollisions.node, type)
+        self.parent().graphicsView.update()
+        self.reset()
+
+    def reset(self):
+        self.startCollisions = None
+        self.endCollisions = None
+        self.conjunction = None
+        self.parent().mode = 0
+        self.parent().setCursor(Qt.ArrowCursor)
+
     def mousePressEvent(self, mouseEvent):
         if mouseEvent.button() == Qt.LeftButton:
             if self.parent().mode == 1:
                 node = types.Threat()
-                print(self.parent().tree.addNode(node))
+                self.parent().tree.addNode(node)
                 n = Threat(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
-
-                print(mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
-                print(n.x(), n.y())
-
                 self.parent().scene.addItem(n)
                 self.parent().graphicsView.update()
+
+                super().mousePressEvent(mouseEvent)
             elif self.parent().mode == 2:
                 node = types.Countermeasure()
-                print(self.parent().tree.addNode(node))
+                self.parent().tree.addNode(node)
                 n = Countermeasure(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
-
-                print(mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
-                print(n.x(), n.y())
-
                 self.parent().scene.addItem(n)
                 self.parent().graphicsView.update()
+                super().mousePressEvent(mouseEvent)
+            elif self.parent().mode == 3:
+                    self.startCollisions = self.parent().scene.itemAt(mouseEvent.scenePos(), QTransform())
             else:
-                pass
-        super().mousePressEvent(mouseEvent)
+                super().mousePressEvent(mouseEvent)
 
     def mouseMoveEvent(self, mouseEvent):
         super().mouseMoveEvent(mouseEvent)
 
     def mouseReleaseEvent(self, mouseEvent):
-        self.parent().mode = 0
-        self.parent().setCursor(Qt.ArrowCursor)
+        if mouseEvent.button() == Qt.LeftButton:
+            if self.parent().mode == 3:
+                try:
+                    self.endCollisions = self.parent().scene.itemAt(mouseEvent.scenePos(), QTransform())
+                    if self.startCollisions is None or self.endCollisions is None or self.startCollisions == self.endCollisions:
+                        self.reset()
+                        super().mouseReleaseEvent(mouseEvent)
+                        return
+                    if isinstance(self.startCollisions.parentItem(), Node):
+                        self.startCollisions = self.startCollisions.parentItem()
+                    elif isinstance(self.startCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.startCollisions.parentItem().parentItem(), Node):
+                        self.startCollisions = self.startCollisions.parentItem().parentItem()
+                    else:
+                        self.reset()
+                        super().mouseReleaseEvent(mouseEvent)
+                        return
+                    if isinstance(self.endCollisions.parentItem(), Node):
+                        self.endCollisions = self.endCollisions.parentItem()
+                    elif isinstance(self.endCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.endCollisions.parentItem().parentItem(), Node):
+                        self.endCollisions = self.endCollisions.parentItem().parentItem()
+                    else:
+                        self.reset()
+                        super().mouseReleaseEvent(mouseEvent)
+                        return
+                    if isinstance(self.endCollisions, Node) and isinstance(self.startCollisions, Node):
+                        print(self.endCollisions.node.type)
+                        if self.endCollisions.node.type == 'countermeasure':
+                            self.conjunction = self.startCollisions.counterConjunction
+                        else:
+                            self.conjunction = self.startCollisions.threatConjunction
+                        if self.conjunction is None:
+                            self.menu.popup(self.parent().mapToGlobal(self.parent().graphicsView.mapFromScene(mouseEvent.scenePos())), None)
+                        else:
+                            self.parent().tree.addEdge(self.startCollisions.node, self.endCollisions.node)
+                            self.parent().scene.addItem(self.conjunction.addArrow(self.endCollisions))
+
+                            self.parent().graphicsView.update()
+                            self.reset()
+                except Exception as e:
+                    print('Error: ', e)
+            else:
+                self.reset()
         super().mouseReleaseEvent(mouseEvent)
+

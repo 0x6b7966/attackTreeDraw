@@ -25,8 +25,11 @@ if __name__ == "__main__":
 #        tree.nodeList[n].toString()
 
 #    h.saveToXML(tree, 'test.xml')
-    app = QApplication(sys.argv)
-    ex = Main()
-    sys.exit(app.exec_())
+    try:
+        app = QApplication(sys.argv)
+        ex = Main()
+        sys.exit(app.exec_())
+    except Exception as e:
+        print(e)
 
 
