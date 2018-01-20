@@ -152,3 +152,82 @@ class NodeEdit(QWidget):
         viewport.update()
 
         self.close()
+
+
+class MetaEdit(QWidget):
+    def __init__(self, node, parent):
+        QWidget.__init__(self)
+        self.nodeItem = node
+        self.parentWidget = parent
+        self.setupUi()
+        self.show()
+
+    def setupUi(self):
+        self.resize(400, 300)
+        self.setWindowTitle('Edit meta information')
+
+        self.verticalLayout = QtWidgets.QVBoxLayout(self)
+        self.titleLayout = QtWidgets.QHBoxLayout()
+
+        self.titleLabel = QtWidgets.QLabel(self)
+        self.titleLabel.setMinimumSize(QtCore.QSize(80, 0))
+        self.titleLayout.addWidget(self.titleLabel)
+        self.titleEdit = QtWidgets.QLineEdit(self)
+        self.titleLayout.addWidget(self.titleEdit)
+        self.titleLayout.addLayout(self.horizontalLayout)
+
+        self.authorLayout = QtWidgets.QHBoxLayout()
+        self.authorLabel = QtWidgets.QLabel(self)
+        self.authorLabel.setMinimumSize(QtCore.QSize(80, 0))
+        self.authorLayout.addWidget(self.authorLabel)
+        self.authorEdit = QtWidgets.QLineEdit(self)
+        self.authorEdit.addWidget(self.lineEdit_2)
+        self.authorLayout.addLayout(self.authorEdit)
+
+        self.dateLayout = QtWidgets.QHBoxLayout()
+        self.dateLabel = QtWidgets.QLabel(self)
+        self.dateLabel.setMaximumSize(QtCore.QSize(80, 16777215))
+        self.dateLayout.addWidget(self.dateLabel)
+        self.dateEdit = QtWidgets.QDateEdit(self)
+        self.dateLayout.addWidget(self.dateEdit)
+        self.verticalLayout.addLayout(self.dateLayout)
+
+        self.rootLayout = QtWidgets.QHBoxLayout()
+        self.rootLabel = QtWidgets.QLabel(self)
+        self.rootLabel.setMaximumSize(QtCore.QSize(80, 16777215))
+        self.rootLayout.addWidget(self.rootLabel)
+        self.rootSelect = QtWidgets.QComboBox(self)
+        self.rootLayout.addWidget(self.rootSelect)
+        self.verticalLayout.addLayout(self.rootLayout)
+
+        self.line = QtWidgets.QFrame(self)
+        self.line.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.verticalLayout.addWidget(self.line)
+
+        self.descriptionLabel = QtWidgets.QLabel(self)
+        self.verticalLayout.addWidget(self.descriptionLabel)
+        self.descriptionEdit = QtWidgets.QPlainTextEdit(self)
+        self.descriptionEdit.setMaximumSize(QtCore.QSize(16777215, 100))
+        self.verticalLayout.addWidget(self.descriptionEdit)
+
+        self.buttonLayout = QtWidgets.QHBoxLayout()
+        self.ok = QtWidgets.QPushButton(self)
+        self.buttonLayout.addWidget(self.ok)
+        self.cancel = QtWidgets.QPushButton(self)
+        self.buttonLayout.addWidget(self.cancel)
+        self.verticalLayout.addLayout(self.buttonLayout)
+
+        self.ok.setText('Ok')
+        self.cancel.setText('Cancel')
+
+        self.titleLabel.setText('Title:')
+        self.authorLayout.setText('Author:')
+        self.dateLayout.setText('Date:')
+        self.rootLabel.setText('Root node:')
+        self.descriptionLabel.setText('Description:')
+
+        self.cancel.clicked.connect(self.close)
+        self.ok.clicked.connect(self.submit)
+
+
