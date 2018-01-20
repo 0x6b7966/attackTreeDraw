@@ -86,16 +86,16 @@ class NodeEdit(QWidget):
         self.model.insertRow(self.rows, [])
 
     def rowCheck(self):
-        if (self.model.item(self.rows, 0) is not None and self.model.item(self.rows, 0).text() != '') \
-                or (self.model.item(self.rows, 1) is not None and self.model.item(self.rows, 1).text() != ''):
-            self.rows += 1
-            self.model.insertRow(self.rows, [])
-
         for i in range(self.rows):
             if (self.model.item(i, 0) is None or self.model.item(i, 0).text() == '') \
                     and (self.model.item(i, 1) is None or self.model.item(i, 1).text() == ''):
                 self.model.removeRow(i)
                 self.rows -= 1
+
+        if (self.model.item(self.rows, 0) is not None and self.model.item(self.rows, 0).text() != '') \
+                or (self.model.item(self.rows, 1) is not None and self.model.item(self.rows, 1).text() != ''):
+            self.rows += 1
+            self.model.insertRow(self.rows, [])
 
     def submit(self):
         self.model.removeRow(self.rows)

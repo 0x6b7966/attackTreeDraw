@@ -4,8 +4,8 @@ import traceback
 import sys
 from PyQt5.QtCore import Qt, QRectF, QSizeF, QLineF, QPointF, QRect
 
-from PyQt5.QtGui import QBrush, QFontMetrics, QFont, QPen, QPolygonF, QPainter, QTransform
-from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QWidget, QGraphicsScene, QMenu, QGraphicsView
+from PyQt5.QtGui import QBrush, QFontMetrics, QFont, QPen, QPolygonF, QPainter, QTransform, QIcon
+from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QWidget, QGraphicsScene, QMenu, QGraphicsView, QMessageBox
 
 from .windows import NodeEdit
 
@@ -13,6 +13,8 @@ from data import types
 
 
 class Node(QGraphicsItemGroup):
+    typeOffset = 20
+
     def __init__(self, node, parent, x=0, y=0):
         super().__init__()
 
@@ -25,55 +27,69 @@ class Node(QGraphicsItemGroup):
         self.threatConjunction = None
         self.counterConjunction = None
 
-        self.threatBox = None
-        self.counterBox = None
+        self.parentConjunctions = []
 
-        self.threatBoxText = None
-        self.counterBoxText = None
-
-        self.setPos(x, y)
-
-        self.type = QGraphicsTextItem()
+        self.headerGroup = QGraphicsItemGroup()
         self.attributes = QGraphicsItemGroup()
-
-        self.title = QGraphicsTextItem()
-        self.title.setFont(QFont('Arial', 10))
-        self.title.setTextWidth(200)  # @TODO: change to variable width
-        self.title.setPlainText(node.title)
-
-        titleHeight = int(self.title.boundingRect().height()/20 + 0.5) * 20
-
-        self.typeRect = QGraphicsRectItem()
-        self.typeRect.setRect(x + 50, y, 150, 20)
-
-        self.idRect = QGraphicsRectItem()
-        self.idRect.setRect(x, y, 50, 20)
-
-        self.idText = QGraphicsTextItem()
-        self.idText.setFont(QFont('Arial', 10))
-        self.idText.setPlainText(node.id)
-
-        self.idText.setPos(x, y)
-        self.addToGroup(self.idRect)
-        self.addToGroup(self.idText)
-
-        self.titleRect = QGraphicsRectItem()
-        self.titleRect.setRect(x, y + 20, 200, titleHeight)  # @TODO: add more height if text is broken
-
-        self.title.setPos(x, y + 20)
-
-        self.titleRect.setBrush(QBrush(Qt.white))
-        self.typeRect.setBrush(QBrush(Qt.white))
-
-        self.addToGroup(self.typeRect)
-        self.addToGroup(self.titleRect)
-        self.addToGroup(self.title)
+        self.footerGroup = QGraphicsItemGroup()
 
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QGraphicsItem.ItemIsSelectable, True)
 
-        self.headerHeight = titleHeight + 20
         self.attributesHeight = 0
+        self.headerHeight = 0
+
+        self.printHeader()
+        self.printAttributes()
+        self.printFooter()
+
+        self.setPos(x, y)
+
+    def printHeader(self):
+        x = self.x()
+        y = self.y()
+
+        self.idText = QGraphicsTextItem()
+        self.typeText = QGraphicsTextItem()
+        self.titleText = QGraphicsTextItem()
+
+        self.idRect = QGraphicsRectItem()
+        self.typeRect = QGraphicsRectItem()
+        self.titleRect = QGraphicsRectItem()  # @TODO: add more height if text is broken
+
+        self.typeText.setFont(QFont('Arial', 10))
+        self.titleText.setFont(QFont('Arial', 10))
+        self.idText.setFont(QFont('Arial', 10))
+
+        self.titleText.setTextWidth(200)
+
+        self.idText.setPlainText(self.node.id)
+        self.typeText.setPlainText(self.node.type)
+        self.titleText.setPlainText(self.node.title)
+
+        titleHeight = int(self.titleText.boundingRect().height() / 20 + 0.5) * 20
+
+        self.idRect.setRect(x, y, 50, 20)
+        self.typeRect.setRect(x + 50, y, 150, 20)
+        self.titleRect.setRect(x, y + 20, 200, titleHeight)
+
+        self.idRect.setBrush(QBrush(Qt.white))
+        self.typeRect.setBrush(QBrush(Qt.white))
+        self.titleRect.setBrush(QBrush(Qt.white))
+
+        self.idText.setPos(x, y)
+        self.typeText.setPos(x + self.typeOffset, y)
+        self.titleText.setPos(x, y + 20)
+
+        self.headerHeight = titleHeight + 20
+
+        self.headerGroup.addToGroup(self.idRect)
+        self.headerGroup.addToGroup(self.typeRect)
+        self.headerGroup.addToGroup(self.titleRect)
+        self.headerGroup.addToGroup(self.idText)
+        self.headerGroup.addToGroup(self.typeText)
+        self.headerGroup.addToGroup(self.titleText)
+        self.addToGroup(self.headerGroup)
 
     def printAttributes(self):
         y = self.y() + self.headerHeight
@@ -120,40 +136,48 @@ class Node(QGraphicsItemGroup):
     def redraw(self):
         y = self.y()
         x = self.x()
-        for i in self.attributes.childItems():
-            self.attributes.removeFromGroup(i)
-            self.parent.scene.removeItem(i)
+        try:
+            self.prepareGeometryChange()
 
-        self.removeFromGroup(self.attributes)
+            for i in self.attributes.childItems():
+                self.attributes.removeFromGroup(i)
+                self.parent.scene.removeItem(i)
 
-        self.title.setPlainText(self.node.title)
-        self.type.setPlainText(self.node.type)
-        self.idText.setPlainText(self.node.id)
+            for i in self.headerGroup.childItems():
+                self.headerGroup.removeFromGroup(i)
+                self.parent.scene.removeItem(i)
 
-        titleHeight = int(self.title.boundingRect().height()/20 + 0.5) * 20
+            for i in self.footerGroup.childItems():
+                self.footerGroup.removeFromGroup(i)
+                self.parent.scene.removeItem(i)
 
-        self.typeRect.setRect(x + 50, y, 150, 20)
-        self.titleRect.setRect(x, y + 20, 200, titleHeight)
+            self.removeFromGroup(self.attributes)
+            self.removeFromGroup(self.footerGroup)
+            self.removeFromGroup(self.headerGroup)
 
-        self.headerHeight = titleHeight + 20
+            self.printHeader()
 
-       # self.idRect.setRect(x, y, 50, 20)
-       # self.idText.setPos(0, 0)
+            self.printAttributes()
 
-        self.printAttributes()
+            self.printFooter()
 
-        self.parent.graphicsView.update()
+            self.parent.scene.removeItem(self)
+            self.parent.scene.addItem(self)
 
-        return
+            self.update()
+            self.parent.graphicsView.update()
 
-        print(self.idRect.pos())
-        print(self.idText.pos())
+            self.setPos(x, y)
 
-        self.threatBox.setPos(0, self.headerHeight + self.attributesHeight)
-        self.counterBox.setPos(100, self.headerHeight + self.attributesHeight)
+            print(self.headerGroup.x(), self.headerGroup.y())
+            print(self.x(), self.y())
+            print(self.boundingRect().x(), self.boundingRect().y())
 
-        self.threatBoxText.setPos(0, self.headerHeight + self.attributesHeight)
-        self.counterBoxText.setPos(0 + 100, self.headerHeight + self.attributesHeight)
+        except Exception as e:
+            print(e)
+
+    def printFooter(self):
+        pass
 
     def paint(self, painter, options, widget=None):
         myOption = QStyleOptionGraphicsItem(options)
@@ -171,18 +195,18 @@ class Node(QGraphicsItemGroup):
 
 
 class Threat(Node):
+    typeOffset = 91
+
     def __init__(self, node, parent, x=0, y=0):
+        self.threatBox = None
+        self.counterBox = None
+
+        self.threatBoxText = None
+        self.counterBoxText = None
+
         super().__init__(node, parent, x, y)
 
-        self.type = QGraphicsTextItem()
-        self.type.setFont(QFont('Arial', 10))
-        self.type.setPlainText(node.type)
-
-        self.type.setPos(x + 91, y)
-        self.addToGroup(self.type)
-
-        self.printAttributes()
-
+    def printFooter(self):
         self.threatBoxText = QGraphicsTextItem()
         self.threatBoxText.setFont(QFont('Arial', 10))
         self.threatBoxText.setPlainText('T')
@@ -194,33 +218,32 @@ class Threat(Node):
         self.threatBox = QGraphicsRectItem()
         self.counterBox = QGraphicsRectItem()
 
-        self.threatBox.setRect(self.x(), self.y() + self.headerHeight + self.attributesHeight, 100, 20)
-        self.counterBox.setRect(self.x() + 100, self.y() + self.headerHeight + self.attributesHeight, 100, 20)
-
-        self.threatBoxText.setPos(self.x(), self.y() + self.headerHeight + self.attributesHeight)
-        self.counterBoxText.setPos(self.x() + 100, self.y() + self.headerHeight + self.attributesHeight)
-
         self.threatBox.setBrush(QBrush(Qt.white))
         self.counterBox.setBrush(QBrush(Qt.white))
 
-        self.addToGroup(self.threatBox)
-        self.addToGroup(self.counterBox)
-        self.addToGroup(self.threatBoxText)
-        self.addToGroup(self.counterBoxText)
+        self.footerGroup = QGraphicsItemGroup()
+
+        self.footerGroup.addToGroup(self.threatBox)
+        self.footerGroup.addToGroup(self.counterBox)
+        self.footerGroup.addToGroup(self.threatBoxText)
+        self.footerGroup.addToGroup(self.counterBoxText)
+
+        self.threatBox.setRect(0, 0, 100, 20)
+        self.counterBox.setRect(100, 0, 100, 20)
+
+        self.threatBoxText.setPos(40, 0)
+        self.counterBoxText.setPos(140, 0)
+
+        self.footerGroup.setPos(self.x(), self.y() + self.headerHeight + self.attributesHeight)
+
+        self.addToGroup(self.footerGroup)
 
 
 class Countermeasure(Node):
-    def __init__(self, node, parent, x=0, y=0):
-        super().__init__(node, parent, x, y)
+    typeOffset = 63
 
-        self.type = QGraphicsTextItem()
-        self.type.setFont(QFont('Arial', 10))
-        self.type.setPlainText(node.type)
-
-        self.type.setPos(x + 63, y)
-        self.addToGroup(self.type)
-
-        self.printAttributes()
+    def printFooter(self):
+        pass
 
 
 class Conjunction(QGraphicsItemGroup):
@@ -234,16 +257,16 @@ class Conjunction(QGraphicsItemGroup):
         self.parentArrow = None
         self.conjType = conjType
 
-        self.childs = []
+        self.children = []
         self.arrows = []
 
         self.title = QGraphicsTextItem()
-        self.title.setFont(QFont('Arial', 14))
+        self.title.setFont(QFont('Arial', 12))
         self.title.setPlainText(conjType)
 
         self.conRect = ConjunctionRect()
         self.conRect.setRect(0, 0, 100, 40)
-        self.title.setPos(10, 8)
+        self.title.setPos(6, 6)
 
         self.conRect.setBrush(QBrush(Qt.white))
 
@@ -255,7 +278,9 @@ class Conjunction(QGraphicsItemGroup):
 
     def addArrow(self, child):
         self.arrows.append(Arrow(self, child, 0))
-        self.childs.append(child)
+        self.children.append(child)
+
+        child.parentConjunctions.append(self)
 
         return self.arrows[-1]
 
@@ -284,7 +309,6 @@ class Conjunction(QGraphicsItemGroup):
 
 class ConjunctionRect(QGraphicsRectItem):
     def paint(self, painter, options, widget=None):
-
         if self.isSelected():
             painter.setPen(QPen(Qt.black, 1, Qt.DashLine))
             rect = QRect(self.boundingRect().x() - 2, self.boundingRect().y() - 2, self.boundingRect().x() + self.boundingRect().width() + 4, self.boundingRect().y() + self.boundingRect().height() + 3)
@@ -294,7 +318,6 @@ class ConjunctionRect(QGraphicsRectItem):
 
 
 class Arrow(QGraphicsLineItem):
-
     def __init__(self, start, end, offset):
         super().__init__()
 
@@ -334,7 +357,7 @@ class Arrow(QGraphicsLineItem):
         painter.setPen(myPen)
         painter.setBrush(Qt.black)
 
-        centerLine = QLineF(QPointF(self.start.x()+self.start.boundingRect().center().x()+self.offset, self.start.y() + self.start.boundingRect().bottom()), QPointF(self.end.x()+self.end.boundingRect().center().x(), self.end.y()))
+        centerLine = QLineF(QPointF(self.start.x() + self.start.boundingRect().center().x() + self.offset, self.start.y() + self.start.boundingRect().bottom()), QPointF(self.end.x() + self.end.boundingRect().center().x(), self.end.y()))
         endPolygon = self.end.mapFromItem(self.end, self.end.boundingRect())
         p1 = endPolygon.first() + self.end.pos()
         p2 = None
@@ -350,7 +373,7 @@ class Arrow(QGraphicsLineItem):
                 break
             p1 = p2
 
-        self.setLine(QLineF(intersectPoint, QPointF(self.start.x()+self.start.boundingRect().center().x()+self.offset, self.start.y() + self.start.boundingRect().bottom())))
+        self.setLine(QLineF(intersectPoint, QPointF(self.start.x() + self.start.boundingRect().center().x() + self.offset, self.start.y() + self.start.boundingRect().bottom())))
 
         angle = math.atan2(-self.line().dy(), self.line().dx())
         arrowP1 = self.line().p1() + QPointF(math.sin(angle + math.pi / 3) * arrowSize, math.cos(angle + math.pi / 3) * arrowSize)
@@ -412,7 +435,6 @@ class AttackTreeScene(QGraphicsScene):
             self.startCollisions.counterConjunction.setPos(self.startCollisions.counterConjunction.x() + 100, self.startCollisions.counterConjunction.y())
         else:
             if self.startCollisions.node.type == 'threat':
-                print('ok')
                 self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type, -50)
             else:
                 self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type)
@@ -421,7 +443,6 @@ class AttackTreeScene(QGraphicsScene):
             self.addItem(self.startCollisions.threatConjunction.addParentArrow())
             self.startCollisions.threatConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
             self.addItem(self.startCollisions.threatConjunction.addArrow(self.endCollisions))
-            #self.startCollisions.threatConjunction.setPos(50, -50)
 
         self.parent().tree.addEdge(self.startCollisions.node.id, self.endCollisions.node.id, type)
         self.parent().graphicsView.update()
@@ -458,7 +479,7 @@ class AttackTreeScene(QGraphicsScene):
 
                 super().mousePressEvent(mouseEvent)
             elif self.parent().mode == 3:
-                    self.startCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
+                self.startCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
             else:
                 super().mousePressEvent(mouseEvent)
 
@@ -492,14 +513,14 @@ class AttackTreeScene(QGraphicsScene):
                         return
                     if isinstance(self.endCollisions, Node) and isinstance(self.startCollisions, Node):
                         print(self.endCollisions.node.type)
-                        if (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'countermeasure')\
+                        if (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'countermeasure') \
                                 or (self.startCollisions.node.type == 'countermeasure' and self.endCollisions.node.type == 'countermeasure'):
                             self.conjunction = self.startCollisions.counterConjunction
-                        elif (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'countermeasure')\
+                        elif (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'countermeasure') \
                                 or (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'threat'):
                             self.conjunction = self.startCollisions.threatConjunction
                         else:
-                            return # @TODO: Open alert window counter -> threat not possible
+                            return  # @TODO: Open alert window counter -> threat not possible
                         if self.conjunction is None:
                             self.menu.popup(self.parent().mapToGlobal(self.parent().graphicsView.mapFromScene(mouseEvent.scenePos())), None)
                         else:
@@ -515,13 +536,123 @@ class AttackTreeScene(QGraphicsScene):
                     print(traceback.format_exc(sys.exc_info()))
 
             elif self.parent().mode == 4:
-                for i in self.selectedItems():
-                    if isinstance(i, Node):
-                        self.parent().tree.
-                    self.removeItem(i)
+                try:
+                    deleted = []
+                    for i in self.selectedItems():
+                        if i not in deleted:
+                            if isinstance(i, Node):
+                                print('Parent: ', i.parentConjunctions)
+                                for c in i.parentConjunctions:
+                                    if len(c.arrows) != 0 and len(c.children) != 0:
+                                        deleted.append(c.arrows[c.children.index(i)])
+                                        self.removeItem(c.arrows[c.children.index(i)])
+                                        del c.arrows[c.children.index(i)]
+                                        c.children.remove(i)
+                                    if len(c.children) == 0:
+                                        if c == c.parent.threatConjunction:
+                                            c.parent.threatConjunction = None
+                                        else:
+                                            c.parent.counterConjunction = None
+                                        for a in c.children:
+                                            deleted.append(c.arrows[c.children.index(a)])
+                                            self.removeItem(c.arrows[c.children.index(a)])
+                                            del c.arrows[c.children.index(a)]
+                                            c.children.remove(a)
+                                        deleted.append(c.parentArrow)
+                                        deleted.append(c)
+                                        self.removeItem(c.parentArrow)
+                                        self.removeItem(c)
+                                self.parent().tree.removeNode(i.node.id)
+                                deleted.append(i)
+                                self.removeItem(i)
+                            elif isinstance(i, Conjunction):
+                                children = i.children.copy()
+                                for c in children:
+                                    self.parent().tree.removeEdge(i.parent.node.id + '-' + c.node.id)
+                                    deleted.append(i.arrows[i.children.index(c)])
+                                    self.removeItem(i.arrows[i.children.index(c)])
+                                    del i.arrows[i.children.index(c)]
+                                    i.children.remove(c)
+                                if i == i.parent.threatConjunction:
+                                    i.parent.threatConjunction = None
+                                else:
+                                    i.parent.counterConjunction = None
+                                deleted.append(i.parentArrow)
+                                deleted.append(i)
+                                self.removeItem(i.parentArrow)
+                                self.removeItem(i)
+                            elif isinstance(i, Arrow):
+                                if isinstance(i.start, Conjunction):
+                                    del i.start.children[i.start.arrows.index(i)]
+                                    i.start.arrows.remove(i)
+                                    self.parent().tree.removeEdge(i.start.parent.node.id + '-' + i.end.node.id)
+                                    deleted.append(i)
+                                    self.removeItem(i)
+                                    if len(i.start.children) == 0:
+                                        if i.start == i.start.parent.threatConjunction:
+                                            i.start.parent.threatConjunction = None
+                                        else:
+                                            i.start.parent.counterConjunction = None
+                                        for a in i.start.children:
+                                            deleted.append(i.start.arrows[i.start.children.index(a)])
+                                            self.removeItem(i.start.arrows[i.start.children.index(a)])
+                                            del i.start.arrows[i.start.children.index(a)]
+                                            i.start.children.remove(a)
+                                        deleted.append(i.start.parentArrow)
+                                        deleted.append(i.start)
+                                        self.removeItem(i.start.parentArrow)
+                                        self.removeItem(i.start)
+                                else:
+                                    if isinstance(i.start, Node):
+                                        edges = i.start.node.edges.copy()
+                                        for c in edges:
+                                            self.parent().tree.removeEdge(i.start.node.id + '-' + c)
+
+                                        children = i.end.children.copy()
+                                        for a in children:
+                                            deleted.append(i.end.arrows[i.end.children.index(a)])
+                                            self.removeItem(i.end.arrows[i.end.children.index(a)])
+                                            del i.end.arrows[i.end.children.index(a)]
+
+                                            a.parentConjunctions.remove(i.end)
+                                            i.end.children.remove(a)
+
+                                        if i.end == i.start.threatConjunction:
+                                            i.start.threatConjunction = None
+                                        else:
+                                            i.start.counterConjunction = None
+                                        deleted.append(i.end)
+                                        self.removeItem(i.end)
+                                    else:
+                                        for c in i.start.parent().node.edges:
+                                            self.parent().tree.removeEdge(i.start.parent().node.id + '-' + c.id)
+                                        deleted.append(i.end)
+                                        self.removeItem(i.end)
+                                    deleted.append(i)
+                                    self.removeItem(i)
+                except Exception as e:
+                    print(sys.exc_info())
+                    print(traceback.format_exc())
+                    exit(-1)
+
                 self.parent().graphicsView.update()
                 self.reset()
                 self.parent().saved = False
             else:
                 self.reset()
         super().mouseReleaseEvent(mouseEvent)
+
+
+class MessageBox:
+    def __init__(self, title, text, buttons=QMessageBox.Ok, icon=QMessageBox.Information, default=QMessageBox.Ok):
+        self.msgBox = QMessageBox()
+        self.msgBox.setWindowTitle(title)
+        self.msgBox.setText(text)
+        # msgBox.setInformativeText("Do you want to save your changes?")
+        self.msgBox.setStandardButtons(buttons)
+        self.msgBox.setDefaultButton(default)
+        self.msgBox.setIcon(icon)
+        self.msgBox.setWindowIcon(QIcon('gui/assets/icons/logo.png'))
+
+    def run(self):
+        return self.msgBox.exec()

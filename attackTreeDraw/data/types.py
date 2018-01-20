@@ -68,7 +68,6 @@ class Tree:
         return True
 
     def addEdge(self, sourceId, destinationId, conjunction=None):  # @TODO: only IDs as args
-        fail = False
         if sourceId not in self.nodeList:
             return False
         if destinationId not in self.nodeList:
@@ -104,8 +103,8 @@ class Tree:
                 return False
         self.edgeList.append(edge)
 
-        self.nodeList[edge.source].edges[edge.destination] = edge
-        self.nodeList[edge.destination].parents.append(edge.destination)
+        self.nodeList[edge.source].edges[edge.destination] = edge  # @TODO: Edge to id?
+        self.nodeList[edge.destination].parents.append(edge.source)
 
         return True
 
@@ -158,10 +157,33 @@ class Tree:
         return None
 
     def removeNode(self, nodeId):
-        for i in self.nodeList[nodeId].parents:
-            del self.nodeList[i].edges[i + '-' + nodeId]
-
-        pass
+        if nodeId in self.nodeList:
+            print(self.nodeList)
+            print(self.edgeList)
+            for i in self.nodeList[nodeId].parents:
+                self.edgeList.remove(self.nodeList[i].edges[nodeId])
+                del self.nodeList[i].edges[nodeId]
+            for i in self.nodeList[nodeId].edges:
+                self.nodeList[i].parents.remove(nodeId)
+                self.edgeList.remove(i)
+            del self.nodeList[nodeId]
+            print(self.nodeList)
+            print(self.edgeList)
+            return True
+        else:
+            return False
 
     def removeEdge(self, edgeId):
-        pass
+        edge = None
+        for e in self.edgeList:
+            if edgeId == e.__hash__():
+                edge = e
+        if edge is not None:
+            print(self.edgeList)
+            del self.nodeList[edge.source].edges[edge.destination]
+            self.nodeList[edge.destination].parents.remove(edge.source)
+            self.edgeList.remove(edge)
+            print(self.edgeList)
+            return True
+        else:
+            return False

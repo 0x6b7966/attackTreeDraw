@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction, QApplication, QTool
     QGraphicsItemGroup, QWidget, QFileDialog, QMessageBox, QDialog, QGraphicsView, QSizePolicy
 from PyQt5.QtGui import QIcon, QImage, QPainter
 
-from .items import Node, Arrow, Threat, Countermeasure, Conjunction, AttackTreeScene
+from .items import Node, Arrow, Threat, Countermeasure, Conjunction, AttackTreeScene, MessageBox
 
 from data.handler import Handler
 
@@ -99,6 +99,7 @@ class Main(QMainWindow):
         self.resize(814, 581)
         self.setMinimumSize(QtCore.QSize(0, 0))
         self.setWindowTitle("attackTreeDraw")
+        self.setWindowIcon(QIcon('gui/assets/icons/logo.png'))
         self.setDocumentMode(True)
         self.setUnifiedTitleAndToolBarOnMac(True)
 
@@ -145,6 +146,7 @@ class Main(QMainWindow):
 
         self.graphicsView.setAlignment(Qt.AlignTop)
 
+        self.graphicsView.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
         self.graphicsView.setRenderHint(QPainter.Antialiasing)
         self.graphicsView.setCacheMode(QGraphicsView.CacheBackground)
         self.graphicsView.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
@@ -321,12 +323,7 @@ class Main(QMainWindow):
     def loadFile(self):
         if len(self.tree.nodeList) > 0 and self.saved is False:
 
-            msgBox = QMessageBox()
-            msgBox.setText("The document has been modified.")
-            msgBox.setInformativeText("Do you want to save your changes?")
-            msgBox.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
-            msgBox.setDefaultButton(QMessageBox.Save)
-            reply = msgBox.exec()
+            reply = MessageBox('The document has been modified', 'Do you want to save your changes?', QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning, QMessageBox.Save).run()
 
             if reply == QMessageBox.Yes:
                 self.saveFile()
@@ -357,24 +354,15 @@ class Main(QMainWindow):
         self.tree.nodeList['N0000'].isRoot = True
 
         if len(self.tree.nodeList) == 0:
-            msgBox = QMessageBox()
-            msgBox.setText('Saving is not possible')
-            msgBox.setInformativeText('Won\'t save an empty tree')
-            msgBox.exec()
+            MessageBox('Saving is not possible', 'Won\'t save an empty tree!', icon=QMessageBox.Critical).run()
             return False
 
         if self.tree.checkCycle() is False:
-            msgBox = QMessageBox()
-            msgBox.setText('Saving is not possible')
-            msgBox.setInformativeText('There is a cycle in the graph at node ID: %s\nTitle: %s' % (self.tree.cycleNode.id, self.tree.cycleNode.title))
-            msgBox.exec()
+            MessageBox('Saving is not possible', 'There is a cycle in the graph at node ID: %s\nTitle: %s' % (self.tree.cycleNode.id, self.tree.cycleNode.title), icon=QMessageBox.Critical).run()
             return False
 
         if self.tree.checkExtended():
-            msgBox = QMessageBox()
-            msgBox.setText('Simple Mode not available')
-            msgBox.setInformativeText("There is only the extended mode available")
-            msgBox.exec()
+            MessageBox('Simple Mode not available', 'There is only the extended mode available.', icon=QMessageBox.Information).run()
             fileExt = 'Extended Attack Tree File (*.xml)'
         else:
             fileExt = 'Simple Attack Tree File (*.xml);;Extended Attack Tree File (*.xml)'
@@ -456,13 +444,7 @@ class Main(QMainWindow):
 
     def new(self):
         if len(self.tree.nodeList) > 0 and self.saved is False:
-            msgBox = QMessageBox()
-            msgBox.setText("The document has been modified.")
-            msgBox.setInformativeText("Do you want to save your changes?")
-            msgBox.setStandardButtons(QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel)
-            msgBox.setDefaultButton(QMessageBox.Save)
-            reply = msgBox.exec()
-
+            reply = MessageBox('The document has been modified', 'Do you want to save your changes?', QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning, QMessageBox.Save).run()
             if reply == QMessageBox.Yes:
                 self.saveFile()
             elif reply == QMessageBox.Cancel:

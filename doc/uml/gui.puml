@@ -38,7 +38,7 @@ namespace gui {
     class Conjunction {
       +parent
       +parentArrow
-      +childs
+      +children
       +arrows
       +title
       +conRect
