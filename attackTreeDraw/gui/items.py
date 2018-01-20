@@ -2,7 +2,7 @@ import math
 from PyQt5.QtCore import Qt, QRectF, QSizeF, QLineF, QPointF, QRect
 
 from PyQt5.QtGui import QBrush, QFontMetrics, QFont, QPen, QPolygonF, QPainter, QTransform
-from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QWidget, QGraphicsScene, QMenu
+from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QWidget, QGraphicsScene, QMenu, QGraphicsView
 
 from .windows import NodeEdit
 
@@ -22,6 +22,12 @@ class Node(QGraphicsItemGroup):
         self.threatConjunction = None
         self.counterConjunction = None
 
+        self.threatBox = None
+        self.counterBox = None
+
+        self.threatBoxText = None
+        self.counterBoxText = None
+
         self.setPos(x, y)
 
         self.type = QGraphicsTextItem()
@@ -35,7 +41,19 @@ class Node(QGraphicsItemGroup):
         titleHeight = int(self.title.boundingRect().height()/20 + 0.5) * 20
 
         self.typeRect = QGraphicsRectItem()
-        self.typeRect.setRect(x, y, 200, 20)
+        self.typeRect.setRect(x + 50, y, 150, 20)
+
+        self.idRect = QGraphicsRectItem()
+        self.idRect.setRect(x, y, 50, 20)
+
+        self.idText = QGraphicsTextItem()
+        self.idText.setFont(QFont('Arial', 10))
+        self.idText.setPlainText(node.id)
+
+        self.idText.setPos(x, y)
+        self.addToGroup(self.idRect)
+        self.addToGroup(self.idText)
+
         self.titleRect = QGraphicsRectItem()
         self.titleRect.setRect(x, y + 20, 200, titleHeight)  # @TODO: add more height if text is broken
 
@@ -52,10 +70,13 @@ class Node(QGraphicsItemGroup):
         self.setFlag(QGraphicsItem.ItemIsSelectable, True)
 
         self.headerHeight = titleHeight + 20
+        self.attributesHeight = 0
 
     def printAttributes(self):
         y = self.y() + self.headerHeight
         x = self.x()
+
+        self.attributesHeight = 0
 
         for k, v in self.node.attributes.items():
             key = QGraphicsTextItem()
@@ -89,6 +110,7 @@ class Node(QGraphicsItemGroup):
             self.attributes.addToGroup(value)
 
             y = y + height
+            self.attributesHeight += height
 
         self.addToGroup(self.attributes)
 
@@ -99,31 +121,36 @@ class Node(QGraphicsItemGroup):
             self.attributes.removeFromGroup(i)
             self.parent.scene.removeItem(i)
 
-#        self.removeFromGroup(self.typeRect)
-#        self.removeFromGroup(self.titleRect)
-#        self.removeFromGroup(self.title)
-#        self.removeFromGroup(self.type)
-
         self.removeFromGroup(self.attributes)
 
         self.title.setPlainText(self.node.title)
         self.type.setPlainText(self.node.type)
+        self.idText.setPlainText(self.node.id)
 
         titleHeight = int(self.title.boundingRect().height()/20 + 0.5) * 20
 
-        self.typeRect.setRect(x, y, 200, 20)
+        self.typeRect.setRect(x + 50, y, 150, 20)
         self.titleRect.setRect(x, y + 20, 200, titleHeight)
 
         self.headerHeight = titleHeight + 20
 
-#        self.addToGroup(self.typeRect)
-#        self.addToGroup(self.type)
-#        self.addToGroup(self.titleRect)
-#        self.addToGroup(self.title)
+       # self.idRect.setRect(x, y, 50, 20)
+       # self.idText.setPos(0, 0)
 
         self.printAttributes()
 
         self.parent.graphicsView.update()
+
+        return
+
+        print(self.idRect.pos())
+        print(self.idText.pos())
+
+        self.threatBox.setPos(0, self.headerHeight + self.attributesHeight)
+        self.counterBox.setPos(100, self.headerHeight + self.attributesHeight)
+
+        self.threatBoxText.setPos(0, self.headerHeight + self.attributesHeight)
+        self.counterBoxText.setPos(0 + 100, self.headerHeight + self.attributesHeight)
 
     def paint(self, painter, options, widget=None):
         myOption = QStyleOptionGraphicsItem(options)
@@ -148,10 +175,38 @@ class Threat(Node):
         self.type.setFont(QFont('Arial', 10))
         self.type.setPlainText(node.type)
 
-        self.type.setPos(x + 81, y)
+        self.type.setPos(x + 91, y)
         self.addToGroup(self.type)
 
         self.printAttributes()
+        return
+
+        self.threatBoxText = QGraphicsTextItem()
+        self.threatBoxText.setFont(QFont('Arial', 10))
+        self.threatBoxText.setPlainText('T')
+
+        self.counterBoxText = QGraphicsTextItem()
+        self.counterBoxText.setFont(QFont('Arial', 10))
+        self.counterBoxText.setPlainText('C')
+
+        self.threatBox = QGraphicsRectItem()
+        self.counterBox = QGraphicsRectItem()
+
+        self.addToGroup(self.threatBox)
+        self.addToGroup(self.counterBox)
+        self.addToGroup(self.threatBoxText)
+        self.addToGroup(self.counterBoxText)
+
+        self.threatBox.setRect(self.x(), self.y() + self.headerHeight + self.attributesHeight, 100, 20)
+        self.counterBox.setRect(self.x() + 100, self.y() + self.headerHeight + self.attributesHeight, 100, 20)
+
+        self.threatBoxText.setPos(0, self.headerHeight + self.attributesHeight)
+        self.counterBoxText.setPos(100, self.headerHeight + self.attributesHeight)
+
+        self.threatBox.setBrush(QBrush(Qt.white))
+        self.counterBox.setBrush(QBrush(Qt.white))
+
+
 
 
 class Countermeasure(Node):
@@ -162,17 +217,44 @@ class Countermeasure(Node):
         self.type.setFont(QFont('Arial', 10))
         self.type.setPlainText(node.type)
 
-        self.type.setPos(x + 53, y)
+        self.type.setPos(x + 63, y)
         self.addToGroup(self.type)
 
         self.printAttributes()
 
+        self.threatBoxText = QGraphicsTextItem()
+        self.threatBoxText.setFont(QFont('Arial', 10))
+        self.threatBoxText.setPlainText('T')
+
+        self.counterBoxText = QGraphicsTextItem()
+        self.counterBoxText.setFont(QFont('Arial', 10))
+        self.counterBoxText.setPlainText('C')
+
+        self.threatBox = QGraphicsRectItem()
+        self.counterBox = QGraphicsRectItem()
+
+        self.threatBox.setRect(self.x(), self.y() + self.headerHeight + self.attributesHeight, 100, 20)
+        self.counterBox.setRect(self.x() + 100, self.y() + self.headerHeight + self.attributesHeight, 100, 20)
+
+        self.threatBoxText.setPos(self.x(), self.y() + self.headerHeight + self.attributesHeight)
+        self.counterBoxText.setPos(self.x() + 100, self.y() + self.headerHeight + self.attributesHeight)
+
+        self.threatBox.setBrush(QBrush(Qt.white))
+        self.counterBox.setBrush(QBrush(Qt.white))
+
+        self.addToGroup(self.threatBox)
+        self.addToGroup(self.counterBox)
+        self.addToGroup(self.threatBoxText)
+        self.addToGroup(self.counterBoxText)
+
 
 class Conjunction(QGraphicsItemGroup):
-    def __init__(self, parent, conjType):
+    def __init__(self, parent, conjType, start):
         super().__init__()
 
         self.parent = parent
+
+        self.start = start
 
         self.parentArrow = None
         self.conjType = conjType
@@ -204,7 +286,7 @@ class Conjunction(QGraphicsItemGroup):
         return self.arrows[-1]
 
     def addParentArrow(self):
-        self.parentArrow = Arrow(self.parent, self)
+        self.parentArrow = Arrow(self.start, self)
         return self.parentArrow
 
     def paint(self, painter, options, widget=None):
@@ -266,6 +348,7 @@ class Arrow(QGraphicsLineItem):
         self.setLine(line)
 
     def paint(self, painter, options, widget=None):
+
         if self.start.collidesWithItem(self.end):
             return
 
@@ -340,18 +423,18 @@ class AttackTreeScene(QGraphicsScene):
 
     def addEdge(self, type):
         if self.endCollisions.node.type == type:
-            self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type)
-            self.parent().scene.addItem(self.startCollisions.counterConjunction)
-            self.parent().scene.addItem(self.startCollisions.counterConjunction.addParentArrow())
+            self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type, self.startCollisions) #.counterBox)
+            self.addItem(self.startCollisions.counterConjunction)
+            self.addItem(self.startCollisions.counterConjunction.addParentArrow())
             self.startCollisions.counterConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
-            self.parent().scene.addItem(self.startCollisions.counterConjunction.addArrow(self.endCollisions))
+            self.addItem(self.startCollisions.counterConjunction.addArrow(self.endCollisions))
         else:
-            self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type)
-            self.parent().scene.addItem(self.startCollisions.threatConjunction)
-            self.parent().scene.addItem(self.startCollisions.threatConjunction.addParentArrow())
+            self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type, self.startCollisions) #.threatBox)
+            self.addItem(self.startCollisions.threatConjunction)
+            self.addItem(self.startCollisions.threatConjunction.addParentArrow())
             self.startCollisions.threatConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
-            self.parent().scene.addItem(self.startCollisions.threatConjunction.addArrow(self.endCollisions))
-        self.parent().tree.addEdge(self.startCollisions.node, self.endCollisions.node, type)
+            self.addItem(self.startCollisions.threatConjunction.addArrow(self.endCollisions))
+        self.parent().tree.addEdge(self.startCollisions.node.id, self.endCollisions.node.id, type)
         self.parent().graphicsView.update()
         self.reset()
 
@@ -361,6 +444,7 @@ class AttackTreeScene(QGraphicsScene):
         self.conjunction = None
         self.parent().mode = 0
         self.parent().setCursor(Qt.ArrowCursor)
+        self.parent().graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
 
     def mousePressEvent(self, mouseEvent):
         if mouseEvent.button() == Qt.LeftButton:
@@ -368,7 +452,7 @@ class AttackTreeScene(QGraphicsScene):
                 node = types.Threat()
                 self.parent().tree.addNode(node)
                 n = Threat(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
-                self.parent().scene.addItem(n)
+                self.addItem(n)
                 self.parent().graphicsView.update()
 
                 super().mousePressEvent(mouseEvent)
@@ -376,11 +460,11 @@ class AttackTreeScene(QGraphicsScene):
                 node = types.Countermeasure()
                 self.parent().tree.addNode(node)
                 n = Countermeasure(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
-                self.parent().scene.addItem(n)
+                self.addItem(n)
                 self.parent().graphicsView.update()
                 super().mousePressEvent(mouseEvent)
             elif self.parent().mode == 3:
-                    self.startCollisions = self.parent().scene.itemAt(mouseEvent.scenePos(), QTransform())
+                    self.startCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
             else:
                 super().mousePressEvent(mouseEvent)
 
@@ -391,7 +475,7 @@ class AttackTreeScene(QGraphicsScene):
         if mouseEvent.button() == Qt.LeftButton:
             if self.parent().mode == 3:
                 try:
-                    self.endCollisions = self.parent().scene.itemAt(mouseEvent.scenePos(), QTransform())
+                    self.endCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
                     if self.startCollisions is None or self.endCollisions is None or self.startCollisions == self.endCollisions:
                         self.reset()
                         super().mouseReleaseEvent(mouseEvent)
@@ -421,8 +505,8 @@ class AttackTreeScene(QGraphicsScene):
                         if self.conjunction is None:
                             self.menu.popup(self.parent().mapToGlobal(self.parent().graphicsView.mapFromScene(mouseEvent.scenePos())), None)
                         else:
-                            self.parent().tree.addEdge(self.startCollisions.node, self.endCollisions.node)
-                            self.parent().scene.addItem(self.conjunction.addArrow(self.endCollisions))
+                            self.parent().tree.addEdge(self.startCollisions.node.id, self.endCollisions.node.id)
+                            self.addItem(self.conjunction.addArrow(self.endCollisions))
 
                             self.parent().graphicsView.update()
                             self.reset()

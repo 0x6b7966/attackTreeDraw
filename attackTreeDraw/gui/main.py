@@ -5,7 +5,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 from PyQt5.QtWidgets import QMainWindow, QTextEdit, QAction, QApplication, QToolBox, QGraphicsScene, QGraphicsItem, \
-    QGraphicsItemGroup, QWidget, QFileDialog, QMessageBox, QDialog
+    QGraphicsItemGroup, QWidget, QFileDialog, QMessageBox, QDialog, QGraphicsView, QSizePolicy
 from PyQt5.QtGui import QIcon, QImage, QPainter
 
 from .items import Node, Arrow, Threat, Countermeasure, Conjunction, AttackTreeScene
@@ -98,6 +98,7 @@ class Main(QMainWindow):
         self.setMinimumSize(QtCore.QSize(0, 0))
         self.setWindowTitle("attackTreeDraw")
         self.setDocumentMode(True)
+        self.setUnifiedTitleAndToolBarOnMac(True)
 
         menuBar = self.menuBar()
         for k, v in menuBarItems.items():
@@ -140,10 +141,12 @@ class Main(QMainWindow):
 
         self.graphicsView.setScene(self.scene)
 
-        self.scene.setSceneRect(self.scene.itemsBoundingRect())
-
         self.graphicsView.setAlignment(Qt.AlignTop)
 
+        self.graphicsView.setRenderHint(QPainter.Antialiasing)
+        self.graphicsView.setCacheMode(QGraphicsView.CacheBackground)
+        self.graphicsView.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
+        self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
         self.graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
 
@@ -164,13 +167,13 @@ class Main(QMainWindow):
 
         self.show()
 
-        self.scene.setSceneRect(0, 0, self.graphicsView.width(), self.graphicsView.height())
-
     def printGraph(self):
         g = self.printGraphRecursion(self.tree.nodeList[self.tree.root], 0, 10)
         i = 0
         while self.reorderTree(g) is not True and i < 100:
             i += 1
+
+        self.scene.setSceneRect(self.scene.itemsBoundingRect())
 
         viewport = self.graphicsView.viewport()
         viewport.update()
@@ -210,14 +213,14 @@ class Main(QMainWindow):
 
         for k, v in node.edges.items():
             if self.tree.nodeList[v.destination].type == 'threat' and n.threatConjunction is None:
-                n.threatConjunction = Conjunction(n, v.conjunction)
+                n.threatConjunction = Conjunction(n, v.conjunction, n) #.threatBox)
                 self.scene.addItem(n.threatConjunction)
                 self.scene.addItem(n.threatConjunction.addParentArrow())
                 g.append(n.threatConjunction)
                 n.threatConjunction.setPos(n.x() + n.boundingRect().center().x() - 100, n.y() + n.boundingRect().height() + 100)
                 threatConj = True
             elif self.tree.nodeList[v.destination].type == 'countermeasure' and n.counterConjunction is None:
-                n.counterConjunction = Conjunction(n, v.conjunction)
+                n.counterConjunction = Conjunction(n, v.conjunction, n) #.threatBox)
                 self.scene.addItem(n.counterConjunction)
                 self.scene.addItem(n.counterConjunction.addParentArrow())
                 g.append(n.counterConjunction)
@@ -307,7 +310,6 @@ class Main(QMainWindow):
         pass
 
     def loadFile(self):
-
         if len(self.tree.nodeList) > 0 and self.saved is False:
 
             msgBox = QMessageBox()
@@ -329,12 +331,15 @@ class Main(QMainWindow):
             return
 
         h = Handler()
+        try:
+            self.tree = h.buildFromXML(fileName[0])
+            self.scene.clear()
 
-        self.tree = h.buildFromXML(fileName[0])
 
-        self.scene.clear()
+            self.printGraph()
+        except Exception as ex:
+            print(ex)
 
-        self.printGraph()
         # For Testing
         self.saved = False
 
@@ -462,6 +467,7 @@ class Main(QMainWindow):
     def mouse(self):
         self.mode = 0
         self.setCursor(Qt.ArrowCursor)
+        self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
 
     def newThreat(self):
         self.mode = 1
@@ -474,3 +480,4 @@ class Main(QMainWindow):
     def newComposition(self):
         self.mode = 3
         self.setCursor(Qt.CrossCursor)
+        self.graphicsView.setDragMode(QGraphicsView.NoDrag)

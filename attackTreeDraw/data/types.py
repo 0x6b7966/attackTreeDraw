@@ -20,7 +20,7 @@ class Node:
 
     def toString(self):
         print('-----------\nNode: %s\nParent: %s\nChild: %s\nConjunction: %s\nTitle: %s' % (
-        self.id, self.parents, self.edges.keys(), self.edges.values(), self.title))
+            self.id, self.parents, self.edges.keys(), self.edges.values(), self.title))
 
     def initDFS(self):
         self.visited = False
@@ -67,12 +67,15 @@ class Tree:
         self.nodeList[node.id] = node
         return True
 
-    def addEdge(self, source, destination, conjunction=None):  # @TODO: only IDs as args
+    def addEdge(self, sourceId, destinationId, conjunction=None):  # @TODO: only IDs as args
         fail = False
-        if source.id not in self.nodeList:
+        if sourceId not in self.nodeList:
             return False
-        if destination.id not in self.nodeList:
+        if destinationId not in self.nodeList:
             return False
+
+        source = self.nodeList[sourceId]
+        destination = self.nodeList[destinationId]
 
         # @TODO: Check if source is C and dst is T,
         # @TODO: Add return value for error
@@ -86,12 +89,12 @@ class Tree:
                 return False
         else:
             for e in self.edgeList:
-                if destination.type == e.destination.type:
-                    if destination.conjunction != e.conjunction:
-                        print('Edge %s to %s not equal conjunctions' % (destination.source, destination.destination), file=sys.stderr)  # Better error handling
+                if destination.type == self.nodeList[e.destination].type:
+                    if conjunction != e.conjunction:
+                        print('Edge %s to %s not equal conjunctions' % (sourceId, destinationId), file=sys.stderr)  # Better error handling
                         return False
 
-        edge = Edge(source, destination, conjunction)
+        edge = Edge(sourceId, destinationId, conjunction)
 
         for c in self.edgeList:
             if edge.__hash__() == c.__hash__():
@@ -100,11 +103,10 @@ class Tree:
                     print('Edge %s to %s not equal conjunctions' % (edge.source, edge.destination), file=sys.stderr)
                 return False
         self.edgeList.append(edge)
-        try:
-            self.nodeList[edge.source.id].edges[edge.destination.id] = edge
-            self.nodeList[edge.destination.id].parents.append(edge.destination.id)
-        except Exception as ex:
-            print(ex)
+
+        self.nodeList[edge.source].edges[edge.destination] = edge
+        self.nodeList[edge.destination].parents.append(edge.destination)
+
         return True
 
     def checkExtended(self):
