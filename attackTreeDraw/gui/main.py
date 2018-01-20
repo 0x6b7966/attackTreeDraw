@@ -76,7 +76,7 @@ class Main(QMainWindow):
             },
         }
 
-        mainToolbarItems = {
+        mainToolbarItems = {  # @TODO: fix path
             'New': ['gui/assets/icons/new.png', 'Ctrl+N', 'New Tree', self.new],
             'Open': ['gui/assets/icons/open.png', 'Ctrl+O', 'Open Tree', self.loadFile],
             'Save': ['gui/assets/icons/save.png', 'Ctrl+S', 'Save Tree', self.saveFile],
@@ -90,6 +90,8 @@ class Main(QMainWindow):
             'New Threat': ['gui/assets/icons/threat.png', '', 'New Threat', self.newThreat],
             'New Counter': ['gui/assets/icons/counter.png', '', 'New Countermeasure', self.newCountermeasure],
             'New Composition': ['gui/assets/icons/arrow.png', '', 'New Composition', self.newComposition],
+            'Delete Item': ['gui/assets/icons/trash.png', '', 'Delete selected Items', self.delete],
+
         }
 
         self.setObjectName("MainWindow")
@@ -165,6 +167,8 @@ class Main(QMainWindow):
 
         workToolbar.addWidget(toolbox)
 
+        print(self.scene.sceneRect())
+
         self.show()
 
     def printGraph(self):
@@ -173,10 +177,9 @@ class Main(QMainWindow):
         while self.reorderTree(g) is not True and i < 100:
             i += 1
 
-        self.scene.setSceneRect(self.scene.itemsBoundingRect())
+        self.graphicsView.centerOn(0, 0)
 
-        viewport = self.graphicsView.viewport()
-        viewport.update()
+        self.graphicsView.viewport().update()
 
         print('----- DONE -----')
 
@@ -213,14 +216,20 @@ class Main(QMainWindow):
 
         for k, v in node.edges.items():
             if self.tree.nodeList[v.destination].type == 'threat' and n.threatConjunction is None:
-                n.threatConjunction = Conjunction(n, v.conjunction, n) #.threatBox)
+                if node.type == 'threat':
+                    n.threatConjunction = Conjunction(n, v.conjunction, -50)
+                else:
+                    n.threatConjunction = Conjunction(n, v.conjunction)
                 self.scene.addItem(n.threatConjunction)
                 self.scene.addItem(n.threatConjunction.addParentArrow())
                 g.append(n.threatConjunction)
                 n.threatConjunction.setPos(n.x() + n.boundingRect().center().x() - 100, n.y() + n.boundingRect().height() + 100)
                 threatConj = True
             elif self.tree.nodeList[v.destination].type == 'countermeasure' and n.counterConjunction is None:
-                n.counterConjunction = Conjunction(n, v.conjunction, n) #.threatBox)
+                if node.type == 'threat':
+                    n.counterConjunction = Conjunction(n, v.conjunction, 50)
+                else:
+                    n.counterConjunction = Conjunction(n, v.conjunction)
                 self.scene.addItem(n.counterConjunction)
                 self.scene.addItem(n.counterConjunction.addParentArrow())
                 g.append(n.counterConjunction)
@@ -334,8 +343,6 @@ class Main(QMainWindow):
         try:
             self.tree = h.buildFromXML(fileName[0])
             self.scene.clear()
-
-
             self.printGraph()
         except Exception as ex:
             print(ex)
@@ -399,11 +406,12 @@ class Main(QMainWindow):
         fileName = dialog.getSaveFileName(self, 'Export as PNG', '', 'PNG (*.png)')
 
         if fileName != ('', ''):  # @TODO; Error handling
+            self.scene.setSceneRect(self.scene.itemsBoundingRect())
             image = QImage(self.scene.sceneRect().size().toSize(), QImage.Format_ARGB32)
             image.fill(Qt.white)
             painter = QPainter(image)
             self.scene.render(painter)
-            painter.end()
+            self.scene.setSceneRect(QRectF())
             image.save(fileName[0])
             return True
 
@@ -423,8 +431,10 @@ class Main(QMainWindow):
                     raise Exception('Error starting painter')
 
                 self.scene.setSceneRect(self.scene.itemsBoundingRect())
+
                 self.scene.render(p)
                 p.end()
+                self.scene.setSceneRect(QRectF())
             except Exception as e:
                 print(e)
             return True
@@ -442,6 +452,7 @@ class Main(QMainWindow):
             self.scene.setSceneRect(self.scene.itemsBoundingRect())
             self.scene.render(p)
             p.end()
+            self.scene.setSceneRect(None)
 
     def new(self):
         if len(self.tree.nodeList) > 0 and self.saved is False:
@@ -458,7 +469,19 @@ class Main(QMainWindow):
                 return
 
         self.tree = types.Tree(False)
+
         self.scene.clear()
+
+        self.graphicsView.centerOn(0, 0)
+
+        #print(self.scene.itemsBoundingRect())
+        self.graphicsView.setSceneRect(self.scene.itemsBoundingRect())
+        print('SceneRect after resize:    ', self.graphicsView.sceneRect())
+        print('SceneItemRect after resize:', self.scene.itemsBoundingRect())
+
+
+        #print(self.scene.sceneRect())
+        self.graphicsView.viewport().update()
 
     def redrawGraph(self):
         self.scene.clear()
@@ -481,3 +504,7 @@ class Main(QMainWindow):
         self.mode = 3
         self.setCursor(Qt.CrossCursor)
         self.graphicsView.setDragMode(QGraphicsView.NoDrag)
+
+    def delete(self):
+        self.mode = 4
+        self.setCursor(Qt.CrossCursor)

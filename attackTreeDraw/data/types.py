@@ -83,7 +83,7 @@ class Tree:
 
         if conjunction is None:
             for e in self.edgeList:
-                if destination.type == e.destination.type:
+                if destination.type == self.nodeList[e.destination].type:
                     conjunction = e.conjunction
             if conjunction is None:
                 return False
@@ -156,3 +156,12 @@ class Tree:
             if 'N'+str(i).zfill(4) not in self.nodeList.keys():
                 return 'N'+str(i).zfill(4)
         return None
+
+    def removeNode(self, nodeId):
+        for i in self.nodeList[nodeId].parents:
+            del self.nodeList[i].edges[i + '-' + nodeId]
+
+        pass
+
+    def removeEdge(self, edgeId):
+        pass
