@@ -4,19 +4,20 @@ import traceback
 import sys
 from PyQt5.QtCore import Qt, QRectF, QSizeF, QLineF, QPointF, QRect
 
-from PyQt5.QtGui import QBrush, QFontMetrics, QFont, QPen, QPolygonF, QPainter, QTransform, QIcon
-from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QWidget, QGraphicsScene, QMenu, QGraphicsView, QMessageBox
+from PyQt5.QtGui import QBrush, QFont, QPen, QPolygonF, QTransform
+from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QGraphicsScene, QMenu, QGraphicsView, QMessageBox
 
-from .windows import NodeEdit
+from .windows import NodeEdit, MessageBox
 
 from data import types
 
 
 class Node(QGraphicsItemGroup):
-    typeOffset = 20
 
-    def __init__(self, node, parent, x=0, y=0):
+    def __init__(self, node, parent, x=0, y=0, offset=20):
         super().__init__()
+
+        self.typeOffset = offset
 
         self.node = node
 
@@ -55,7 +56,7 @@ class Node(QGraphicsItemGroup):
 
         self.idRect = QGraphicsRectItem()
         self.typeRect = QGraphicsRectItem()
-        self.titleRect = QGraphicsRectItem()  # @TODO: add more height if text is broken
+        self.titleRect = QGraphicsRectItem()
 
         self.typeText.setFont(QFont('Arial', 10))
         self.titleText.setFont(QFont('Arial', 10))
@@ -79,7 +80,7 @@ class Node(QGraphicsItemGroup):
 
         self.idText.setPos(x, y)
         self.typeText.setPos(x + self.typeOffset, y)
-        self.titleText.setPos(x, y + 20)
+        self.titleText.setPos(x, y + 18)
 
         self.headerHeight = titleHeight + 20
 
@@ -100,15 +101,15 @@ class Node(QGraphicsItemGroup):
         for k, v in self.node.attributes.items():
             key = QGraphicsTextItem()
             key.setFont(QFont('Arial', 10))
-            key.setTextWidth(100)  # @TODO: change to variable width
+            key.setTextWidth(100)
             key.setPlainText(k)
             keyHeight = int(key.boundingRect().height() / 20 + 0.5) * 20
 
             value = QGraphicsTextItem()
             value.setFont(QFont('Arial', 10))
-            value.setTextWidth(100)  # @TODO: change to variable width
+            value.setTextWidth(100)
             value.setPlainText(v)
-            valueHeight = int(key.boundingRect().height() / 20 + 0.5) * 20
+            valueHeight = int(value.boundingRect().height() / 20 + 0.5) * 20
 
             height = valueHeight if valueHeight > keyHeight else keyHeight
 
@@ -195,7 +196,6 @@ class Node(QGraphicsItemGroup):
 
 
 class Threat(Node):
-    typeOffset = 91
 
     def __init__(self, node, parent, x=0, y=0):
         self.threatBox = None
@@ -204,7 +204,7 @@ class Threat(Node):
         self.threatBoxText = None
         self.counterBoxText = None
 
-        super().__init__(node, parent, x, y)
+        super().__init__(node, parent, x, y, 91)
 
     def printFooter(self):
         self.threatBoxText = QGraphicsTextItem()
@@ -240,7 +240,9 @@ class Threat(Node):
 
 
 class Countermeasure(Node):
-    typeOffset = 63
+
+    def __init__(self, node, parent, x=0, y=0):
+        super().__init__(node, parent, x, y, 63)
 
     def printFooter(self):
         pass
@@ -520,7 +522,8 @@ class AttackTreeScene(QGraphicsScene):
                                 or (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'threat'):
                             self.conjunction = self.startCollisions.threatConjunction
                         else:
-                            return  # @TODO: Open alert window counter -> threat not possible
+                            MessageBox('Adding Edge is not possible', 'Edge from Countermeasure to Threat not possible', icon=QMessageBox.Critical).run()
+                            return
                         if self.conjunction is None:
                             self.menu.popup(self.parent().mapToGlobal(self.parent().graphicsView.mapFromScene(mouseEvent.scenePos())), None)
                         else:
@@ -641,18 +644,3 @@ class AttackTreeScene(QGraphicsScene):
             else:
                 self.reset()
         super().mouseReleaseEvent(mouseEvent)
-
-
-class MessageBox:
-    def __init__(self, title, text, buttons=QMessageBox.Ok, icon=QMessageBox.Information, default=QMessageBox.Ok):
-        self.msgBox = QMessageBox()
-        self.msgBox.setWindowTitle(title)
-        self.msgBox.setText(text)
-        # msgBox.setInformativeText("Do you want to save your changes?")
-        self.msgBox.setStandardButtons(buttons)
-        self.msgBox.setDefaultButton(default)
-        self.msgBox.setIcon(icon)
-        self.msgBox.setWindowIcon(QIcon('gui/assets/icons/logo.png'))
-
-    def run(self):
-        return self.msgBox.exec()

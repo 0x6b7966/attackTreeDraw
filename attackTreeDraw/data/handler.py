@@ -8,7 +8,8 @@ class Handler:
 
     def buildFromXML(self, file):
         xmlHandler = XmlHandler()
-        xmlHandler.loadFile(file)
+        if xmlHandler.loadFile(file) is False:
+            raise ParserError('Root Element with ID %s not found in node list')
         tree = Tree(xmlHandler.extended)
         meta = xmlHandler.xml.find('meta')
         for m in meta.iterchildren():
@@ -40,5 +41,4 @@ class Handler:
         # @TODO implement checks
         xmlHandler = XmlHandler()
         xmlHandler.generateTree(tree)
-        xmlHandler.saveToFile(file)
-        return True  # @TODO: check if file is saved
+        return xmlHandler.saveToFile(file)

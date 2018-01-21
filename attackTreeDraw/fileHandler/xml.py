@@ -1,3 +1,5 @@
+import traceback
+
 from lxml import etree
 import sys
 
@@ -170,5 +172,9 @@ class Handler:
 
     def saveToFile(self, file):
         # @TODO: check if file is writeable
-        self.xml.write(file, pretty_print=True, xml_declaration=True, encoding="utf-8")
-
+        try:
+            self.xml.write(file, pretty_print=True, xml_declaration=True, encoding="utf-8")
+        except Exception as e:
+            return e
+        finally:
+            return True

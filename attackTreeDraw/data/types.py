@@ -53,9 +53,10 @@ class Tree:
         self.nodeList = {}
         self.edgeList = []
         self.extended = False
+        self.falseNodes = []
         # @TODO: check if there is only one root / move to Tree()
         self.root = None
-        self.meta = {}
+        self.meta = {'title': '', 'author': '', 'date': '', 'description': '', 'root': ''}
 
     def addNode(self, node):
         if node.id is None:
@@ -87,10 +88,10 @@ class Tree:
             if conjunction is None:
                 return False
         else:
-            for e in self.edgeList:
-                if destination.type == self.nodeList[e.destination].type:
-                    if conjunction != e.conjunction:
-                        print('Edge %s to %s not equal conjunctions' % (sourceId, destinationId), file=sys.stderr)  # Better error handling
+            for e in self.nodeList[sourceId].edges:
+                if destination.type == self.nodeList[e].type:
+                    if conjunction != self.nodeList[sourceId].edges[e].conjunction:
+                        print('Edge %s to %s not equal conjunctions' % (sourceId, destinationId))  # Better error handling
                         return False
 
         edge = Edge(sourceId, destinationId, conjunction)
@@ -107,6 +108,19 @@ class Tree:
         self.nodeList[edge.destination].parents.append(edge.source)
 
         return True
+
+    def checkMeta(self):
+        if 'author' not in self.meta or self.meta['author'] == '' or 'title' not in self.meta or self.meta['title'] == '' or self.root is None:
+            return False
+        else:
+            return True
+
+    def checkNodes(self):
+        self.falseNodes = []
+        for k,v in self.nodeList.items():
+            if v.title == '':
+                self.falseNodes.append(k)
+        return False if len(self.falseNodes) > 0 else True
 
     def checkExtended(self):
         # @TODO check if edge has no parent (except root)

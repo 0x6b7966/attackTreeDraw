@@ -47,7 +47,6 @@
         </connection>
         <connection source="N0001" type="composition">
             <destination>N0002</destination>
-            <destination>N0004</destination>
         </connection>
         <connection source="N0001" type="alternative">
             <destination>N0004</destination>
