@@ -1,7 +1,10 @@
 import traceback
 
+import os
 from lxml import etree
 import sys
+
+from data.exceptions import XMLXSDError
 
 
 class Handler:
@@ -11,14 +14,16 @@ class Handler:
         self.xml = None
         self.extended = False
 
+        includePath = os.path.dirname(os.path.abspath(__file__))
+
         try:
-            self.simpleXSD = etree.XMLSchema(etree.parse('../doc/xml/attackTreeSimple.xsd'))  # @TODO: change path
+            self.simpleXSD = etree.XMLSchema(etree.parse(os.path.join(includePath, '../../doc/xml/attackTreeSimple.xsd')))  # @TODO: change path
         except OSError:
-            print('Can\'t load attackTreeSimple.xsd, check installation. Abort', file=sys.stderr)
+            raise XMLXSDError('Can\'t load attackTreeSimple.xsd, check installation')
         try:
-            self.extendedXSD = etree.XMLSchema(etree.parse('../doc/xml/attackTreeExtended.xsd'))  # @TODO: change path
+            self.extendedXSD = etree.XMLSchema(etree.parse(os.path.join(includePath, '../../doc/xml/attackTreeExtended.xsd')))  # @TODO: change path
         except OSError:
-            print('Can\'t load attackTreeExtended.xsd, check installation. Abort', file=sys.stderr)
+            raise XMLXSDError('Can\'t load attackTreeExtended.xsd, check installation')
 
     def loadFile(self, file):
         try:

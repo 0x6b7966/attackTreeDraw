@@ -7,10 +7,10 @@ from PyQt5 import QtCore, QtWidgets
 
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
-from PyQt5.QtWidgets import QMainWindow, QAction, QToolBox, QFileDialog, QMessageBox, QDialog, QGraphicsView
+from PyQt5.QtWidgets import QMainWindow, QAction, QToolBox, QFileDialog, QMessageBox, QDialog, QGraphicsView, QGraphicsItemGroup
 from PyQt5.QtGui import QIcon, QImage, QPainter
 
-from data.exceptions import ParserError
+from data.exceptions import ParserError, XMLXSDError
 from .items import Node, Threat, Countermeasure, Conjunction, AttackTreeScene
 from .windows import MessageBox, MetaEdit
 
@@ -170,8 +170,6 @@ class Main(QMainWindow):
 
         workToolbar.addWidget(toolbox)
 
-        print(self.scene.sceneRect())
-
         self.show()
 
     def printGraph(self):
@@ -182,8 +180,6 @@ class Main(QMainWindow):
 
         g = self.printGraphRecursion(self.tree.nodeList[self.tree.root], 0, 10)
         i = 0
-
-        print(g)
 
         while self.reorderTree(g) is not True and i < 100:
             i += 1
@@ -201,7 +197,6 @@ class Main(QMainWindow):
         print('----- DONE -----')
 
     def printGraphRecursion(self, node, x, y, parent=None):
-        g = []
         rec = False
         if node.view is None:
             if node.type == 'threat':
@@ -214,7 +209,6 @@ class Main(QMainWindow):
             node.view = n
             self.scene.addItem(n)
             n.setPos(x, y)
-            g.append(n)
         else:
             n = node.view
             rec = True
@@ -226,48 +220,53 @@ class Main(QMainWindow):
             elif n.node.type == 'countermeasure':
                 self.scene.addItem(parent.counterConjunction.addArrow(n))
 
-        it = 0
+        node.visited = True
+
         threatConj = False
         counterConj = False
 
-        node.visited = True
+        children = []
+        threatConjChildren = []
+        counterConjChildren = []
 
-        g.append([])
-        conjPos = len(g) - 1
+        it = 0
+        for k, v in node.edges.items():
+            if self.tree.nodeList[v.destination].type == 'threat':
+                if n.threatConjunction is None:
+                    if node.type == 'threat':
+                        n.threatConjunction = Conjunction(n, v.conjunction, -50)
+                    else:
+                        n.threatConjunction = Conjunction(n, v.conjunction)
+                    self.scene.addItem(n.threatConjunction)
+                    self.scene.addItem(n.threatConjunction.addParentArrow())
+                    n.threatConjunction.setPos(n.x() + n.boundingRect().center().x() - 100, n.y() + n.boundingRect().height() + 100)
+                    threatConj = True
+                if rec is False:
+                    subG = self.printGraphRecursion(self.tree.nodeList[v.destination], startX + (it * 250), n.threatConjunction.y() + n.threatConjunction.boundingRect().height() + 100, n)
+                    threatConjChildren.append(subG)
+                it += 1
+
+        if threatConj is True:
+            children.append((n.threatConjunction, threatConjChildren))
 
         for k, v in node.edges.items():
-            if self.tree.nodeList[v.destination].type == 'threat' and n.threatConjunction is None:
-                if node.type == 'threat':
-                    n.threatConjunction = Conjunction(n, v.conjunction, -50)
-                else:
-                    n.threatConjunction = Conjunction(n, v.conjunction)
-                self.scene.addItem(n.threatConjunction)
-                self.scene.addItem(n.threatConjunction.addParentArrow())
-                g[conjPos].append(n.threatConjunction)
-                n.threatConjunction.setPos(n.x() + n.boundingRect().center().x() - 100, n.y() + n.boundingRect().height() + 100)
-                threatConj = True
-            elif self.tree.nodeList[v.destination].type == 'countermeasure' and n.counterConjunction is None:
-                if node.type == 'threat':
-                    n.counterConjunction = Conjunction(n, v.conjunction, 50)
-                else:
-                    n.counterConjunction = Conjunction(n, v.conjunction)
-                self.scene.addItem(n.counterConjunction)
-                self.scene.addItem(n.counterConjunction.addParentArrow())
-                g[conjPos].append(n.counterConjunction)
-                n.counterConjunction.setPos(n.x() + n.boundingRect().center().x() + 25, n.y() + n.boundingRect().height() + 100)
-                counterConj = True
+            if self.tree.nodeList[v.destination].type == 'countermeasure':
+                if n.counterConjunction is None:
+                    if node.type == 'threat':
+                        n.counterConjunction = Conjunction(n, v.conjunction, 50)
+                    else:
+                        n.counterConjunction = Conjunction(n, v.conjunction)
+                    self.scene.addItem(n.counterConjunction)
+                    self.scene.addItem(n.counterConjunction.addParentArrow())
+                    n.counterConjunction.setPos(n.x() + n.boundingRect().center().x() + 25, n.y() + n.boundingRect().height() + 100)
+                    counterConj = True
+                if rec is False:
+                    subG = self.printGraphRecursion(self.tree.nodeList[v.destination], startX + (it * 250), n.counterConjunction.y() + n.counterConjunction.boundingRect().height() + 100, n)
+                    counterConjChildren.append(subG)
+                it += 1
 
-            if threatConj is True:
-                conj = n.threatConjunction
-            elif counterConj is True:
-                conj = n.counterConjunction
-            else:
-                pass
-
-            if rec is False:
-                subG = self.printGraphRecursion(self.tree.nodeList[v.destination], startX + (it * 250), conj.y() + conj.boundingRect().height() + 100, n)
-                g[conjPos].append(subG)
-            it += 1
+        if counterConj is True:
+            children.append((n.counterConjunction, counterConjChildren))
 
         if threatConj is not counterConj:
             if n.threatConjunction is not None:
@@ -275,58 +274,57 @@ class Main(QMainWindow):
             if n.counterConjunction is not None:
                 n.counterConjunction.setPos(n.x() + n.boundingRect().x() + 50, n.y() + n.boundingRect().height() + 100)
 
-        return g
+        return n, children
 
     def reorderTree(self, g):
-        if not isinstance(g, Node):
-            left = g[:int(len(g) / 2)]
-            right = g[int(len(g) / 2):]
-
-            r = False
-
-            #print(left, right, sep='\n\t')
-
-            for subG in g:
-                if isinstance(subG, Node):
-                    i = self.reorderTree(subG)
-                    if i is True:
-                        r = True
-
-            i = self.fixCollision(left, right)
+        r = False
+        for subG in g[1]:
+            i = self.reorderTree(subG)
             if i is True:
                 r = True
-            return r
 
-    def fixCollision(self, left, right):
+        if len(g[1]) == 2:
+            i = self.fixCollision(g[1][0], g[1][1])
+            if i is True:
+                r = True
+        return r
+
+    def fixCollision(self, l, r):
+        left = []
+        right = []
+
+        self.makeList(l, left)
+        self.makeList(r, right)
+
         collisions = self.checkCollRec(left, right)
-
         collision = collisions
 
         while collisions is True:
-            for leftItem in left:
+            for leftItem in list(set(left)):
                 self.moveRec(leftItem, -125, 0)
-
-            for rightItem in right:
+            for rightItem in list(set(right)):
                 self.moveRec(rightItem, 125, 0)
-
             collisions = self.checkCollRec(left, right)
 
         return collision
 
+    def makeList(self, item, itemList):
+        itemList.append(item[0])
+        for i in item[1]:
+            self.makeList(i, itemList)
+
     def checkCollRec(self, item, toCheckList):
         if isinstance(item, list):
             for i in item:
-                l = self.checkCollRec(i, toCheckList)
-                if l is True:
+                if self.checkCollRec(i, toCheckList) is True:
                     return True
         else:
             if isinstance(toCheckList, list):
                 for r in toCheckList:
-                    l = self.checkCollRec(item, r)
-                    if l is True:
+                    if self.checkCollRec(item, r) is True:
                         return True
             else:
-                if toCheckList in item.collidingItems():
+                if toCheckList in item.collidingItems(): # and isinstance(toCheckList):
                     return True
         return False
 
@@ -355,12 +353,13 @@ class Main(QMainWindow):
 
         if fileName == ('', ''):
             return
-
-        h = Handler()
         try:
+            h = Handler()
             self.tree = h.buildFromXML(fileName[0])
         except ParserError:
             MessageBox('Loading is not possible', 'The requested file is not compatible', icon=QMessageBox.Critical).run()
+        except XMLXSDError as e:
+            MessageBox('Loading is not possible', '%s' % e, icon=QMessageBox.Critical).run()
         finally:
             self.scene.clear()
             self.printGraph()
@@ -525,7 +524,6 @@ class Main(QMainWindow):
 
     def undo(self):
         pass
-
 
     def redo(self):
         pass

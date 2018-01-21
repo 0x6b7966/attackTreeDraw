@@ -170,10 +170,6 @@ class Node(QGraphicsItemGroup):
 
             self.setPos(x, y)
 
-            print(self.headerGroup.x(), self.headerGroup.y())
-            print(self.x(), self.y())
-            print(self.boundingRect().x(), self.boundingRect().y())
-
         except Exception as e:
             print(e)
 
@@ -514,7 +510,6 @@ class AttackTreeScene(QGraphicsScene):
                         super().mouseReleaseEvent(mouseEvent)
                         return
                     if isinstance(self.endCollisions, Node) and isinstance(self.startCollisions, Node):
-                        print(self.endCollisions.node.type)
                         if (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'countermeasure') \
                                 or (self.startCollisions.node.type == 'countermeasure' and self.endCollisions.node.type == 'countermeasure'):
                             self.conjunction = self.startCollisions.counterConjunction
@@ -544,7 +539,6 @@ class AttackTreeScene(QGraphicsScene):
                     for i in self.selectedItems():
                         if i not in deleted:
                             if isinstance(i, Node):
-                                print('Parent: ', i.parentConjunctions)
                                 for c in i.parentConjunctions:
                                     if len(c.arrows) != 0 and len(c.children) != 0:
                                         deleted.append(c.arrows[c.children.index(i)])
