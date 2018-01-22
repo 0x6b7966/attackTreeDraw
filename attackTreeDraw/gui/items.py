@@ -533,8 +533,8 @@ class AttackTreeScene(QGraphicsScene):
                     print('Error: bla', e)
                     print(traceback.format_exc(sys.exc_info()))
 
-            elif self.parent().mode == 4:
-                try:
+            elif self.parent().mode == 4:  # @TODO: Rework
+                try:  # @TODO: remove try
                     deleted = []
                     for i in self.selectedItems():
                         if i not in deleted:
@@ -550,7 +550,8 @@ class AttackTreeScene(QGraphicsScene):
                                             c.parent.threatConjunction = None
                                         else:
                                             c.parent.counterConjunction = None
-                                        for a in c.children:
+                                        children =c.children.copy()
+                                        for a in children:
                                             deleted.append(c.arrows[c.children.index(a)])
                                             self.removeItem(c.arrows[c.children.index(a)])
                                             del c.arrows[c.children.index(a)]
@@ -559,6 +560,31 @@ class AttackTreeScene(QGraphicsScene):
                                         deleted.append(c)
                                         self.removeItem(c.parentArrow)
                                         self.removeItem(c)
+
+                                if i.threatConjunction is not None:
+                                    deleted.append(i.threatConjunction.parentArrow)
+                                    self.removeItem(i.threatConjunction.parentArrow)
+                                    children = i.threatConjunction.children.copy()
+                                    for a in children:
+                                        deleted.append(i.threatConjunction.arrows[i.threatConjunction.children.index(a)])
+                                        self.removeItem(i.threatConjunction.arrows[i.threatConjunction.children.index(a)])
+                                        del i.threatConjunction.arrows[i.threatConjunction.children.index(a)]
+                                        i.threatConjunction.children.remove(a)
+                                    deleted.append(i.threatConjunction)
+                                    self.removeItem(i.threatConjunction)
+
+                                if i.counterConjunction is not None:
+                                    deleted.append(i.counterConjunction.parentArrow)
+                                    self.removeItem(i.counterConjunction.parentArrow)
+                                    children = i.threatConjunction.children.copy()
+                                    for a in children:
+                                        deleted.append(i.counterConjunction.arrows[i.counterConjunction.children.index(a)])
+                                        self.removeItem(i.counterConjunction.arrows[i.counterConjunction.children.index(a)])
+                                        del i.counterConjunction.arrows[i.counterConjunction.children.index(a)]
+                                        i.counterConjunction.children.remove(a)
+                                    deleted.append(i.counterConjunction)
+                                    self.removeItem(i.counterConjunction)
+
                                 self.parent().tree.removeNode(i.node.id)
                                 deleted.append(i)
                                 self.removeItem(i)

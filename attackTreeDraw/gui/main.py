@@ -184,12 +184,12 @@ class Main(QMainWindow):
         while self.reorderTree(g) is not True and i < 100:
             i += 1
 
-        #for k, n in self.tree.nodeList.items():
-        #    if len(n.parents) == 0 and n.visited is False:
-        #        g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50)
-        #        i = 0
-        #        while self.reorderTree(g) is not True and i < 100:
-        #           i += 1
+        for k, n in self.tree.nodeList.items():
+            if len(n.parents) == 0 and n.visited is False:
+                g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50)
+                i = 0
+                while self.reorderTree(g) is not True and i < 100:
+                   i += 1
 
         self.graphicsView.centerOn(0, 0)
         self.graphicsView.viewport().update()

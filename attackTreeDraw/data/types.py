@@ -172,17 +172,13 @@ class Tree:
 
     def removeNode(self, nodeId):
         if nodeId in self.nodeList:
-            print(self.nodeList)
-            print(self.edgeList)
             for i in self.nodeList[nodeId].parents:
                 self.edgeList.remove(self.nodeList[i].edges[nodeId])
                 del self.nodeList[i].edges[nodeId]
-            for i in self.nodeList[nodeId].edges:
+            for i, e in self.nodeList[nodeId].edges.items():
                 self.nodeList[i].parents.remove(nodeId)
-                self.edgeList.remove(i)
+                self.edgeList.remove(e)
             del self.nodeList[nodeId]
-            print(self.nodeList)
-            print(self.edgeList)
             return True
         else:
             return False
@@ -193,11 +189,9 @@ class Tree:
             if edgeId == e.__hash__():
                 edge = e
         if edge is not None:
-            print(self.edgeList)
             del self.nodeList[edge.source].edges[edge.destination]
             self.nodeList[edge.destination].parents.remove(edge.source)
             self.edgeList.remove(edge)
-            print(self.edgeList)
             return True
         else:
             return False
