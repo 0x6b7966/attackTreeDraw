@@ -67,9 +67,7 @@ def parseSimpleNode(tree, node, parent=None):
     n.title = node.find('title').text
     n.description = node.find('description').text
 
-    if parent is not None:
-        n.parents.append(parent)
-    else:
+    if parent is None:
         n.isRoot = True
         tree.root = n.id
     check = tree.addNode(n)

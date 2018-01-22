@@ -172,7 +172,9 @@ class Tree:
 
     def removeNode(self, nodeId):
         if nodeId in self.nodeList:
+            print(self.nodeList[nodeId].parents)
             for i in self.nodeList[nodeId].parents:
+                print(self.nodeList[i].edges)
                 self.edgeList.remove(self.nodeList[i].edges[nodeId])
                 del self.nodeList[i].edges[nodeId]
             for i, e in self.nodeList[nodeId].edges.items():

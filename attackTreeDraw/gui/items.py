@@ -576,7 +576,7 @@ class AttackTreeScene(QGraphicsScene):
                                 if i.counterConjunction is not None:
                                     deleted.append(i.counterConjunction.parentArrow)
                                     self.removeItem(i.counterConjunction.parentArrow)
-                                    children = i.threatConjunction.children.copy()
+                                    children = i.counterConjunction.children.copy()
                                     for a in children:
                                         deleted.append(i.counterConjunction.arrows[i.counterConjunction.children.index(a)])
                                         self.removeItem(i.counterConjunction.arrows[i.counterConjunction.children.index(a)])
