@@ -523,32 +523,42 @@ class Main(QMainWindow):
         edit.exec()
 
     def undo(self):
-        if len(self.lastAction) > 0:
-            tree = self.lastAction.pop()
-            self.nextAction.append(copy.deepcopy(self.tree))
-            self.tree = copy.copy(tree)
+        try:
+            if len(self.lastAction) > 0:
+                tree = self.lastAction.pop()
+                self.nextAction.append(copy.deepcopy(self.tree))
+                self.tree = copy.deepcopy(tree)
 
-            if self.tree.root is None and len(self.tree.nodeList) != 0:
-                self.tree.root = list(self.tree.nodeList.keys())[0]
-                self.tree.nodeList[self.tree.root].isRoot = True
-                self.scene.clear()
-                self.printGraph()
-            else:
-                self.scene.clear()
+                if self.tree.root is None and len(self.tree.nodeList) != 0:
+                    self.tree.root = list(self.tree.nodeList.keys())[0]
+                    self.tree.nodeList[self.tree.root].isRoot = True
+                    self.scene.clear()
+                    self.printGraph()
+                else:
+                    self.scene.clear()
+        except Exception:
+            print(sys.exc_info())
+            print(traceback.format_exc())
+            exit(-1)
 
     def redo(self):
-        if len(self.nextAction) > 0:
-            tree = self.nextAction.pop()
-            self.lastAction.append(copy.deepcopy(self.tree))
-            self.tree = copy.copy(tree)
+        try:
+            if len(self.nextAction) > 0:
+                tree = self.nextAction.pop()
+                self.lastAction.append(copy.deepcopy(self.tree))
+                self.tree = copy.deepcopy(tree)
 
-            if self.tree.root is None and len(self.tree.nodeList) != 0:
-                self.tree.root = list(self.tree.nodeList.keys())[0]
-                self.tree.nodeList[self.tree.root].isRoot = True
-                self.scene.clear()
-                self.printGraph()
-            else:
-                self.scene.clear()
+                if self.tree.root is None and len(self.tree.nodeList) != 0:
+                    self.tree.root = list(self.tree.nodeList.keys())[0]
+                    self.tree.nodeList[self.tree.root].isRoot = True
+                    self.scene.clear()
+                    self.printGraph()
+                else:
+                    self.scene.clear()
+        except Exception:
+            print(sys.exc_info())
+            print(traceback.format_exc())
+            exit(-1)
 
     def addLastAction(self):
         self.lastAction.append(copy.deepcopy(self.tree))
