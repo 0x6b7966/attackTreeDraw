@@ -8,13 +8,13 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 from PyQt5.QtWidgets import QMainWindow, QAction, QToolBox, QFileDialog, QMessageBox, QDialog, QGraphicsView, QGraphicsItemGroup
-from PyQt5.QtGui import QIcon, QImage, QPainter
+from PyQt5.QtGui import QIcon, QImage, QPainter, QBrush
 
 from data.exceptions import ParserError, XMLXSDError
 from .items import Node, Threat, Countermeasure, Conjunction, AttackTreeScene
 from .windows import MessageBox, MetaEdit
 
-from data.handler import Handler
+from data.handler import TreeHandler
 
 from data import types
 
@@ -354,7 +354,7 @@ class Main(QMainWindow):
         if fileName == ('', ''):
             return
         try:
-            h = Handler()
+            h = TreeHandler()
             self.tree = h.buildFromXML(fileName[0])
         except ParserError:
             MessageBox('Loading is not possible', 'The requested file is not compatible', icon=QMessageBox.Critical).run()
@@ -392,7 +392,7 @@ class Main(QMainWindow):
         if self.file == ('', ''):
             dialog = QFileDialog()
             self.file = dialog.getSaveFileName(self, 'Save Attack Tree', '', fileExt)  # TODO: check if saving was good
-        handler = Handler()
+        handler = TreeHandler()
 
         if self.file == ('', ''):
             return False
@@ -523,7 +523,32 @@ class Main(QMainWindow):
         edit.exec()
 
     def undo(self):
-        pass
+        if len(self.lastAction) > 0:
+            tree = self.lastAction.pop()
+            self.nextAction.append(copy.deepcopy(self.tree))
+            self.tree = copy.copy(tree)
+
+            if self.tree.root is None and len(self.tree.nodeList) != 0:
+                self.tree.root = list(self.tree.nodeList.keys())[0]
+                self.tree.nodeList[self.tree.root].isRoot = True
+                self.scene.clear()
+                self.printGraph()
+            else:
+                self.scene.clear()
 
     def redo(self):
-        pass
+        if len(self.nextAction) > 0:
+            tree = self.nextAction.pop()
+            self.lastAction.append(copy.deepcopy(self.tree))
+            self.tree = copy.copy(tree)
+
+            if self.tree.root is None and len(self.tree.nodeList) != 0:
+                self.tree.root = list(self.tree.nodeList.keys())[0]
+                self.tree.nodeList[self.tree.root].isRoot = True
+                self.scene.clear()
+                self.printGraph()
+            else:
+                self.scene.clear()
+
+    def addLastAction(self):
+        self.lastAction.append(copy.deepcopy(self.tree))

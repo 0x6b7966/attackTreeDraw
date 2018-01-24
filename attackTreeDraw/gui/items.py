@@ -458,6 +458,8 @@ class AttackTreeScene(QGraphicsScene):
     def mousePressEvent(self, mouseEvent):
         if mouseEvent.button() == Qt.LeftButton:
             if self.parent().mode == 1:
+                self.parent().addLastAction()
+
                 node = types.Threat()
                 self.parent().tree.addNode(node)
                 n = Threat(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
@@ -468,6 +470,8 @@ class AttackTreeScene(QGraphicsScene):
                 self.parent().saved = False
                 super().mousePressEvent(mouseEvent)
             elif self.parent().mode == 2:
+                self.parent().addLastAction()
+
                 node = types.Countermeasure()
                 self.parent().tree.addNode(node)
                 n = Countermeasure(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
@@ -477,7 +481,9 @@ class AttackTreeScene(QGraphicsScene):
 
                 super().mousePressEvent(mouseEvent)
             elif self.parent().mode == 3:
+
                 self.startCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
+                self.parent().addLastAction()
             else:
                 super().mousePressEvent(mouseEvent)
 
@@ -487,6 +493,7 @@ class AttackTreeScene(QGraphicsScene):
     def mouseReleaseEvent(self, mouseEvent):
         if mouseEvent.button() == Qt.LeftButton:
             if self.parent().mode == 3:
+                self.parent().addLastAction()
                 try:
                     self.endCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
                     if self.startCollisions is None or self.endCollisions is None or self.startCollisions == self.endCollisions:
@@ -534,6 +541,7 @@ class AttackTreeScene(QGraphicsScene):
                     print(traceback.format_exc(sys.exc_info()))
 
             elif self.parent().mode == 4:  # @TODO: Rework
+                self.parent().addLastAction()
                 try:  # @TODO: remove try
                     deleted = []
                     for i in self.selectedItems():

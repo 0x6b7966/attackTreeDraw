@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QApplication
 from gui.main import Main
 
 
-from data.handler import Handler
+from data.handler import TreeHandler
 
 if __name__ == "__main__":
 

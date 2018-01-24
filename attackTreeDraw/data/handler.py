@@ -1,12 +1,15 @@
+from PyQt5.QtCore import Qt
+
 from .exceptions import ParserError
 from .types import *
 from .parsers import parseExtendedConnection, parseExtendedNode, parseSimpleNode
 from fileHandler.xml import Handler as XmlHandler
 
 
-class Handler:
+class TreeHandler:
 
-    def buildFromXML(self, file):
+    @staticmethod
+    def buildFromXML(file):
         xmlHandler = XmlHandler()
         if xmlHandler.loadFile(file) is False:
             raise ParserError('Root Element with ID %s not found in node list')
@@ -37,8 +40,26 @@ class Handler:
             return None
         return tree
 
-    def saveToXML(self, tree, file):
+    @staticmethod
+    def saveToXML(tree, file):
         # @TODO implement checks
         xmlHandler = XmlHandler()
         xmlHandler.generateTree(tree)
         return xmlHandler.saveToFile(file)
+
+
+class ConfigHandler:
+    threatBackgroundColor = Qt.white
+    threatTextColor = Qt.black
+    threatBorderColor = Qt.black
+    countermeasureBackgroundColor = Qt.white
+    countermeasureTextColor = Qt.black
+    countermeasureBorderColor = Qt.black
+
+    @staticmethod
+    def loadConfig():
+        pass
+
+    @staticmethod
+    def saveConfig():
+        pass

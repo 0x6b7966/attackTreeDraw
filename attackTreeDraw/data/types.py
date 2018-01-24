@@ -54,6 +54,7 @@ class Tree:
         self.edgeList = []
         self.extended = False
         self.falseNodes = []
+        self.cycleNode = None
         # @TODO: check if there is only one root / move to Tree()
         self.root = None
         self.meta = {'title': '', 'author': '', 'date': '', 'description': '', 'root': ''}
