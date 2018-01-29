@@ -144,41 +144,38 @@ class Node(QGraphicsItemGroup):
     def redrawOptions(self, background, border, text):
         y = self.y()
         x = self.x()
-        try:
-            self.prepareGeometryChange()
 
-            for i in self.attributes.childItems():
-                self.attributes.removeFromGroup(i)
-                self.parent.scene.removeItem(i)
+        self.prepareGeometryChange()
 
-            for i in self.headerGroup.childItems():
-                self.headerGroup.removeFromGroup(i)
-                self.parent.scene.removeItem(i)
+        for i in self.attributes.childItems():
+            self.attributes.removeFromGroup(i)
+            self.parent.scene.removeItem(i)
 
-            for i in self.footerGroup.childItems():
-                self.footerGroup.removeFromGroup(i)
-                self.parent.scene.removeItem(i)
+        for i in self.headerGroup.childItems():
+            self.headerGroup.removeFromGroup(i)
+            self.parent.scene.removeItem(i)
 
-            self.removeFromGroup(self.attributes)
-            self.removeFromGroup(self.footerGroup)
-            self.removeFromGroup(self.headerGroup)
+        for i in self.footerGroup.childItems():
+            self.footerGroup.removeFromGroup(i)
+            self.parent.scene.removeItem(i)
 
-            self.printHeader(background, border, text)
+        self.removeFromGroup(self.attributes)
+        self.removeFromGroup(self.footerGroup)
+        self.removeFromGroup(self.headerGroup)
 
-            self.printAttributes(background, border, text)
+        self.printHeader(background, border, text)
 
-            self.printFooter(background, border, text)
+        self.printAttributes(background, border, text)
 
-            self.parent.scene.removeItem(self)
-            self.parent.scene.addItem(self)
+        self.printFooter(background, border, text)
 
-            self.update()
-            self.parent.graphicsView.update()
+        self.parent.scene.removeItem(self)
+        self.parent.scene.addItem(self)
 
-            self.setPos(x, y)
+        self.update()
+        self.parent.graphicsView.update()
 
-        except Exception as e:
-            print(e)
+        self.setPos(x, y)
 
     def redraw(self):
         self.redrawOptions(Qt.white, Qt.black, Qt.black)
@@ -470,37 +467,33 @@ class AttackTreeScene(QGraphicsScene):
         self.addEdge('threshold')
 
     def addEdge(self, type):
-        try:
-            if self.endCollisions.node.type == 'countermeasure':
-                if self.startCollisions.node.type == 'threat':
-                    self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type, 0, 50)
-                else:
-                    self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type, 0)
-
-                self.addItem(self.startCollisions.counterConjunction)
-                self.addItem(self.startCollisions.counterConjunction.addParentArrow())
-                self.startCollisions.counterConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
-                self.addItem(self.startCollisions.counterConjunction.addArrow(self.endCollisions))
-
-                self.startCollisions.counterConjunction.setPos(self.startCollisions.counterConjunction.x() + 100, self.startCollisions.counterConjunction.y())
+        if self.endCollisions.node.type == 'countermeasure':
+            if self.startCollisions.node.type == 'threat':
+                self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type, 0, 50)
             else:
-                if self.startCollisions.node.type == 'threat':
-                    self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type, 1, -50)
-                else:
-                    self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type, 1)
+                self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type, 0)
 
-                self.addItem(self.startCollisions.threatConjunction)
-                self.addItem(self.startCollisions.threatConjunction.addParentArrow())
-                self.startCollisions.threatConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
-                self.addItem(self.startCollisions.threatConjunction.addArrow(self.endCollisions))
+            self.addItem(self.startCollisions.counterConjunction)
+            self.addItem(self.startCollisions.counterConjunction.addParentArrow())
+            self.startCollisions.counterConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
+            self.addItem(self.startCollisions.counterConjunction.addArrow(self.endCollisions))
 
-            self.parent().tree.addEdge(self.startCollisions.node.id, self.endCollisions.node.id, type)
-            self.parent().graphicsView.update()
-            self.reset()
-            self.parent().saved = False
-        except Exception:
-            print(traceback.format_exc())
-            exit(-1)
+            self.startCollisions.counterConjunction.setPos(self.startCollisions.counterConjunction.x() + 100, self.startCollisions.counterConjunction.y())
+        else:
+            if self.startCollisions.node.type == 'threat':
+                self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type, 1, -50)
+            else:
+                self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type, 1)
+
+            self.addItem(self.startCollisions.threatConjunction)
+            self.addItem(self.startCollisions.threatConjunction.addParentArrow())
+            self.startCollisions.threatConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
+            self.addItem(self.startCollisions.threatConjunction.addArrow(self.endCollisions))
+
+        self.parent().tree.addEdge(self.startCollisions.node.id, self.endCollisions.node.id, type)
+        self.parent().graphicsView.update()
+        self.reset()
+        self.parent().saved = False
 
     def reset(self):
         self.startCollisions = None
