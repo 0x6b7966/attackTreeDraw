@@ -256,3 +256,111 @@ class MetaEdit(QDialog):
             self.parentWidget.tree.root = self.rootSelect.currentText().split(' -- ')[0]
             self.parentWidget.tree.nodeList[self.rootSelect.currentText().split(' -- ')[0]].isRoot = True
         self.close()
+
+
+class Options(QDialog):
+    def __init__(self, parent):
+        QWidget.__init__(self)
+        self.parentWidget = parent
+        self.setupUi()
+        self.show()
+
+    def setupUi(self):
+        self.resize(407, 408)
+        self.verticalLayout = QtWidgets.QVBoxLayout(self)
+
+        self.tabWidget = QtWidgets.QTabWidget(self)
+        self.tab = QtWidgets.QWidget()
+        self.tabWidget.addTab(self.tab, "")
+
+        self.colors = QtWidgets.QWidget()
+
+        self.colorsLayout = QtWidgets.QVBoxLayout(self.colors)
+        self.threatLabel = QtWidgets.QLabel(self.colors)
+        self.colorsLayout.addWidget(self.threatLabel)
+
+        self.threatBackgroundLayout = QtWidgets.QHBoxLayout()
+        self.threatBackgroundLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
+        self.threatBackgroundLabel = QtWidgets.QLabel(self.colors)
+        self.threatBackgroundLayout.addWidget(self.threatBackgroundLabel)
+        self.threatBackgroundPicker = QtWidgets.QComboBox(self.colors)
+        self.threatBackgroundLayout.addWidget(self.threatBackgroundPicker)
+        self.colorsLayout.addLayout(self.threatBackgroundLayout)
+        self.threatBorderLayout = QtWidgets.QHBoxLayout()
+        self.threatBorderLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
+        self.threatBorderLabel = QtWidgets.QLabel(self.colors)
+        self.threatBorderLayout.addWidget(self.threatBorderLabel)
+        self.threatBorderPicker = QtWidgets.QComboBox(self.colors)
+        self.threatBorderLayout.addWidget(self.threatBorderPicker)
+        self.colorsLayout.addLayout(self.threatBorderLayout)
+        self.threatFontLayout = QtWidgets.QHBoxLayout()
+        self.threatFontLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
+        self.threatFontLabel = QtWidgets.QLabel(self.colors)
+        self.threatFontLayout.addWidget(self.threatFontLabel)
+        self.threatFontPicker = QtWidgets.QComboBox(self.colors)
+        self.threatFontLayout.addWidget(self.threatFontPicker)
+        self.verticalLayout_2.addLayout(self.threatFontLayout)
+        self.line_2 = QtWidgets.QFrame(self.colors)
+        self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.colorsLayout.addWidget(self.line_2)
+        self.countermeasureLabel = QtWidgets.QLabel(self.colors)
+        self.colorsLayout.addWidget(self.countermeasureLabel)
+        self.countermeasureBackgroundLayout = QtWidgets.QHBoxLayout()
+        self.countermeasureBackgroundLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
+        self.countermeasureBackgroundLabel = QtWidgets.QLabel(self.colors)
+        self.countermeasureBackgroundLayout.addWidget(self.countermeasureBackgroundLabel)
+        self.countermeasureBackgroundPicker = QtWidgets.QComboBox(self.colors)
+        self.countermeasureBackgroundLayout.addWidget(self.countermeasureBackgroundPicker)
+        self.colorsLayout.addLayout(self.countermeasureBackgroundLayout)
+        self.countermeasureBorderLayout = QtWidgets.QHBoxLayout()
+        self.countermeasureBorderLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
+        self.countermeasureBorderLabel = QtWidgets.QLabel(self.colors)
+        self.countermeasureBorderLayout.addWidget(self.countermeasureBorderLabel)
+        self.countermeasureBorderPicker = QtWidgets.QComboBox(self.colors)
+        self.countermeasureBorderLayout.addWidget(self.countermeasureBorderPicker)
+        self.colorsLayout.addLayout(self.countermeasureBorderLayout)
+        self.countermeasureFontLayout = QtWidgets.QHBoxLayout()
+        self.countermeasureFontLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
+        self.countermeasureFontLabel = QtWidgets.QLabel(self.colors)
+        self.countermeasureFontLayout.addWidget(self.countermeasureFontLabel)
+        self.countermeasureFontPicker = QtWidgets.QComboBox(self.colors)
+        self.countermeasureFontLayout.addWidget(self.countermeasureFontPicker)
+        self.colorsLayout.addLayout(self.countermeasureFontLayout)
+        self.line = QtWidgets.QFrame(self.colors)
+        self.line.setFrameShape(QtWidgets.QFrame.HLine)
+        self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.colorsLayout.addWidget(self.line)
+        self.tabWidget.addTab(self.colors, "")
+        self.verticalLayout.addWidget(self.tabWidget)
+        self.horizontalLayout = QtWidgets.QHBoxLayout()
+
+        self.ok = QtWidgets.QPushButton(self)
+        self.horizontalLayout.addWidget(self.ok)
+
+        self.cancel = QtWidgets.QPushButton(self)
+        self.horizontalLayout.addWidget(self.cancel)
+
+        self.verticalLayout.addLayout(self.horizontalLayout)
+
+        self.tabWidget.setCurrentIndex(1)
+        
+        self.setWindowTitle("Dialog")
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), "General")
+        self.threatLabel.setText("Threat colors:")
+        self.threatBackgroundLabel.setText("Background:")
+        self.threatBorderLabel.setText("Border:")
+        self.threatFontLabel.setText("Font:")
+        self.countermeasureLabel.setText("Countermeasure colors:")
+        self.countermeasureBackgroundLabel.setText("Background:")
+        self.countermeasureBorderLabel.setText("Border:")
+        self.countermeasureFontLabel.setText("Font:")
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.colors), "Colors")
+        self.cancel.setText("Cancel")
+        self.ok.setText("Ok")
+
+        self.cancel.clicked.connect(self.close)
+        self.ok.clicked.connect(self.submit)
+
+    def submit(self):
+        pass

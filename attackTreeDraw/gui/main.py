@@ -12,7 +12,7 @@ from PyQt5.QtGui import QIcon, QImage, QPainter, QBrush
 
 from data.exceptions import ParserError, XMLXSDError
 from .items import Node, Threat, Countermeasure, Conjunction, AttackTreeScene
-from .windows import MessageBox, MetaEdit
+from .windows import MessageBox, MetaEdit, Options
 
 from data.handler import TreeHandler
 
@@ -48,6 +48,8 @@ class Main(QMainWindow):
                 'Export as P&DF': ['Ctrl+Shift+E', 'Export Tree', self.exportPDF],
                 'Export as PN&G': ['Ctrl+Shift+Alt+E', 'Export Tree', self.exportPNG],
                 'SEPARATOR02': [],
+                'Op&tions': ['Ctrl+Shift+Alt+O', 'Options', self.options],
+                'SEPARATOR03': [],
                 '&Close Tree': ['Ctrl+W', 'Open File', self.close],
                 '&Print': ['Ctrl+P', 'Print Tree', self.print],
                 '&Exit': ['Ctrl+Q', 'Print Tree', self.close],
@@ -521,6 +523,10 @@ class Main(QMainWindow):
     def editMeta(self):
         edit = MetaEdit(self)
         edit.exec()
+
+    def options(self):
+        options = Options(self)
+        options.exec()
 
     def undo(self):
         try:
