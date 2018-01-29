@@ -4,9 +4,8 @@ import sys
 import os
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
-from PyQt5.QtWidgets import QWidget, QMessageBox, QDialog
+from PyQt5.QtWidgets import QWidget, QMessageBox, QDialog, QLabel, QColorDialog, QFrame
 from PyQt5 import QtCore, QtWidgets
-
 
 class MessageBox:
     def __init__(self, title, text, buttons=QMessageBox.Ok, icon=QMessageBox.Information, default=QMessageBox.Ok):
@@ -259,6 +258,7 @@ class MetaEdit(QDialog):
 
 
 class Options(QDialog):
+
     def __init__(self, parent):
         QWidget.__init__(self)
         self.parentWidget = parent
@@ -268,6 +268,9 @@ class Options(QDialog):
     def setupUi(self):
         self.resize(407, 408)
         self.verticalLayout = QtWidgets.QVBoxLayout(self)
+
+        includePath = os.path.dirname(os.path.abspath(__file__))
+        self.setWindowIcon(QIcon(os.path.join(includePath, 'assets/icons/logo.png')))
 
         self.tabWidget = QtWidgets.QTabWidget(self)
         self.tab = QtWidgets.QWidget()
@@ -283,50 +286,58 @@ class Options(QDialog):
         self.threatBackgroundLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
         self.threatBackgroundLabel = QtWidgets.QLabel(self.colors)
         self.threatBackgroundLayout.addWidget(self.threatBackgroundLabel)
-        self.threatBackgroundPicker = QtWidgets.QComboBox(self.colors)
+        self.threatBackgroundPicker = ColorLabel(self.parentWidget.threatBackground, self.colors)
         self.threatBackgroundLayout.addWidget(self.threatBackgroundPicker)
         self.colorsLayout.addLayout(self.threatBackgroundLayout)
+
         self.threatBorderLayout = QtWidgets.QHBoxLayout()
         self.threatBorderLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
         self.threatBorderLabel = QtWidgets.QLabel(self.colors)
         self.threatBorderLayout.addWidget(self.threatBorderLabel)
-        self.threatBorderPicker = QtWidgets.QComboBox(self.colors)
+        self.threatBorderPicker = ColorLabel(self.parentWidget.threatBorder, self.colors)
         self.threatBorderLayout.addWidget(self.threatBorderPicker)
         self.colorsLayout.addLayout(self.threatBorderLayout)
+
         self.threatFontLayout = QtWidgets.QHBoxLayout()
         self.threatFontLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
         self.threatFontLabel = QtWidgets.QLabel(self.colors)
         self.threatFontLayout.addWidget(self.threatFontLabel)
-        self.threatFontPicker = QtWidgets.QComboBox(self.colors)
+        self.threatFontPicker = ColorLabel(self.parentWidget.threatFont, self.colors)
         self.threatFontLayout.addWidget(self.threatFontPicker)
-        self.verticalLayout_2.addLayout(self.threatFontLayout)
+        self.colorsLayout.addLayout(self.threatFontLayout)
+
         self.line_2 = QtWidgets.QFrame(self.colors)
         self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
         self.line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.colorsLayout.addWidget(self.line_2)
+
         self.countermeasureLabel = QtWidgets.QLabel(self.colors)
         self.colorsLayout.addWidget(self.countermeasureLabel)
+
         self.countermeasureBackgroundLayout = QtWidgets.QHBoxLayout()
         self.countermeasureBackgroundLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
         self.countermeasureBackgroundLabel = QtWidgets.QLabel(self.colors)
         self.countermeasureBackgroundLayout.addWidget(self.countermeasureBackgroundLabel)
-        self.countermeasureBackgroundPicker = QtWidgets.QComboBox(self.colors)
+        self.countermeasureBackgroundPicker = ColorLabel(self.parentWidget.countermeasureBackground, self.colors)
         self.countermeasureBackgroundLayout.addWidget(self.countermeasureBackgroundPicker)
         self.colorsLayout.addLayout(self.countermeasureBackgroundLayout)
+
         self.countermeasureBorderLayout = QtWidgets.QHBoxLayout()
         self.countermeasureBorderLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
         self.countermeasureBorderLabel = QtWidgets.QLabel(self.colors)
         self.countermeasureBorderLayout.addWidget(self.countermeasureBorderLabel)
-        self.countermeasureBorderPicker = QtWidgets.QComboBox(self.colors)
+        self.countermeasureBorderPicker = ColorLabel(self.parentWidget.countermeasureBorder, self.colors)
         self.countermeasureBorderLayout.addWidget(self.countermeasureBorderPicker)
         self.colorsLayout.addLayout(self.countermeasureBorderLayout)
+
         self.countermeasureFontLayout = QtWidgets.QHBoxLayout()
         self.countermeasureFontLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
         self.countermeasureFontLabel = QtWidgets.QLabel(self.colors)
         self.countermeasureFontLayout.addWidget(self.countermeasureFontLabel)
-        self.countermeasureFontPicker = QtWidgets.QComboBox(self.colors)
+        self.countermeasureFontPicker = ColorLabel(self.parentWidget.countermeasureFont, self.colors)
         self.countermeasureFontLayout.addWidget(self.countermeasureFontPicker)
         self.colorsLayout.addLayout(self.countermeasureFontLayout)
+
         self.line = QtWidgets.QFrame(self.colors)
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -363,4 +374,34 @@ class Options(QDialog):
         self.ok.clicked.connect(self.submit)
 
     def submit(self):
-        pass
+        self.parentWidget.threatBackground = self.threatBackgroundPicker.color
+        self.parentWidget.threatBorder = self.threatBorderPicker.color
+        self.parentWidget.threatFont = self.threatFontPicker.color
+
+        self.parentWidget.countermeasureBackground = self.countermeasureBackgroundPicker.color
+        self.parentWidget.countermeasureBorder = self.countermeasureBorderPicker.color
+        self.parentWidget.countermeasureFont = self.countermeasureFontPicker.color
+
+        self.parentWidget.redrawItems()
+        self.close()
+
+
+class ColorLabel(QLabel):
+    def __init__(self, color, parent=None):
+        super().__init__(parent)
+
+        self.color = color
+
+        palette = self.palette()
+        palette.setColor(self.backgroundRole(), color)
+        self.setAutoFillBackground(True)
+        self.setPalette(palette)
+
+        self.setFrameStyle(QFrame.Panel)
+
+    def mousePressEvent(self, QMouseEvent):
+        self.color = QColorDialog.getColor(self.color, self, "Pick a color", QColorDialog.DontUseNativeDialog)
+        palette = self.palette()
+        palette.setColor(self.backgroundRole(), self.color)
+        self.setAutoFillBackground(True)
+        self.setPalette(palette)

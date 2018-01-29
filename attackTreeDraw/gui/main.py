@@ -20,6 +20,13 @@ from data import types
 
 
 class Main(QMainWindow):
+    threatBackground = Qt.white
+    threatBorder = Qt.black
+    threatFont = Qt.black
+
+    countermeasureBackground = Qt.white
+    countermeasureBorder = Qt.black
+    countermeasureFont = Qt.black
 
     def __init__(self):
         super().__init__()
@@ -236,9 +243,9 @@ class Main(QMainWindow):
             if self.tree.nodeList[v.destination].type == 'threat':
                 if n.threatConjunction is None:
                     if node.type == 'threat':
-                        n.threatConjunction = Conjunction(n, v.conjunction, -50)
+                        n.threatConjunction = Conjunction(n, v.conjunction, 1, -50)
                     else:
-                        n.threatConjunction = Conjunction(n, v.conjunction)
+                        n.threatConjunction = Conjunction(n, v.conjunction, 1)
                     self.scene.addItem(n.threatConjunction)
                     self.scene.addItem(n.threatConjunction.addParentArrow())
                     n.threatConjunction.setPos(n.x() + n.boundingRect().center().x() - 100, n.y() + n.boundingRect().height() + 100)
@@ -255,9 +262,9 @@ class Main(QMainWindow):
             if self.tree.nodeList[v.destination].type == 'countermeasure':
                 if n.counterConjunction is None:
                     if node.type == 'threat':
-                        n.counterConjunction = Conjunction(n, v.conjunction, 50)
+                        n.counterConjunction = Conjunction(n, v.conjunction, 0, 50)
                     else:
-                        n.counterConjunction = Conjunction(n, v.conjunction)
+                        n.counterConjunction = Conjunction(n, v.conjunction, 0)
                     self.scene.addItem(n.counterConjunction)
                     self.scene.addItem(n.counterConjunction.addParentArrow())
                     n.counterConjunction.setPos(n.x() + n.boundingRect().center().x() + 25, n.y() + n.boundingRect().height() + 100)
@@ -498,6 +505,11 @@ class Main(QMainWindow):
         self.scene.clear()
         self.printGraph()
 
+    def redrawItems(self):
+        for e in self.scene.items():
+            if isinstance(e, Node) or isinstance(e, Conjunction):
+                e.redraw()
+
     def mouse(self):
         self.mode = 0
         self.setCursor(Qt.ArrowCursor)
@@ -525,8 +537,13 @@ class Main(QMainWindow):
         edit.exec()
 
     def options(self):
-        options = Options(self)
-        options.exec()
+        try:
+            options = Options(self)
+            options.exec()
+        except Exception:
+            print(sys.exc_info())
+            print(traceback.format_exc())
+            exit(-1)
 
     def undo(self):
         try:
@@ -567,4 +584,5 @@ class Main(QMainWindow):
             exit(-1)
 
     def addLastAction(self):
-        self.lastAction.append(copy.deepcopy(self.tree))
+        #self.lastAction.append(copy.deepcopy(self.tree))
+        pass

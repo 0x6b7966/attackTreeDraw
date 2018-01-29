@@ -5,7 +5,7 @@ import sys
 from PyQt5.QtCore import Qt, QRectF, QSizeF, QLineF, QPointF, QRect
 
 from PyQt5.QtGui import QBrush, QFont, QPen, QPolygonF, QTransform
-from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QGraphicsScene, QMenu, QGraphicsView, QMessageBox
+from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QGraphicsScene, QMenu, QGraphicsView, QMessageBox, QLabel, QColorDialog
 
 from .windows import NodeEdit, MessageBox
 
@@ -14,7 +14,7 @@ from data import types
 
 class Node(QGraphicsItemGroup):
 
-    def __init__(self, node, parent, x=0, y=0, offset=20):
+    def __init__(self, node, parent, background, border, text, x=0, y=0, offset=20):
         super().__init__()
 
         self.typeOffset = offset
@@ -40,13 +40,13 @@ class Node(QGraphicsItemGroup):
         self.attributesHeight = 0
         self.headerHeight = 0
 
-        self.printHeader()
-        self.printAttributes()
-        self.printFooter()
+        self.printHeader(background, border, text)
+        self.printAttributes(background, border, text)
+        self.printFooter(background, border, text)
 
         self.setPos(x, y)
 
-    def printHeader(self):
+    def printHeader(self, background, border, text):
         x = self.x()
         y = self.y()
 
@@ -74,9 +74,13 @@ class Node(QGraphicsItemGroup):
         self.typeRect.setRect(x + 50, y, 150, 20)
         self.titleRect.setRect(x, y + 20, 200, titleHeight)
 
-        self.idRect.setBrush(QBrush(Qt.white))
-        self.typeRect.setBrush(QBrush(Qt.white))
-        self.titleRect.setBrush(QBrush(Qt.white))
+        self.idRect.setBrush(QBrush(background))
+        self.typeRect.setBrush(QBrush(background))
+        self.titleRect.setBrush(QBrush(background))
+
+        self.idRect.setPen(QPen(border))
+        self.typeRect.setPen(QPen(border))
+        self.titleRect.setPen(QPen(border))
 
         self.idText.setPos(x, y)
         self.typeText.setPos(x + self.typeOffset, y)
@@ -92,7 +96,7 @@ class Node(QGraphicsItemGroup):
         self.headerGroup.addToGroup(self.titleText)
         self.addToGroup(self.headerGroup)
 
-    def printAttributes(self):
+    def printAttributes(self, background, border, text):
         y = self.y() + self.headerHeight
         x = self.x()
 
@@ -118,8 +122,11 @@ class Node(QGraphicsItemGroup):
             valueRect = QGraphicsRectItem()
             valueRect.setRect(x + 100, y, 100, height)
 
-            keyRect.setBrush(QBrush(Qt.white))
-            valueRect.setBrush(QBrush(Qt.white))
+            keyRect.setBrush(QBrush(background))
+            valueRect.setBrush(QBrush(background))
+
+            keyRect.setPen(QPen(border, 1))
+            valueRect.setPen(QPen(border, 1))
 
             key.setPos(x, y)
             value.setPos(x + 100, y)
@@ -134,7 +141,7 @@ class Node(QGraphicsItemGroup):
 
         self.addToGroup(self.attributes)
 
-    def redraw(self):
+    def redrawOptions(self, background, border, text):
         y = self.y()
         x = self.x()
         try:
@@ -156,11 +163,11 @@ class Node(QGraphicsItemGroup):
             self.removeFromGroup(self.footerGroup)
             self.removeFromGroup(self.headerGroup)
 
-            self.printHeader()
+            self.printHeader(background, border, text)
 
-            self.printAttributes()
+            self.printAttributes(background, border, text)
 
-            self.printFooter()
+            self.printFooter(background, border, text)
 
             self.parent.scene.removeItem(self)
             self.parent.scene.addItem(self)
@@ -173,7 +180,10 @@ class Node(QGraphicsItemGroup):
         except Exception as e:
             print(e)
 
-    def printFooter(self):
+    def redraw(self):
+        self.redrawOptions(Qt.white, Qt.black, Qt.black)
+
+    def printFooter(self, background, border, text):
         pass
 
     def paint(self, painter, options, widget=None):
@@ -200,9 +210,9 @@ class Threat(Node):
         self.threatBoxText = None
         self.counterBoxText = None
 
-        super().__init__(node, parent, x, y, 91)
+        super().__init__(node, parent, parent.threatBackground, parent.threatBorder, parent.threatFont, x, y, 91)
 
-    def printFooter(self):
+    def printFooter(self, background, border, text):
         self.threatBoxText = QGraphicsTextItem()
         self.threatBoxText.setFont(QFont('Arial', 10))
         self.threatBoxText.setPlainText('T')
@@ -214,8 +224,11 @@ class Threat(Node):
         self.threatBox = QGraphicsRectItem()
         self.counterBox = QGraphicsRectItem()
 
-        self.threatBox.setBrush(QBrush(Qt.white))
-        self.counterBox.setBrush(QBrush(Qt.white))
+        self.threatBox.setBrush(QBrush(background))
+        self.counterBox.setBrush(QBrush(background))
+
+        self.threatBox.setPen(QPen(border))
+        self.counterBox.setPen(QPen(border))
 
         self.footerGroup = QGraphicsItemGroup()
 
@@ -234,18 +247,25 @@ class Threat(Node):
 
         self.addToGroup(self.footerGroup)
 
+    def redraw(self):
+        super().redrawOptions(self.parent.threatBackground, self.parent.threatBorder, self.parent.threatFont)
+
 
 class Countermeasure(Node):
-
     def __init__(self, node, parent, x=0, y=0):
-        super().__init__(node, parent, x, y, 63)
+        super().__init__(node, parent, parent.countermeasureBackground, parent.countermeasureBorder, parent.countermeasureFont, x, y, 63)
 
-    def printFooter(self):
+        print(parent.countermeasureBackground)
+
+    def printFooter(self, background, border, text):
         pass
+
+    def redraw(self):
+        super().redrawOptions(self.parent.countermeasureBackground, self.parent.countermeasureBorder, self.parent.countermeasureFont)
 
 
 class Conjunction(QGraphicsItemGroup):
-    def __init__(self, parent, conjType, offset=0):
+    def __init__(self, parent, conjType, childType, offset=0):
         super().__init__()
 
         self.parent = parent
@@ -266,16 +286,28 @@ class Conjunction(QGraphicsItemGroup):
         self.conRect.setRect(0, 0, 100, 40)
         self.title.setPos(6, 6)
 
-        self.conRect.setBrush(QBrush(Qt.white))
+        self.childType = childType
+
+        if self.childType == 1:
+            self.background = self.parent.parent.threatBackground
+            self.border = self.parent.parent.threatBorder
+            self.font = self.parent.parent.threatFont
+        else:
+            self.background = self.parent.parent.countermeasureBackground
+            self.border = self.parent.parent.countermeasureBorder
+            self.font = self.parent.parent.countermeasureFont
 
         self.addToGroup(self.conRect)
         self.addToGroup(self.title)
+
+        self.conRect.setBrush(QBrush(self.background))
+        self.conRect.setPen(QPen(self.border))
 
         self.setFlag(QGraphicsItem.ItemIsMovable, True)
         self.setFlag(QGraphicsItem.ItemIsSelectable, True)
 
     def addArrow(self, child):
-        self.arrows.append(Arrow(self, child, 0))
+        self.arrows.append(Arrow(self, child, 0, self.border))
         self.children.append(child)
 
         child.parentConjunctions.append(self)
@@ -283,7 +315,7 @@ class Conjunction(QGraphicsItemGroup):
         return self.arrows[-1]
 
     def addParentArrow(self):
-        self.parentArrow = Arrow(self.parent, self, self.offset)
+        self.parentArrow = Arrow(self.parent, self, self.offset, self.border)
         return self.parentArrow
 
     def paint(self, painter, options, widget=None):
@@ -298,25 +330,45 @@ class Conjunction(QGraphicsItemGroup):
             rect = QRect(self.boundingRect().x() - 2, self.boundingRect().y() - 2, self.boundingRect().x() + self.boundingRect().width() + 4, self.boundingRect().y() + self.boundingRect().height() + 3)
             painter.drawRect(rect)
 
-    def repaint(self):
-        self.update()
+    def redraw(self):
+
+        if self.childType == 1:
+            self.background = self.parent.parent.threatBackground
+            self.border = self.parent.parent.threatBorder
+            self.font = self.parent.parent.threatFont
+        else:
+            self.background = self.parent.parent.countermeasureBackground
+            self.border = self.parent.parent.countermeasureBorder
+            self.font = self.parent.parent.countermeasureFont
+
+        self.conRect.setBrush(QBrush(self.background))
+        self.conRect.setPen(QPen(self.border))
+
+        self.conRect.update()
+        self.parentArrow.setPen(QPen(self.border, 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+
         self.parentArrow.update()
         for a in self.arrows:
+            a.setPen(QPen(self.border, 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
             a.update()
 
 
 class ConjunctionRect(QGraphicsRectItem):
     def paint(self, painter, options, widget=None):
+
         if self.isSelected():
             painter.setPen(QPen(Qt.black, 1, Qt.DashLine))
             rect = QRect(self.boundingRect().x() - 2, self.boundingRect().y() - 2, self.boundingRect().x() + self.boundingRect().width() + 4, self.boundingRect().y() + self.boundingRect().height() + 3)
             painter.drawRect(rect)
 
+        painter.setBrush(self.brush())
+        painter.setPen(self.pen())
+
         painter.drawRoundedRect(self.boundingRect(), 20, 20)
 
 
 class Arrow(QGraphicsLineItem):
-    def __init__(self, start, end, offset):
+    def __init__(self, start, end, offset, color=Qt.black):
         super().__init__()
 
         self.arrowHead = QPolygonF()
@@ -328,7 +380,7 @@ class Arrow(QGraphicsLineItem):
 
         self.setFlag(QGraphicsItem.ItemIsSelectable, True)
 
-        self.setPen(QPen(Qt.black, 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
+        self.setPen(QPen(color, 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
 
     def boundingRect(self):
         extra = (self.pen().width() + 20) / 2.0
@@ -350,10 +402,9 @@ class Arrow(QGraphicsLineItem):
             return
 
         myPen = self.pen()
-        myPen.setColor(Qt.black)
         arrowSize = 10
         painter.setPen(myPen)
-        painter.setBrush(Qt.black)
+        painter.setBrush(myPen.color())
 
         centerLine = QLineF(QPointF(self.start.x() + self.start.boundingRect().center().x() + self.offset, self.start.y() + self.start.boundingRect().bottom()), QPointF(self.end.x() + self.end.boundingRect().center().x(), self.end.y()))
         endPolygon = self.end.mapFromItem(self.end, self.end.boundingRect())
@@ -419,33 +470,37 @@ class AttackTreeScene(QGraphicsScene):
         self.addEdge('threshold')
 
     def addEdge(self, type):
-        if self.endCollisions.node.type == 'countermeasure':
-            if self.startCollisions.node.type == 'threat':
-                self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type, 50)
+        try:
+            if self.endCollisions.node.type == 'countermeasure':
+                if self.startCollisions.node.type == 'threat':
+                    self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type, 0, 50)
+                else:
+                    self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type, 0)
+
+                self.addItem(self.startCollisions.counterConjunction)
+                self.addItem(self.startCollisions.counterConjunction.addParentArrow())
+                self.startCollisions.counterConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
+                self.addItem(self.startCollisions.counterConjunction.addArrow(self.endCollisions))
+
+                self.startCollisions.counterConjunction.setPos(self.startCollisions.counterConjunction.x() + 100, self.startCollisions.counterConjunction.y())
             else:
-                self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type)
+                if self.startCollisions.node.type == 'threat':
+                    self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type, 1, -50)
+                else:
+                    self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type, 1)
 
-            self.addItem(self.startCollisions.counterConjunction)
-            self.addItem(self.startCollisions.counterConjunction.addParentArrow())
-            self.startCollisions.counterConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
-            self.addItem(self.startCollisions.counterConjunction.addArrow(self.endCollisions))
+                self.addItem(self.startCollisions.threatConjunction)
+                self.addItem(self.startCollisions.threatConjunction.addParentArrow())
+                self.startCollisions.threatConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
+                self.addItem(self.startCollisions.threatConjunction.addArrow(self.endCollisions))
 
-            self.startCollisions.counterConjunction.setPos(self.startCollisions.counterConjunction.x() + 100, self.startCollisions.counterConjunction.y())
-        else:
-            if self.startCollisions.node.type == 'threat':
-                self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type, -50)
-            else:
-                self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type)
-
-            self.addItem(self.startCollisions.threatConjunction)
-            self.addItem(self.startCollisions.threatConjunction.addParentArrow())
-            self.startCollisions.threatConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
-            self.addItem(self.startCollisions.threatConjunction.addArrow(self.endCollisions))
-
-        self.parent().tree.addEdge(self.startCollisions.node.id, self.endCollisions.node.id, type)
-        self.parent().graphicsView.update()
-        self.reset()
-        self.parent().saved = False
+            self.parent().tree.addEdge(self.startCollisions.node.id, self.endCollisions.node.id, type)
+            self.parent().graphicsView.update()
+            self.reset()
+            self.parent().saved = False
+        except Exception:
+            print(traceback.format_exc())
+            exit(-1)
 
     def reset(self):
         self.startCollisions = None
@@ -457,35 +512,39 @@ class AttackTreeScene(QGraphicsScene):
 
     def mousePressEvent(self, mouseEvent):
         if mouseEvent.button() == Qt.LeftButton:
-            if self.parent().mode == 1:
-                self.parent().addLastAction()
+            try:
+                if self.parent().mode == 1:
+                    self.parent().addLastAction()
 
-                node = types.Threat()
-                self.parent().tree.addNode(node)
-                n = Threat(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
-                self.addItem(n)
+                    node = types.Threat()
+                    self.parent().tree.addNode(node)
+                    n = Threat(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
+                    self.addItem(n)
 
-                self.parent().graphicsView.update()
+                    self.parent().graphicsView.update()
 
-                self.parent().saved = False
-                super().mousePressEvent(mouseEvent)
-            elif self.parent().mode == 2:
-                self.parent().addLastAction()
+                    self.parent().saved = False
+                    super().mousePressEvent(mouseEvent)
+                elif self.parent().mode == 2:
+                    self.parent().addLastAction()
 
-                node = types.Countermeasure()
-                self.parent().tree.addNode(node)
-                n = Countermeasure(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
-                self.addItem(n)
-                self.parent().graphicsView.update()
-                self.parent().saved = False
+                    node = types.Countermeasure()
+                    self.parent().tree.addNode(node)
+                    n = Countermeasure(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
+                    self.addItem(n)
+                    self.parent().graphicsView.update()
+                    self.parent().saved = False
 
-                super().mousePressEvent(mouseEvent)
-            elif self.parent().mode == 3:
+                    super().mousePressEvent(mouseEvent)
+                elif self.parent().mode == 3:
 
-                self.startCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
-                self.parent().addLastAction()
-            else:
-                super().mousePressEvent(mouseEvent)
+                    self.startCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
+                    self.parent().addLastAction()
+                else:
+                    super().mousePressEvent(mouseEvent)
+            except Exception as e:
+                print(traceback.format_exc())
+                exit(-1)
 
     def mouseMoveEvent(self, mouseEvent):
         super().mouseMoveEvent(mouseEvent)
@@ -536,9 +595,9 @@ class AttackTreeScene(QGraphicsScene):
                             self.reset()
                             self.parent().saved = False
 
-                except Exception as e:
-                    print('Error: bla', e)
-                    print(traceback.format_exc(sys.exc_info()))
+                except Exception:
+                    print(traceback.format_exc())
+                    exit(-1)
 
             elif self.parent().mode == 4:  # @TODO: Rework
                 self.parent().addLastAction()
