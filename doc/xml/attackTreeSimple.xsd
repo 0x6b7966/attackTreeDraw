@@ -7,6 +7,7 @@
     <xs:element name="date" type="xs:date"/>
     <xs:element name="description" type="xs:string"/>
     <xs:element name="name" type="xs:string"/>
+    <xs:element name="root" type="xs:IDREF"/>
 
     <!-- Complex element declarations -->
     <xs:element name="attribute">
@@ -26,6 +27,7 @@
                 <xs:element ref="author"/>
                 <xs:element ref="date" minOccurs="0"/>
                 <xs:element ref="description" minOccurs="0"/>
+                <xs:element ref="root" minOccurs="0"/>
             </xs:sequence>
         </xs:complexType>
     </xs:element>

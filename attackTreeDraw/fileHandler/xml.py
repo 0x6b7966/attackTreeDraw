@@ -1,15 +1,20 @@
-import traceback
-
 import os
 from lxml import etree
-import sys
 
 from data.exceptions import XMLXSDError
 
 
 class Handler:
+    """
+    This class Handles all needed actions to save and load xml files
+    """
 
     def __init__(self):
+        """
+        Constructor for Handler
+
+        The Constructor initialises the xml parser and xsd files
+        """
         self.parser = etree.XMLParser(dtd_validation=True)
         self.xml = None
         self.extended = False
@@ -26,16 +31,26 @@ class Handler:
             raise XMLXSDError('Can\'t load attackTreeExtended.xsd, check installation')
 
     def loadFile(self, file):
+        """
+        Loads a given file and validates it against the xsd files
+
+        @param file: a file to load from
+        @return: True if file is valid, else False
+        """
         try:
             self.xml = etree.parse(file)
         except OSError:
-            print(('Can\'t load %s, check dir. Abort' % file), file=sys.stderr)
             return False
         finally:
             return self.validate()
 
     def validate(self):
-        # @TODO: Add error message
+        """
+        Checks if the given xml-file is in simple or extended format
+        If the format is extended self.extended is True
+
+        @return: True if validation was successful else false
+        """
         if self.validateSimple():
             self.extended = False
             return True
@@ -46,12 +61,28 @@ class Handler:
             return False
 
     def validateSimple(self):
+        """
+        Validates xml-file against the simple format
+
+        @return: True if the xml-file is in simple format. else false
+        """
         return self.simpleXSD.validate(self.xml)
 
     def validateExtended(self):
+        """
+        Validates xml-file against the extended format
+
+        @return: True if the xml-file is in extended format. else false
+        """
         return self.extendedXSD.validate(self.xml)
 
     def generateTemplate(self, extended):
+        """
+        Generates frame for the xml-file
+
+        @param extended: The format which needs to be generated
+        @return: True
+        """
         self.extended = extended
         # @TODO: change namespace location?
         if extended is False:
@@ -81,38 +112,68 @@ class Handler:
                         </attackTree>
                         ''')
         self.xml = etree.ElementTree(root)
+        # @TODO: Error handling?
+        return True
 
     def generateMetaElements(self, elements):
+        """
+        Generates the elements in the 'meta'-block of the xml file
+
+        @param elements: The elements which will be in the meta block
+        @return: True
+        """
         meta = self.xml.find('meta')
         meta.clear()
-
-        print(elements)
-
         for k, v in elements.items():
             el = etree.SubElement(meta, k)
             el.text = v
+        return True
 
     def generateTree(self, tree):
-        if tree.extended is False:  # @TODO call checkFormat()
-            self.generateSimpleTree(tree)
-        else:
-            self.generateExtendedTree(tree)
+        """
+        Generates the tree as a xml file.
+        Before the generation it checks if it is a simple or extended tree
+
+        @param tree: Tree to generate the xml from
+        @return: True
+        """
+        if tree.extended is False:
+            if tree.checkExtended() is not True:
+                self.generateSimpleTree(tree)
+                return True
+        self.generateExtendedTree(tree)
+        return True
 
     def generateSimpleTree(self, tree):
+        """
+        Generates the tree in the simple format.
+
+        @param tree: Tree to generate the xml from
+        """
         self.generateTemplate(False)
         xmlTree = self.xml.find('tree')
-        xmlTree.clear()  # @TODO need?
         self.generateMetaElements(tree.meta)
         self.addSimpleNode(tree, xmlTree, tree.nodeList[tree.root])
 
     def generateExtendedTree(self, tree):
+        """
+        Generates the tree in the extended format.
+
+        @param tree: Tree to generate the xml from
+        """
         self.generateTemplate(True)
-        # xmlTree.clear()  # @TODO need?
         self.generateMetaElements(tree.meta)
         self.addExtendedNodes(tree)
         self.addExtendedEdges(tree)
 
     def addSimpleNode(self, tree, root, element):
+        """
+        Adds nodes to the xml file in the simple format
+
+        @param tree: Tree from which are the nodes
+        @param root: Root element of the tree
+        @param element: parent element
+        """
         e = self.addNode(root, element)
 
         if len(element.edges) > 0:
@@ -136,7 +197,12 @@ class Handler:
 
         return e
 
-    def addExtendedNodes(self,tree):
+    def addExtendedNodes(self, tree):
+        """
+        Adds nodes to the xml file in the extended format
+
+        @param tree: Tree from which are the nodes
+        """
         xmlThreats = self.xml.find('threats')
         xmlCounter = self.xml.find('countermeasures')
 
@@ -147,6 +213,11 @@ class Handler:
                 self.addNode(xmlThreats, v)
 
     def addExtendedEdges(self, tree):
+        """
+        Adds edges to the xml file in the extended format
+
+        @param tree: Tree from which are the edges
+        """
         xmlConnection = self.xml.find('connections')
         edges = {}
         for edge in tree.edgeList:
@@ -162,6 +233,13 @@ class Handler:
                 e.text = edge.destination
 
     def addNode(self, root, element):
+        """
+        Generates a node and inserts it as sub element of root
+
+        @param root: Parent element for edge
+        @param element: Element to insert
+        @return: Generated XML Element
+        """
         e = etree.SubElement(root, element.type, id=element.id)
         title = etree.SubElement(e, 'title')
         title.text = element.title
@@ -176,7 +254,12 @@ class Handler:
         return e
 
     def saveToFile(self, file):
-        # @TODO: check if file is writeable
+        """
+        Saves the xml to a file
+
+        @param file: File to save to
+        @return: True if saving was successfully else returns exception
+        """
         try:
             self.xml.write(file, pretty_print=True, xml_declaration=True, encoding="utf-8")
         except Exception as e:

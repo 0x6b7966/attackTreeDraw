@@ -1,14 +1,25 @@
-import traceback
-import sys
-
 import os
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import QWidget, QMessageBox, QDialog, QLabel, QColorDialog, QFrame
 from PyQt5 import QtCore, QtWidgets
 
+
 class MessageBox:
+    """
+    Class to display a message box with options
+    """
     def __init__(self, title, text, buttons=QMessageBox.Ok, icon=QMessageBox.Information, default=QMessageBox.Ok):
+        """
+        Constructor for the message box.
+        Sets all options
+
+        @param title: Title of the message box
+        @param text: Message box text
+        @param buttons: Buttons for the message box (default: ok)
+        @param icon: Icon for the message box (default: information)
+        @param default: default button to click (default: ok)
+        """
         includePath = os.path.dirname(os.path.abspath(__file__))
         self.msgBox = QMessageBox()
         self.msgBox.setWindowTitle(title)
@@ -19,11 +30,23 @@ class MessageBox:
         self.msgBox.setWindowIcon(QIcon(os.path.join(includePath, 'assets/icons/logo.png')))
 
     def run(self):
+        """
+        Runs the message box
+        @return: Status code
+        """
         return self.msgBox.exec()
 
 
 class NodeEdit(QDialog):
+    """
+    Dialog box to edit nodes
+    """
     def __init__(self, node, parent):
+        """
+
+        @param node: Node to edit
+        @param parent: Parent widget
+        """
         QWidget.__init__(self)
         self.nodeItem = node
         self.parentWidget = parent
