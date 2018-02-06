@@ -638,6 +638,7 @@ class AttackTreeScene(QGraphicsScene):
         self.startCollisions = None
         self.endCollisions = None
         self.conjunction = None
+        self.insertLine = None
 
         self.menu = QMenu(parent)
 
@@ -682,6 +683,9 @@ class AttackTreeScene(QGraphicsScene):
             self.startCollisions.threatConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
             self.addItem(self.startCollisions.threatConjunction.addArrow(self.endCollisions))
 
+        self.removeItem(self.insertLine)
+        self.insertLine = None
+
         self.parent().tree.addEdge(self.startCollisions.node.id, self.endCollisions.node.id, type)
         self.parent().graphicsView.update()
         self.reset()
@@ -692,6 +696,9 @@ class AttackTreeScene(QGraphicsScene):
         self.endCollisions = None
         self.conjunction = None
         self.parent().mode = 0
+        self.parent().modeAction.setChecked(False)
+        self.parent().modeAction = self.parent().defaultModeAction
+        self.parent().modeAction.setChecked(True)
         self.parent().setCursor(Qt.ArrowCursor)
         self.parent().graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
 
@@ -724,6 +731,10 @@ class AttackTreeScene(QGraphicsScene):
                 elif self.parent().mode == 3:
 
                     self.startCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
+                    self.insertLine = QGraphicsLineItem(QLineF(mouseEvent.scenePos(), mouseEvent.scenePos()))
+                    self.insertLine.setPen(QPen(Qt.black, 2))
+                    self.addItem(self.insertLine)
+
                     self.parent().addLastAction()
                 else:
                     super().mousePressEvent(mouseEvent)
@@ -732,6 +743,9 @@ class AttackTreeScene(QGraphicsScene):
                 exit(-1)
 
     def mouseMoveEvent(self, mouseEvent):
+        if self.insertLine is not None:
+            newLine = QLineF(self.insertLine.line().p1(), mouseEvent.scenePos())
+            self.insertLine.setLine(newLine)
         super().mouseMoveEvent(mouseEvent)
 
     def mouseReleaseEvent(self, mouseEvent):
@@ -739,9 +753,13 @@ class AttackTreeScene(QGraphicsScene):
             if self.parent().mode == 3:
                 self.parent().addLastAction()
                 try:
+                    self.removeItem(self.insertLine)
+                    self.insertLine = None
                     self.endCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
                     if self.startCollisions is None or self.endCollisions is None or self.startCollisions == self.endCollisions:
                         self.reset()
+                        self.removeItem(self.insertLine)
+                        self.insertLine = None
                         super().mouseReleaseEvent(mouseEvent)
                         return
                     if isinstance(self.startCollisions.parentItem(), Node):
@@ -750,6 +768,7 @@ class AttackTreeScene(QGraphicsScene):
                         self.startCollisions = self.startCollisions.parentItem().parentItem()
                     else:
                         self.reset()
+
                         super().mouseReleaseEvent(mouseEvent)
                         return
                     if isinstance(self.endCollisions.parentItem(), Node):
@@ -757,7 +776,6 @@ class AttackTreeScene(QGraphicsScene):
                     elif isinstance(self.endCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.endCollisions.parentItem().parentItem(), Node):
                         self.endCollisions = self.endCollisions.parentItem().parentItem()
                     else:
-                        self.reset()
                         super().mouseReleaseEvent(mouseEvent)
                         return
                     if isinstance(self.endCollisions, Node) and isinstance(self.startCollisions, Node):

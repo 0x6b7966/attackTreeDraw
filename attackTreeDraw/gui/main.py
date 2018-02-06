@@ -1,4 +1,5 @@
 import copy
+import functools
 import sys
 import traceback
 
@@ -35,12 +36,14 @@ class Main(QMainWindow):
         self.saved = True
         self.file = ('', '')
         self.itemList = []
-        self.initUI()
-
+        self.modeAction = None
+        self.defaultModeAction = None
         self.lastAction = []
         self.nextAction = []
 
         self.mode = 0  # 0: default, 1: add threat, 2: add countermeasure, 3: add composition
+
+        self.initUI()
 
     def initUI(self):
 
@@ -96,11 +99,11 @@ class Main(QMainWindow):
         }
 
         editToolbarItems = {
-            'Mouse': [os.path.join(includePath, 'assets/icons/mouse.png'), '', 'Use Mouse', self.mouse],
-            'New Threat': [os.path.join(includePath, 'assets/icons/threat.png'), '', 'New Threat', self.newThreat],
-            'New Counter': [os.path.join(includePath, 'assets/icons/counter.png'), '', 'New Countermeasure', self.newCountermeasure],
-            'New Composition': [os.path.join(includePath, 'assets/icons/arrow.png'), '', 'New Composition', self.newComposition],
-            'Delete Item': [os.path.join(includePath, 'assets/icons/trash.png'), '', 'Delete selected Items', self.delete],
+            'Mouse': [os.path.join(includePath, 'assets/icons/mouse.png'), 'M', 'Use Mouse', self.mouse, True],
+            'New Threat': [os.path.join(includePath, 'assets/icons/threat.png'), 'T', 'New Threat', self.newThreat, False],
+            'New Counter': [os.path.join(includePath, 'assets/icons/counter.png'), 'C', 'New Countermeasure', self.newCountermeasure, False],
+            'New Composition': [os.path.join(includePath, 'assets/icons/arrow.png'), 'E', 'New Composition', self.newComposition, False],
+            'Delete Item': [os.path.join(includePath, 'assets/icons/trash.png'), 'D', 'Delete selected Items', self.delete, False],
 
         }
 
@@ -173,7 +176,14 @@ class Main(QMainWindow):
             action = QAction(QIcon(v[0]), k, self)
             action.setShortcut(v[2])
             action.setStatusTip(v[2])
-            action.triggered.connect(v[3])
+            action.triggered.connect(functools.partial(v[3], action))
+
+            action.setCheckable(True)
+
+            if v[4] is True:
+                self.defaultModeAction = action
+                self.modeAction = action
+                action.setChecked(True)
 
             workToolbar.addAction(action)
 
@@ -510,26 +520,72 @@ class Main(QMainWindow):
             if isinstance(e, Node) or isinstance(e, Conjunction):
                 e.redraw()
 
-    def mouse(self):
+    def mouse(self, action):
+        if self.modeAction is not None:
+            self.modeAction.setChecked(False)
+
         self.mode = 0
+        self.modeAction = self.defaultModeAction
+        self.modeAction.setChecked(True)
         self.setCursor(Qt.ArrowCursor)
         self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
 
-    def newThreat(self):
+    def newThreat(self, action):
+        if self.modeAction is not None:
+            self.modeAction.setChecked(False)
+            if self.modeAction is action:
+                self.mode = 0
+                self.modeAction = self.defaultModeAction
+                self.modeAction.setChecked(True)
+                self.setCursor(Qt.ArrowCursor)
+                self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
+                return
+
         self.mode = 1
+        self.modeAction = action
         self.setCursor(Qt.CrossCursor)
 
-    def newCountermeasure(self):
+    def newCountermeasure(self, action):
+        if self.modeAction is not None:
+            self.modeAction.setChecked(False)
+            if self.modeAction is action:
+                self.mode = 0
+                self.modeAction = self.defaultModeAction
+                self.modeAction.setChecked(True)
+                self.setCursor(Qt.ArrowCursor)
+                self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
+                return
         self.mode = 2
+        self.modeAction = action
         self.setCursor(Qt.CrossCursor)
 
-    def newComposition(self):
+    def newComposition(self, action):
+        if self.modeAction is not None:
+            self.modeAction.setChecked(False)
+            if self.modeAction is action:
+                self.mode = 0
+                self.modeAction = self.defaultModeAction
+                self.modeAction.setChecked(True)
+                self.setCursor(Qt.ArrowCursor)
+                self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
+                return
         self.mode = 3
+        self.modeAction = action
         self.setCursor(Qt.CrossCursor)
         self.graphicsView.setDragMode(QGraphicsView.NoDrag)
 
-    def delete(self):
+    def delete(self, action):
+        if self.modeAction is not None:
+            self.modeAction.setChecked(False)
+            if self.modeAction is action:
+                self.mode = 0
+                self.modeAction = self.defaultModeAction
+                self.modeAction.setChecked(True)
+                self.setCursor(Qt.ArrowCursor)
+                self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
+                return
         self.mode = 4
+        self.modeAction = action
         self.setCursor(Qt.CrossCursor)
 
     def editMeta(self):
