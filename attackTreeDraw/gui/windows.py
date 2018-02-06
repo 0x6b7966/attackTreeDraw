@@ -40,9 +40,11 @@ class MessageBox:
 class NodeEdit(QDialog):
     """
     Dialog box to edit nodes
+    The user can change the title or attributes of a node in this window
     """
     def __init__(self, node, parent):
         """
+        Constructor for the node edit UI
 
         @param node: Node to edit
         @param parent: Parent widget
@@ -54,6 +56,9 @@ class NodeEdit(QDialog):
         self.show()
 
     def setupUi(self):
+        """
+        Sets up the UI.
+        """
         includePath = os.path.dirname(os.path.abspath(__file__))
         self.resize(320, 440)
         self.setWindowTitle("Node: %s" % self.nodeItem.node.title)
@@ -129,6 +134,9 @@ class NodeEdit(QDialog):
         self.model.insertRow(self.rows, [])
 
     def rowCheck(self):
+        """
+        This function checks if there are empty rows and adds an empty row to the end of the tableView
+        """
         for i in range(self.rows):
             if (self.model.item(i, 0) is None or self.model.item(i, 0).text() == '') \
                     and (self.model.item(i, 1) is None or self.model.item(i, 1).text() == ''):
@@ -141,6 +149,12 @@ class NodeEdit(QDialog):
             self.model.insertRow(self.rows, [])
 
     def submit(self):
+        """
+        This function checks if the input in the form is correct.
+        If the check is false it will print an error message
+
+        After all checks where successful the Window will be closed and the node updated
+        """
         self.model.removeRow(self.rows)
         self.rows -= 1
 
@@ -178,12 +192,24 @@ class NodeEdit(QDialog):
 
 
 class MetaEdit(QDialog):
+    """
+    Dialog box to edit the meta information of the tree
+    The user can change the title, author, date, description and the root node
+    """
     def __init__(self, parent):
+        """
+        Constructor for the node edit UI
+
+        @param parent: Parent widget
+        """
         QWidget.__init__(self)
         self.parentWidget = parent
         self.setupUi()
 
     def setupUi(self):
+        """
+        Sets up the UI.
+        """
         includePath = os.path.dirname(os.path.abspath(__file__))
         self.resize(400, 300)
         self.setWindowTitle('Edit meta information')
@@ -260,6 +286,12 @@ class MetaEdit(QDialog):
                 self.rootSelect.addItem(k + ' -- ' + v.title)
 
     def submit(self):
+        """
+        This function checks if the input in the form is correct.
+        If the check is false it will print an error message
+
+        After all checks where successful the Window will be closed and the node updated
+        """
         if self.titleEdit.text() == '':
             MessageBox('Error in the title', 'The title can\'t be none!', icon=QMessageBox.Critical).run()
             return
@@ -281,14 +313,25 @@ class MetaEdit(QDialog):
 
 
 class Options(QDialog):
-
+    """
+    Dialog box to edit the options of the GUI
+    The user can change the color of the nodes
+    """
     def __init__(self, parent):
+        """
+        Constructor for the node edit UI
+
+        @param parent: Parent widget
+        """
         QWidget.__init__(self)
         self.parentWidget = parent
         self.setupUi()
         self.show()
 
     def setupUi(self):
+        """
+        Sets up the UI.
+        """
         self.resize(407, 408)
         self.verticalLayout = QtWidgets.QVBoxLayout(self)
 
@@ -397,6 +440,11 @@ class Options(QDialog):
         self.ok.clicked.connect(self.submit)
 
     def submit(self):
+        """
+        This function saves the input of the color picker to the parent widget and redraws the tree
+
+        After that the window will be closed
+        """
         self.parentWidget.threatBackground = self.threatBackgroundPicker.color
         self.parentWidget.threatBorder = self.threatBorderPicker.color
         self.parentWidget.threatFont = self.threatFontPicker.color
@@ -410,7 +458,16 @@ class Options(QDialog):
 
 
 class ColorLabel(QLabel):
+    """
+    This class implements an color picker for the options GUI
+    """
     def __init__(self, color, parent=None):
+        """
+        Constructor for the node edit UI
+
+        @param color: Default color for the color picker
+        @param parent: Parent widget
+        """
         super().__init__(parent)
 
         self.color = color
@@ -423,6 +480,11 @@ class ColorLabel(QLabel):
         self.setFrameStyle(QFrame.Panel)
 
     def mousePressEvent(self, QMouseEvent):
+        """
+        Mouse event for the color picker
+
+        @param QMouseEvent: Mouse event
+        """
         self.color = QColorDialog.getColor(self.color, self, "Pick a color", QColorDialog.DontUseNativeDialog)
         palette = self.palette()
         palette.setColor(self.backgroundRole(), self.color)

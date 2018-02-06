@@ -13,8 +13,26 @@ from data import types
 
 
 class Node(QGraphicsItemGroup):
+    """
+    Parent class for all types of nodes.
+
+    It contains all necessary functions to print a node in the GUI
+    """
 
     def __init__(self, node, parent, background, border, text, x=0, y=0, offset=20):
+        """
+        Constructor for the node class.
+        It generates all necessary variables and calls the draw function
+
+        @param node: data node which it gets the data from
+        @param parent: parent widget
+        @param background: background color of the node
+        @param border: border color for the node
+        @param text: text color for the node
+        @param x: x-position of the node
+        @param y: y-position of the node
+        @param offset: offset for the type to center it
+        """
         super().__init__()
 
         self.typeOffset = offset
@@ -47,6 +65,14 @@ class Node(QGraphicsItemGroup):
         self.setPos(x, y)
 
     def printHeader(self, background, border, text):
+        """
+        Prints the the header of the node.
+        It contains the Node id, title and type
+
+        @param background: background color of the node
+        @param border: border color for the node
+        @param text: text color for the node
+        """
         x = self.x()
         y = self.y()
 
@@ -61,6 +87,10 @@ class Node(QGraphicsItemGroup):
         self.typeText.setFont(QFont('Arial', 10))
         self.titleText.setFont(QFont('Arial', 10))
         self.idText.setFont(QFont('Arial', 10))
+
+        self.typeText.setDefaultTextColor(text)
+        self.titleText.setDefaultTextColor(text)
+        self.idText.setDefaultTextColor(text)
 
         self.titleText.setTextWidth(200)
 
@@ -97,6 +127,14 @@ class Node(QGraphicsItemGroup):
         self.addToGroup(self.headerGroup)
 
     def printAttributes(self, background, border, text):
+        """
+        Prints the attributes of the node
+        The attributes are a key, value pair
+
+        @param background: background color of the node
+        @param border: border color for the node
+        @param text: text color for the node
+        """
         y = self.y() + self.headerHeight
         x = self.x()
 
@@ -105,12 +143,14 @@ class Node(QGraphicsItemGroup):
         for k, v in self.node.attributes.items():
             key = QGraphicsTextItem()
             key.setFont(QFont('Arial', 10))
+            key.setDefaultTextColor(text)
             key.setTextWidth(100)
             key.setPlainText(k)
             keyHeight = int(key.boundingRect().height() / 20 + 0.5) * 20
 
             value = QGraphicsTextItem()
             value.setFont(QFont('Arial', 10))
+            value.setDefaultTextColor(text)
             value.setTextWidth(100)
             value.setPlainText(v)
             valueHeight = int(value.boundingRect().height() / 20 + 0.5) * 20
@@ -142,6 +182,13 @@ class Node(QGraphicsItemGroup):
         self.addToGroup(self.attributes)
 
     def redrawOptions(self, background, border, text):
+        """
+        Redraws the node with option for the background, border and text color
+
+        @param background: background color of the node
+        @param border: border color for the node
+        @param text: text color for the node
+        """
         y = self.y()
         x = self.x()
 
@@ -178,12 +225,31 @@ class Node(QGraphicsItemGroup):
         self.setPos(x, y)
 
     def redraw(self):
+        """
+        Redraws the node with standard colors
+        """
         self.redrawOptions(Qt.white, Qt.black, Qt.black)
 
     def printFooter(self, background, border, text):
+        """
+        Prototype function for the footer.
+        Implemented in the child classes
+
+        @param background: background color of the node
+        @param border: border color for the node
+        @param text: text color for the node
+        """
         pass
 
     def paint(self, painter, options, widget=None):
+        """
+        Reimplementation for the paint function of the QGraphicsItemGroup.
+        The Reimplementation is needed to print a proper border when the item is selected
+
+        @param painter: The painter, which draws the node
+        @param options: options for the paint job
+        @param widget: widget of the Item
+        """
         myOption = QStyleOptionGraphicsItem(options)
         myOption.state &= ~QStyle.State_Selected
 
@@ -195,12 +261,29 @@ class Node(QGraphicsItemGroup):
             painter.drawRect(rect)
 
     def mouseDoubleClickEvent(self, event):
+        """
+        Handles a double click on the node.
+        The double click opens the edit window for this node
+
+        @param event: click event
+        """
         self.edit = NodeEdit(self, self.parent)
 
 
 class Threat(Node):
-
+    """
+    This class handles the gui for a threat node
+    """
     def __init__(self, node, parent, x=0, y=0):
+        """
+        Constructor for the threat node.
+        It generates all necessary variables and calls the draw function
+
+        @param node: data node which it gets the data from
+        @param parent: parent widget
+        @param x: x-position of the node
+        @param y: y-position of the node
+        """
         self.threatBox = None
         self.counterBox = None
 
@@ -210,12 +293,22 @@ class Threat(Node):
         super().__init__(node, parent, parent.threatBackground, parent.threatBorder, parent.threatFont, x, y, 91)
 
     def printFooter(self, background, border, text):
+        """
+        Prints the footer for the threat node
+        The footer contains two columns where the conjunction will start from
+
+        @param background: background color of the node
+        @param border: border color for the node
+        @param text: text color for the node
+        """
         self.threatBoxText = QGraphicsTextItem()
         self.threatBoxText.setFont(QFont('Arial', 10))
+        self.threatBoxText.setDefaultTextColor(text)
         self.threatBoxText.setPlainText('T')
 
         self.counterBoxText = QGraphicsTextItem()
         self.counterBoxText.setFont(QFont('Arial', 10))
+        self.counterBoxText.setDefaultTextColor(text)
         self.counterBoxText.setPlainText('C')
 
         self.threatBox = QGraphicsRectItem()
@@ -245,24 +338,61 @@ class Threat(Node):
         self.addToGroup(self.footerGroup)
 
     def redraw(self):
+        """
+        Redraws the node with the colors set in the options menu
+        """
         super().redrawOptions(self.parent.threatBackground, self.parent.threatBorder, self.parent.threatFont)
 
 
 class Countermeasure(Node):
+    """
+    This class handles the gui for a countermeasure node
+    """
     def __init__(self, node, parent, x=0, y=0):
+        """
+        Constructor for the countermeasure node.
+        It generates all necessary variables and calls the draw function
+
+        @param node: data node which it gets the data from
+        @param parent: parent widget
+        @param x: x-position of the node
+        @param y: y-position of the node
+        """
         super().__init__(node, parent, parent.countermeasureBackground, parent.countermeasureBorder, parent.countermeasureFont, x, y, 63)
 
-        print(parent.countermeasureBackground)
-
     def printFooter(self, background, border, text):
+        """
+        This function is not needed in the countermeasure node
+        But needs to be implemented because it is called in the parent node
+
+        @param background: background color of the node
+        @param border: border color for the node
+        @param text: text color for the node
+        """
         pass
 
     def redraw(self):
+        """
+        Redraws the node with the colors set in the options menu
+        """
         super().redrawOptions(self.parent.countermeasureBackground, self.parent.countermeasureBorder, self.parent.countermeasureFont)
 
 
 class Conjunction(QGraphicsItemGroup):
+    """
+    This class handles the gui for a conjunction
+    """
     def __init__(self, parent, conjType, childType, offset=0):
+        """
+        Constructor for a conjunction.
+        It generates all necessary variables and calls the draw function
+        It adds also the parent arrow from the source to the conjunction rectangle
+
+        @param parent:
+        @param conjType:
+        @param childType:
+        @param offset:
+        """
         super().__init__()
 
         self.parent = parent
@@ -294,6 +424,8 @@ class Conjunction(QGraphicsItemGroup):
             self.border = self.parent.parent.countermeasureBorder
             self.font = self.parent.parent.countermeasureFont
 
+        self.title.setDefaultTextColor(self.font)
+
         self.addToGroup(self.conRect)
         self.addToGroup(self.title)
 
@@ -304,6 +436,11 @@ class Conjunction(QGraphicsItemGroup):
         self.setFlag(QGraphicsItem.ItemIsSelectable, True)
 
     def addArrow(self, child):
+        """
+        Adds an arrow to a child
+
+        @param child: child node to add the arrow to
+        """
         self.arrows.append(Arrow(self, child, 0, self.border))
         self.children.append(child)
 
@@ -312,11 +449,21 @@ class Conjunction(QGraphicsItemGroup):
         return self.arrows[-1]
 
     def addParentArrow(self):
+        """
+        Adds the parent arrow to this conjunction
+        """
         self.parentArrow = Arrow(self.parent, self, self.offset, self.border)
         return self.parentArrow
 
     def paint(self, painter, options, widget=None):
+        """
+        Reimplementation for the paint function of the QGraphicsItemGroup.
+        The Reimplementation is needed to print a proper border when the item is selected
 
+        @param painter: The painter, which draws the node
+        @param options: options for the paint job
+        @param widget: widget of the Item
+        """
         myOption = QStyleOptionGraphicsItem(options)
         myOption.state &= ~QStyle.State_Selected
 
@@ -328,7 +475,9 @@ class Conjunction(QGraphicsItemGroup):
             painter.drawRect(rect)
 
     def redraw(self):
-
+        """
+        Redraws the conjunction with its arrows
+        """
         if self.childType == 1:
             self.background = self.parent.parent.threatBackground
             self.border = self.parent.parent.threatBorder
@@ -340,6 +489,7 @@ class Conjunction(QGraphicsItemGroup):
 
         self.conRect.setBrush(QBrush(self.background))
         self.conRect.setPen(QPen(self.border))
+        self.title.setDefaultTextColor(self.font)
 
         self.conRect.update()
         self.parentArrow.setPen(QPen(self.border, 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
@@ -352,7 +502,15 @@ class Conjunction(QGraphicsItemGroup):
 
 class ConjunctionRect(QGraphicsRectItem):
     def paint(self, painter, options, widget=None):
+        """
+        Reimplementation for the paint function of the QGraphicsItem.
+        This is needed to draw a rounded rectangle
+        The Reimplementation is also needed to print a proper border when the item is selected
 
+        @param painter: The painter, which draws the node
+        @param options: options for the paint job
+        @param widget: widget of the Item
+        """
         if self.isSelected():
             painter.setPen(QPen(Qt.black, 1, Qt.DashLine))
             rect = QRect(self.boundingRect().x() - 2, self.boundingRect().y() - 2, self.boundingRect().x() + self.boundingRect().width() + 4, self.boundingRect().y() + self.boundingRect().height() + 3)
@@ -365,7 +523,20 @@ class ConjunctionRect(QGraphicsRectItem):
 
 
 class Arrow(QGraphicsLineItem):
+    """
+    Implements an arrow for the conjunctions
+    """
     def __init__(self, start, end, offset, color=Qt.black):
+        """
+        Constructor for a conjunction.
+        It generates all necessary variables and calls the draw function
+        It adds also the parent arrow from the source to the conjunction rectangle
+
+        @param start: Starting object of the arrow
+        @param end: End object of the arrow
+        @param offset: left/right offset for the starting arrow
+        @param color: Color of the arrow
+        """
         super().__init__()
 
         self.arrowHead = QPolygonF()
@@ -380,20 +551,41 @@ class Arrow(QGraphicsLineItem):
         self.setPen(QPen(color, 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
 
     def boundingRect(self):
+        """
+        New calculation of the bounding rect, because the arrow is not only a line
+
+        @return: new bounding rectangle
+        """
         extra = (self.pen().width() + 20) / 2.0
 
         return QRectF(self.line().p1(), QSizeF(self.line().p2().x() - self.line().p1().x(), self.line().p2().y() - self.line().p1().y())).normalized().adjusted(-extra, -extra, extra, extra)
 
     def shape(self):
+        """
+        Calculation of the shape of the arrow
+
+        @return: shape of the arrow
+        """
         path = QGraphicsLineItem.shape(self)
         path.addPolygon(self.arrowHead)
         return path
 
     def updatePosition(self):
+        """
+        Updates the position of the arrow
+        """
         line = QLineF(self.mapFromItem(self.start, 0, 0), self.mapFromItem(self.end, 0, 0))
         self.setLine(line)
 
     def paint(self, painter, options, widget=None):
+        """
+        Painter implementation for the arrow.
+        First it draws the line and then the triangle on the end
+
+        @param painter: The painter, which draws the node
+        @param options: options for the paint job
+        @param widget: widget of the Item
+        """
 
         if self.start.collidesWithItem(self.end):
             return
@@ -610,7 +802,7 @@ class AttackTreeScene(QGraphicsScene):
                                             c.parent.threatConjunction = None
                                         else:
                                             c.parent.counterConjunction = None
-                                        children =c.children.copy()
+                                        children = c.children.copy()
                                         for a in children:
                                             deleted.append(c.arrows[c.children.index(a)])
                                             self.removeItem(c.arrows[c.children.index(a)])
