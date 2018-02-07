@@ -8,8 +8,8 @@ from PyQt5 import QtCore, QtWidgets
 
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
-from PyQt5.QtWidgets import QMainWindow, QAction, QToolBox, QFileDialog, QMessageBox, QDialog, QGraphicsView, QGraphicsItemGroup
-from PyQt5.QtGui import QIcon, QImage, QPainter, QBrush
+from PyQt5.QtWidgets import QMainWindow, QAction, QToolBox, QFileDialog, QMessageBox, QDialog, QGraphicsView
+from PyQt5.QtGui import QIcon, QImage, QPainter
 
 from data.exceptions import ParserError, XMLXSDError
 from .items import Node, Threat, Countermeasure, Conjunction, AttackTreeScene
@@ -21,6 +21,10 @@ from data import types
 
 
 class Main(QMainWindow):
+    """
+    This Class is the main window for attackTreeDraw.
+    It sets up the window and handles the GraphicsView for the Tree
+    """
     threatBackground = Qt.white
     threatBorder = Qt.black
     threatFont = Qt.black
@@ -30,6 +34,10 @@ class Main(QMainWindow):
     countermeasureFont = Qt.black
 
     def __init__(self):
+        """
+        Constructor for the Main window.
+        Initializes all needed variables and calls the init function
+        """
         super().__init__()
 
         self.tree = types.Tree(False)
@@ -46,7 +54,11 @@ class Main(QMainWindow):
         self.initUI()
 
     def initUI(self):
-
+        """
+        Initialisation of the UI.
+        Sets up all menus and  toolbars
+        Registers function for buttons
+        """
         menuBarItems = {
             'File': {
                 # Name     shortcut   tip          action
@@ -74,7 +86,7 @@ class Main(QMainWindow):
             },
             'Tree': {
                 # Name     shortcut   tip          action
-                '&Redraw Tree': ['Ctrl++Shift+R', 'Redraw and reorder Tree', self.redrawGraph],
+                '&Redraw Tree': ['Ctrl+Shift+R', 'Redraw and reorder Tree', self.redrawGraph],
                 '&Edit Meta Information': ['', 'Edit Meta Information', self.editMeta],
                 'SEPARATOR01': [],
 
@@ -99,11 +111,11 @@ class Main(QMainWindow):
         }
 
         editToolbarItems = {
-            'Mouse': [os.path.join(includePath, 'assets/icons/mouse.png'), 'M', 'Use Mouse', self.mouse, True],
-            'New Threat': [os.path.join(includePath, 'assets/icons/threat.png'), 'T', 'New Threat', self.newThreat, False],
-            'New Counter': [os.path.join(includePath, 'assets/icons/counter.png'), 'C', 'New Countermeasure', self.newCountermeasure, False],
-            'New Composition': [os.path.join(includePath, 'assets/icons/arrow.png'), 'E', 'New Composition', self.newComposition, False],
-            'Delete Item': [os.path.join(includePath, 'assets/icons/trash.png'), 'D', 'Delete selected Items', self.delete, False],
+            'Mouse': [os.path.join(includePath, 'assets/icons/mouse.png'), 'M', 'Use Mouse (M)', self.mouse, True],
+            'New Threat': [os.path.join(includePath, 'assets/icons/threat.png'), 'T', 'New Threat (T)', self.newThreat, False],
+            'New Counter': [os.path.join(includePath, 'assets/icons/counter.png'), 'C', 'New Countermeasure (C)', self.newCountermeasure, False],
+            'New Composition': [os.path.join(includePath, 'assets/icons/arrow.png'), 'E', 'New Composition (E)', self.newComposition, False],
+            'Delete Item': [os.path.join(includePath, 'assets/icons/trash.png'), 'D', 'Delete selected Items (D)', self.delete, False],
 
         }
 
@@ -147,7 +159,7 @@ class Main(QMainWindow):
         self.addToolBar(QtCore.Qt.TopToolBarArea, mainToolBar)
         for k, v in mainToolbarItems.items():
             action = QAction(QIcon(v[0]), k, self)
-            action.setShortcut(v[2])
+            action.setShortcut(v[1])
             action.setStatusTip(v[2])
             action.triggered.connect(v[3])
 
@@ -174,7 +186,7 @@ class Main(QMainWindow):
 
         for k, v in editToolbarItems.items():
             action = QAction(QIcon(v[0]), k, self)
-            action.setShortcut(v[2])
+            action.setShortcut(v[1])
             action.setStatusTip(v[2])
             action.triggered.connect(functools.partial(v[3], action))
 
@@ -192,7 +204,10 @@ class Main(QMainWindow):
         self.show()
 
     def printGraph(self):
-
+        """
+        Prints the attack tree onto the graphics view
+        after the full graph was printed it will be reordered to have a nice graph
+        """
         for k, n in self.tree.nodeList.items():
             n.initDFS()
             n.view = None
@@ -213,9 +228,17 @@ class Main(QMainWindow):
         self.graphicsView.centerOn(0, 0)
         self.graphicsView.viewport().update()
 
-        print('----- DONE -----')
-
     def printGraphRecursion(self, node, x, y, parent=None):
+        """
+        Prints a node recursively with its child nodes
+        returns a tuple in the style of:
+                (node, [(threatConjunction, threatConjChildren), (counterConjunction, counterConjChildren)]
+
+        @param node: data node to print
+        @param x: x position of the node
+        @param y: y position of the mode
+        @param parent: parent node
+        """
         rec = False
         if node.view is None:
             if node.type == 'threat':
@@ -296,6 +319,13 @@ class Main(QMainWindow):
         return n, children
 
     def reorderTree(self, g):
+        """
+        Reoders the tree recursively.
+        The function splits the tree into two parts when it's possible
+
+        @param g: Part of the graph
+        @return: True if no collisions where found
+        """
         r = False
         for subG in g[1]:
             i = self.reorderTree(subG)
@@ -309,6 +339,14 @@ class Main(QMainWindow):
         return r
 
     def fixCollision(self, l, r):
+        """
+        Checks if there is a collision between l and r
+        If there is one both parts will be moved to the left or right side
+
+        @param l: left part of the subtree
+        @param r: right part of the subtree
+        @return: True if there was an collision
+        """
         left = []
         right = []
 
@@ -328,11 +366,24 @@ class Main(QMainWindow):
         return collision
 
     def makeList(self, item, itemList):
+        """
+        Makes a list of the items in the tuple of the drawn tree
+
+        @param item: Item to add to the list
+        @param itemList: List of the items
+        """
         itemList.append(item[0])
         for i in item[1]:
             self.makeList(i, itemList)
 
     def checkCollRec(self, item, toCheckList):
+        """
+        Checks recursively if there is a collision between an item or a list of times and a list of times
+
+        @param item: item or list to check for collisions
+        @param toCheckList: list to check the collision with item
+        @return: True if there is a collision
+        """
         if isinstance(item, list):
             for i in item:
                 if self.checkCollRec(i, toCheckList) is True:
@@ -343,21 +394,29 @@ class Main(QMainWindow):
                     if self.checkCollRec(item, r) is True:
                         return True
             else:
-                if toCheckList in item.collidingItems(): # and isinstance(toCheckList):
+                if toCheckList in item.collidingItems():  # and isinstance(toCheckList):
                     return True
         return False
 
     def moveRec(self, item, x, y):
+        """
+        Moves an item or a list of items by (x,y)
+
+        @param item: item or list of item in graphicsScene
+        @param x: x-offset to move
+        @param y: y-offset to move
+        """
         if isinstance(item, list):
             for i in item:
                 self.moveRec(i, x, y)
         else:
             item.setPos(item.x() + x, item.y() + y)
 
-    def resizeEvent(self, QResizeEvent):
-        pass
-
     def loadFile(self):
+        """
+        Opens a dialog to load a file.
+        Also checks if the file is compatible and tries to load it
+        """
         if len(self.tree.nodeList) > 0 and self.saved is False:
 
             reply = MessageBox('The document has been modified', 'Do you want to save your changes?', QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning, QMessageBox.Save).run()
@@ -384,6 +443,12 @@ class Main(QMainWindow):
             self.printGraph()
 
     def saveFile(self):
+        """
+        Opens a dialog to save the tree.
+        It checks if all information are correct
+        and does a check for an cycle
+        @return: True if saving was successful
+        """
         if len(self.tree.nodeList) == 0:
             MessageBox('Saving is not possible', 'Won\'t save an empty tree!', icon=QMessageBox.Critical).run()
             return False
@@ -426,6 +491,9 @@ class Main(QMainWindow):
         return True
 
     def saveFileAs(self):
+        """
+        Opens a dialog to save the tree to a specific file
+        """
         # @TODO: reset file if save as failed
         file = self.file
         self.file = ('', '')

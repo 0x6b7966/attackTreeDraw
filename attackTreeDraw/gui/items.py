@@ -274,6 +274,7 @@ class Threat(Node):
     """
     This class handles the gui for a threat node
     """
+
     def __init__(self, node, parent, x=0, y=0):
         """
         Constructor for the threat node.
@@ -348,6 +349,7 @@ class Countermeasure(Node):
     """
     This class handles the gui for a countermeasure node
     """
+
     def __init__(self, node, parent, x=0, y=0):
         """
         Constructor for the countermeasure node.
@@ -382,6 +384,7 @@ class Conjunction(QGraphicsItemGroup):
     """
     This class handles the gui for a conjunction
     """
+
     def __init__(self, parent, conjType, childType, offset=0):
         """
         Constructor for a conjunction.
@@ -526,6 +529,7 @@ class Arrow(QGraphicsLineItem):
     """
     Implements an arrow for the conjunctions
     """
+
     def __init__(self, start, end, offset, color=Qt.black):
         """
         Constructor for a conjunction.
@@ -632,8 +636,17 @@ class Arrow(QGraphicsLineItem):
 
 
 class AttackTreeScene(QGraphicsScene):
+    """
+    This Class Implements the click actions for the graphics scene
+    """
 
     def __init__(self, parent=None):
+        """
+        Constructor for the AttackTreeScene.
+        Sets the needed class variables and initializes the context menu
+
+        @param parent: Parent widget for the AttackTreeScene
+        """
         super().__init__(parent)
         self.startCollisions = None
         self.endCollisions = None
@@ -648,18 +661,34 @@ class AttackTreeScene(QGraphicsScene):
         self.menu.addAction('Threshold', self.addThreshold)
 
     def addAlternative(self):
+        """
+        Adds an alternative as edge
+        """
         self.addEdge('alternative')
 
     def addComposition(self):
-        self.addEdge('composition')
+        """
+        Adds an composition as edge
+        """
+        self.addEdge('alternative')
 
     def addSequence(self):
+        """
+        Adds an sequence as edge
+        """
         self.addEdge('sequence')
 
     def addThreshold(self):
+        """
+        Adds an threshold as edge
+        """
         self.addEdge('threshold')
 
     def addEdge(self, type):
+        """
+        Adds an edge to the graph with the specific type
+        @param type: Type of the edge (alternative|alternative|sequence|threshold)
+        """
         if self.endCollisions.node.type == 'countermeasure':
             if self.startCollisions.node.type == 'threat':
                 self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type, 0, 50)
@@ -692,6 +721,10 @@ class AttackTreeScene(QGraphicsScene):
         self.parent().saved = False
 
     def reset(self):
+        """
+        Resets all actions if a mode was selected.
+        Also deletes the Line for inserting a edge
+        """
         self.startCollisions = None
         self.endCollisions = None
         self.conjunction = None
@@ -699,10 +732,19 @@ class AttackTreeScene(QGraphicsScene):
         self.parent().modeAction.setChecked(False)
         self.parent().modeAction = self.parent().defaultModeAction
         self.parent().modeAction.setChecked(True)
+        if self.insertLine is not None:
+            self.removeItem(self.insertLine)
+            self.insertLine = None
         self.parent().setCursor(Qt.ArrowCursor)
         self.parent().graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
 
     def mousePressEvent(self, mouseEvent):
+        """
+        Handles the press event for the mouse
+        On click it will insert a node or set the start position for a conjunction
+
+        @param mouseEvent: Mouse Event
+        """
         if mouseEvent.button() == Qt.LeftButton:
             try:
                 if self.parent().mode == 1:
@@ -743,65 +785,70 @@ class AttackTreeScene(QGraphicsScene):
                 exit(-1)
 
     def mouseMoveEvent(self, mouseEvent):
+        """
+        Handler for the move event of the mouse.
+        If the mode is to draw a line (3) it will update the feedback line
+
+        @param mouseEvent: Mouse Event
+        """
         if self.insertLine is not None:
             newLine = QLineF(self.insertLine.line().p1(), mouseEvent.scenePos())
             self.insertLine.setLine(newLine)
         super().mouseMoveEvent(mouseEvent)
 
     def mouseReleaseEvent(self, mouseEvent):
+        """
+        Handles the mouse release event.
+        In this event the edge will be completed or the item to delete are certain
+
+        @param mouseEvent: Mouse Event
+        """
         if mouseEvent.button() == Qt.LeftButton:
             if self.parent().mode == 3:
                 self.parent().addLastAction()
-                try:
+                self.insertLine.setZValue(-1)
+                self.endCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
+                if self.startCollisions is None or self.endCollisions is None or self.startCollisions == self.endCollisions:
+                    self.reset()
                     self.removeItem(self.insertLine)
                     self.insertLine = None
-                    self.endCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
-                    if self.startCollisions is None or self.endCollisions is None or self.startCollisions == self.endCollisions:
-                        self.reset()
-                        self.removeItem(self.insertLine)
-                        self.insertLine = None
-                        super().mouseReleaseEvent(mouseEvent)
-                        return
-                    if isinstance(self.startCollisions.parentItem(), Node):
-                        self.startCollisions = self.startCollisions.parentItem()
-                    elif isinstance(self.startCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.startCollisions.parentItem().parentItem(), Node):
-                        self.startCollisions = self.startCollisions.parentItem().parentItem()
+                    super().mouseReleaseEvent(mouseEvent)
+                    return
+                if isinstance(self.startCollisions.parentItem(), Node):
+                    self.startCollisions = self.startCollisions.parentItem()
+                elif isinstance(self.startCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.startCollisions.parentItem().parentItem(), Node):
+                    self.startCollisions = self.startCollisions.parentItem().parentItem()
+                else:
+                    self.reset()
+
+                    super().mouseReleaseEvent(mouseEvent)
+                    return
+                if isinstance(self.endCollisions.parentItem(), Node):
+                    self.endCollisions = self.endCollisions.parentItem()
+                elif isinstance(self.endCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.endCollisions.parentItem().parentItem(), Node):
+                    self.endCollisions = self.endCollisions.parentItem().parentItem()
+                else:
+                    super().mouseReleaseEvent(mouseEvent)
+                    return
+                if isinstance(self.endCollisions, Node) and isinstance(self.startCollisions, Node):
+                    if (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'countermeasure') \
+                            or (self.startCollisions.node.type == 'countermeasure' and self.endCollisions.node.type == 'countermeasure'):
+                        self.conjunction = self.startCollisions.counterConjunction
+                    elif (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'countermeasure') \
+                            or (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'threat'):
+                        self.conjunction = self.startCollisions.threatConjunction
                     else:
-                        self.reset()
-
-                        super().mouseReleaseEvent(mouseEvent)
+                        MessageBox('Adding Edge is not possible', 'Edge from Countermeasure to Threat not possible', icon=QMessageBox.Critical).run()
                         return
-                    if isinstance(self.endCollisions.parentItem(), Node):
-                        self.endCollisions = self.endCollisions.parentItem()
-                    elif isinstance(self.endCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.endCollisions.parentItem().parentItem(), Node):
-                        self.endCollisions = self.endCollisions.parentItem().parentItem()
+                    if self.conjunction is None:
+                        self.menu.popup(self.parent().mapToGlobal(self.parent().graphicsView.mapFromScene(mouseEvent.scenePos())), None)
                     else:
-                        super().mouseReleaseEvent(mouseEvent)
-                        return
-                    if isinstance(self.endCollisions, Node) and isinstance(self.startCollisions, Node):
-                        if (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'countermeasure') \
-                                or (self.startCollisions.node.type == 'countermeasure' and self.endCollisions.node.type == 'countermeasure'):
-                            self.conjunction = self.startCollisions.counterConjunction
-                        elif (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'countermeasure') \
-                                or (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'threat'):
-                            self.conjunction = self.startCollisions.threatConjunction
-                        else:
-                            MessageBox('Adding Edge is not possible', 'Edge from Countermeasure to Threat not possible', icon=QMessageBox.Critical).run()
-                            return
-                        if self.conjunction is None:
-                            self.menu.popup(self.parent().mapToGlobal(self.parent().graphicsView.mapFromScene(mouseEvent.scenePos())), None)
-                        else:
-                            self.parent().tree.addEdge(self.startCollisions.node.id, self.endCollisions.node.id)
-                            self.addItem(self.conjunction.addArrow(self.endCollisions))
+                        self.parent().tree.addEdge(self.startCollisions.node.id, self.endCollisions.node.id)
+                        self.addItem(self.conjunction.addArrow(self.endCollisions))
 
-                            self.parent().graphicsView.update()
-                            self.reset()
-                            self.parent().saved = False
-
-                except Exception:
-                    print(traceback.format_exc())
-                    exit(-1)
-
+                        self.parent().graphicsView.update()
+                        self.reset()
+                        self.parent().saved = False
             elif self.parent().mode == 4:  # @TODO: Rework
                 self.parent().addLastAction()
                 try:  # @TODO: remove try
