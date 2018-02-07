@@ -501,6 +501,11 @@ class Main(QMainWindow):
             self.file = file
 
     def exportPNG(self):
+        """
+        Opens a dialog to export the tree as png.
+        Saves the tree to the declared location
+        @return: True if saving was successful
+        """
         dialog = QFileDialog()
         fileName = dialog.getSaveFileName(self, 'Export as PNG', '', 'PNG (*.png)')
 
@@ -513,9 +518,14 @@ class Main(QMainWindow):
             self.scene.setSceneRect(QRectF())
             image.save(fileName[0])
             return True
+        return False
 
     def exportPDF(self):
-
+        """
+        Opens a dialog to export the tree as pdf.
+        Saves the tree to the declared location
+        @return: True if saving was successful
+        """
         dialog = QFileDialog()
         fileName = dialog.getSaveFileName(self, 'Export as PDF', '', 'PDF (*.pdf)')
 
@@ -536,8 +546,10 @@ class Main(QMainWindow):
                 p.end()
                 self.scene.setSceneRect(QRectF())
             except Exception as e:
-                print(e)
+                MessageBox('Error while saving to pdf', e)
+                return False
             return True
+        return False
 
     def print(self):
         printer = QPrinter(QPrinter.HighResolution)
@@ -546,35 +558,40 @@ class Main(QMainWindow):
 
         printDialog = QPrintDialog(printer, self)
         if printDialog.exec() == QDialog.Accepted:
-            p = QPainter()
-            if p.begin(printer) is False:
-                raise Exception('Error starting painter')
-            self.scene.setSceneRect(self.scene.itemsBoundingRect())
-            self.scene.render(p)
-            p.end()
-            self.scene.setSceneRect(None)
+            try:
+                p = QPainter()
+                if p.begin(printer) is False:
+                    raise Exception('Error starting painter')
+                self.scene.setSceneRect(self.scene.itemsBoundingRect())
+                self.scene.render(p)
+                p.end()
+                self.scene.setSceneRect(None)
+            except Exception as e:
+                MessageBox('Error while printing', e)
 
     def new(self):
+        """
+        Resets the Scene
+        """
         if len(self.tree.nodeList) > 0 and self.saved is False:
             reply = MessageBox('The document has been modified', 'Do you want to save your changes?', QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning, QMessageBox.Save).run()
             if reply == QMessageBox.Yes:
                 self.saveFile()
             elif reply == QMessageBox.Cancel:
                 return
-
         self.tree = types.Tree(False)
-
         self.scene.clear()
-
         self.graphicsView.centerOn(0, 0)
-
         # print(self.scene.itemsBoundingRect())
         self.graphicsView.setSceneRect(self.scene.itemsBoundingRect())
-
         # print(self.scene.sceneRect())
         self.graphicsView.viewport().update()
 
     def redrawGraph(self):
+        """
+        Redraws the graph.
+        Before the redrawing it checks the meta information of the tree
+        """
         if self.tree.checkMeta() is False:
             edit = MetaEdit(self)
             edit.exec()
@@ -584,11 +601,19 @@ class Main(QMainWindow):
         self.printGraph()
 
     def redrawItems(self):
+        """
+        Redraws a single item
+        """
         for e in self.scene.items():
             if isinstance(e, Node) or isinstance(e, Conjunction):
                 e.redraw()
 
     def mouse(self, action):
+        """
+         Sets the edit mode to normal mouse mode
+
+        @param action: Button for the edit mode
+        """
         if self.modeAction is not None:
             self.modeAction.setChecked(False)
 
@@ -599,6 +624,11 @@ class Main(QMainWindow):
         self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
 
     def newThreat(self, action):
+        """
+        Sets the edit mode to threat insertion
+
+         @param action: Button for the edit mode
+         """
         if self.modeAction is not None:
             self.modeAction.setChecked(False)
             if self.modeAction is action:
@@ -614,6 +644,11 @@ class Main(QMainWindow):
         self.setCursor(Qt.CrossCursor)
 
     def newCountermeasure(self, action):
+        """
+         Sets the edit mode to countermeasure insertion
+
+         @param action: Button for the edit mode
+         """
         if self.modeAction is not None:
             self.modeAction.setChecked(False)
             if self.modeAction is action:
@@ -628,6 +663,11 @@ class Main(QMainWindow):
         self.setCursor(Qt.CrossCursor)
 
     def newComposition(self, action):
+        """
+        Sets the edit mode to composition insertion
+
+         @param action: Button for the edit mode
+         """
         if self.modeAction is not None:
             self.modeAction.setChecked(False)
             if self.modeAction is action:
@@ -643,6 +683,11 @@ class Main(QMainWindow):
         self.graphicsView.setDragMode(QGraphicsView.NoDrag)
 
     def delete(self, action):
+        """
+        Sets the edit mode to delete items
+
+         @param action: Button for the edit mode
+         """
         if self.modeAction is not None:
             self.modeAction.setChecked(False)
             if self.modeAction is action:
@@ -657,19 +702,23 @@ class Main(QMainWindow):
         self.setCursor(Qt.CrossCursor)
 
     def editMeta(self):
+        """
+        Opens the meta edit dialog
+        """
         edit = MetaEdit(self)
         edit.exec()
 
     def options(self):
-        try:
-            options = Options(self)
-            options.exec()
-        except Exception:
-            print(sys.exc_info())
-            print(traceback.format_exc())
-            exit(-1)
+        """
+        Opens the options dialog
+        """
+        options = Options(self)
+        options.exec()
 
     def undo(self):
+        """
+        Undos the last action
+        """
         try:
             if len(self.lastAction) > 0:
                 tree = self.lastAction.pop()
@@ -689,6 +738,9 @@ class Main(QMainWindow):
             exit(-1)
 
     def redo(self):
+        """
+        Undos the last undid action
+        """
         try:
             if len(self.nextAction) > 0:
                 tree = self.nextAction.pop()
@@ -708,5 +760,8 @@ class Main(QMainWindow):
             exit(-1)
 
     def addLastAction(self):
+        """
+        adds the last undo action to the undo stack
+        """
         #self.lastAction.append(copy.deepcopy(self.tree))
         pass
