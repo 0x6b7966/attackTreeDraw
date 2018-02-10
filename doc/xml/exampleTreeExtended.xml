@@ -42,20 +42,20 @@
         </countermeasure>
     </countermeasures>
     <connections>
-        <connection source="N0000" type="alternative">
+        <connection source="N0000" type="alternative" id="N1001">
             <destination>N0001</destination>
         </connection>
-        <connection source="N0001" type="composition">
+        <connection source="N0001" type="composition" id="N1002">
             <destination>N0002</destination>
         </connection>
-        <connection source="N0001" type="alternative">
+        <connection source="N0001" type="alternative" id="N1003">
             <destination>N0004</destination>
             <destination>N0005</destination>
         </connection>
-        <connection source="N0002" type="alternative">
+        <connection source="N0002" type="alternative" id="N1004">
             <destination>N0003</destination>
         </connection>
-        <connection source="N0003" type="alternative">
+        <connection source="N0003" type="alternative" id="N1005">
             <destination>N0002</destination>
         </connection>
     </connections>

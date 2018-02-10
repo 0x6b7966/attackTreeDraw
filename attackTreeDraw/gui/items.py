@@ -41,10 +41,12 @@ class Node(QGraphicsItemGroup):
 
         self.parent = parent
 
-        self.edit = None
-
-        self.threatConjunction = None
-        self.counterConjunction = None
+        self.threatEdge = None
+        self.counterEdge = None
+        self.defaultEdge = None
+        
+        self.childEdges = []
+        self.parentEdges = []
 
         self.parentConjunctions = []
 
@@ -63,6 +65,65 @@ class Node(QGraphicsItemGroup):
         self.printFooter(background, border, text)
 
         self.setPos(x, y)
+
+    def getTypeRecursiveDown(self):
+        if isinstance(self, Conjunction):
+            for c in self.childEdges:
+                if isinstance(c.dst, Conjunction):
+                    return c.dst.getTypeRecursiveDown()
+                else:
+                    return type(c.dst)
+            return type(self)
+        else:
+            return type(self)
+
+    def getTypeRecursiveUp(self):
+        if isinstance(self, Conjunction):
+            for c in self.childEdges:
+                if isinstance(c.dst, Conjunction):
+                    return c.dst.getTypeRecursiveUp()
+                else:
+                    return type(c.dst)
+            return type(self)
+        else:
+            return type(self)
+
+    def addEdge(self, dst):
+        if isinstance(self, Threat) and dst.getTypeRecursiveDown() is Threat:
+            self.childEdges.append(Edge(self, dst, -50))
+        elif isinstance(self, Threat) and dst.getTypeRecursiveDown() is Countermeasure:
+            self.childEdges.append(Edge(self, dst, 50))
+        else:
+            self.childEdges.append(Edge(self, dst, 0))
+        dst.parentEdges.append(self.childEdges[-1])
+        self.parent.scene.addItem(self.childEdges[-1])
+
+    def actualizeEdges(self):
+        for e in self.childEdges:
+            if isinstance(self, Threat) and e.dst.getTypeRecursiveDown() is Threat:
+                e.offset = -50
+            elif isinstance(self, Threat) and e.dst.getTypeRecursiveDown() is Countermeasure:
+                e.offset = 50
+            else:
+                e.offset = 0
+
+    def getLeftRightChildren(self):
+        left = []
+        right = []
+        neutralLeft = False
+        for e in self.childEdges:
+            if e.offset < 0:
+                left.append(e.dst)
+            elif e.offset > 0:
+                right.append(e.dst)
+            else:
+                if neutralLeft is False:
+                    left.append(e.dst)
+                    neutralLeft = True
+                else:
+                    right.append(e.dst)
+                    neutralLeft = False
+        return left, right
 
     def printHeader(self, background, border, text):
         """
@@ -267,7 +328,8 @@ class Node(QGraphicsItemGroup):
 
         @param event: click event
         """
-        self.edit = NodeEdit(self, self.parent)
+        edit = NodeEdit(self, self.parent)
+        edit.exec()
 
 
 class Threat(Node):
@@ -380,127 +442,8 @@ class Countermeasure(Node):
         super().redrawOptions(self.parent.countermeasureBackground, self.parent.countermeasureBorder, self.parent.countermeasureFont)
 
 
-class Conjunction(QGraphicsItemGroup):
-    """
-    This class handles the gui for a conjunction
-    """
-
-    def __init__(self, parent, conjType, childType, offset=0):
-        """
-        Constructor for a conjunction.
-        It generates all necessary variables and calls the draw function
-        It adds also the parent arrow from the source to the conjunction rectangle
-
-        @param parent:
-        @param conjType:
-        @param childType:
-        @param offset:
-        """
-        super().__init__()
-
-        self.parent = parent
-
-        self.offset = offset
-
-        self.parentArrow = None
-        self.conjType = conjType
-
-        self.children = []
-        self.arrows = []
-
-        self.title = QGraphicsTextItem()
-        self.title.setFont(QFont('Arial', 12))
-        self.title.setPlainText(conjType)
-
-        self.conRect = ConjunctionRect()
-        self.conRect.setRect(0, 0, 100, 40)
-        self.title.setPos(6, 6)
-
-        self.childType = childType
-
-        if self.childType == 1:
-            self.background = self.parent.parent.threatBackground
-            self.border = self.parent.parent.threatBorder
-            self.font = self.parent.parent.threatFont
-        else:
-            self.background = self.parent.parent.countermeasureBackground
-            self.border = self.parent.parent.countermeasureBorder
-            self.font = self.parent.parent.countermeasureFont
-
-        self.title.setDefaultTextColor(self.font)
-
-        self.addToGroup(self.conRect)
-        self.addToGroup(self.title)
-
-        self.conRect.setBrush(QBrush(self.background))
-        self.conRect.setPen(QPen(self.border))
-
-        self.setFlag(QGraphicsItem.ItemIsMovable, True)
-        self.setFlag(QGraphicsItem.ItemIsSelectable, True)
-
-    def addArrow(self, child):
-        """
-        Adds an arrow to a child
-
-        @param child: child node to add the arrow to
-        """
-        self.arrows.append(Arrow(self, child, 0, self.border))
-        self.children.append(child)
-
-        child.parentConjunctions.append(self)
-
-        return self.arrows[-1]
-
-    def addParentArrow(self):
-        """
-        Adds the parent arrow to this conjunction
-        """
-        self.parentArrow = Arrow(self.parent, self, self.offset, self.border)
-        return self.parentArrow
-
-    def paint(self, painter, options, widget=None):
-        """
-        Reimplementation for the paint function of the QGraphicsItemGroup.
-        The Reimplementation is needed to print a proper border when the item is selected
-
-        @param painter: The painter, which draws the node
-        @param options: options for the paint job
-        @param widget: widget of the Item
-        """
-        myOption = QStyleOptionGraphicsItem(options)
-        myOption.state &= ~QStyle.State_Selected
-
-        super().paint(painter, myOption, widget=None)
-
-        if self.isSelected():
-            painter.setPen(QPen(Qt.black, 1, Qt.DashLine))
-            rect = QRect(self.boundingRect().x() - 2, self.boundingRect().y() - 2, self.boundingRect().x() + self.boundingRect().width() + 4, self.boundingRect().y() + self.boundingRect().height() + 3)
-            painter.drawRect(rect)
-
-    def redraw(self):
-        """
-        Redraws the conjunction with its arrows
-        """
-        if self.childType == 1:
-            self.background = self.parent.parent.threatBackground
-            self.border = self.parent.parent.threatBorder
-            self.font = self.parent.parent.threatFont
-        else:
-            self.background = self.parent.parent.countermeasureBackground
-            self.border = self.parent.parent.countermeasureBorder
-            self.font = self.parent.parent.countermeasureFont
-
-        self.conRect.setBrush(QBrush(self.background))
-        self.conRect.setPen(QPen(self.border))
-        self.title.setDefaultTextColor(self.font)
-
-        self.conRect.update()
-        self.parentArrow.setPen(QPen(self.border, 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-
-        self.parentArrow.update()
-        for a in self.arrows:
-            a.setPen(QPen(self.border, 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
-            a.update()
+class Conjunction(Node):
+    pass
 
 
 class ConjunctionRect(QGraphicsRectItem):
@@ -525,12 +468,11 @@ class ConjunctionRect(QGraphicsRectItem):
         painter.drawRoundedRect(self.boundingRect(), 20, 20)
 
 
-class Arrow(QGraphicsLineItem):
+class Edge(QGraphicsLineItem):
     """
-    Implements an arrow for the conjunctions
+    Implements an Edge to two nodes
     """
-
-    def __init__(self, start, end, offset, color=Qt.black):
+    def __init__(self, start, dst, offset, color=Qt.black):
         """
         Constructor for a conjunction.
         It generates all necessary variables and calls the draw function
@@ -546,7 +488,7 @@ class Arrow(QGraphicsLineItem):
         self.arrowHead = QPolygonF()
 
         self.start = start
-        self.end = end
+        self.dst = dst
 
         self.offset = offset
 
@@ -578,7 +520,7 @@ class Arrow(QGraphicsLineItem):
         """
         Updates the position of the arrow
         """
-        line = QLineF(self.mapFromItem(self.start, 0, 0), self.mapFromItem(self.end, 0, 0))
+        line = QLineF(self.mapFromItem(self.start, 0, 0), self.mapFromItem(self.dst, 0, 0))
         self.setLine(line)
 
     def paint(self, painter, options, widget=None):
@@ -591,7 +533,7 @@ class Arrow(QGraphicsLineItem):
         @param widget: widget of the Item
         """
 
-        if self.start.collidesWithItem(self.end):
+        if self.start.collidesWithItem(self.dst):
             return
 
         myPen = self.pen()
@@ -599,14 +541,14 @@ class Arrow(QGraphicsLineItem):
         painter.setPen(myPen)
         painter.setBrush(myPen.color())
 
-        centerLine = QLineF(QPointF(self.start.x() + self.start.boundingRect().center().x() + self.offset, self.start.y() + self.start.boundingRect().bottom()), QPointF(self.end.x() + self.end.boundingRect().center().x(), self.end.y()))
-        endPolygon = self.end.mapFromItem(self.end, self.end.boundingRect())
-        p1 = endPolygon.first() + self.end.pos()
+        centerLine = QLineF(QPointF(self.start.x() + self.start.boundingRect().center().x() + self.offset, self.start.y() + self.start.boundingRect().bottom()), QPointF(self.dst.x() + self.dst.boundingRect().center().x(), self.dst.y()))
+        endPolygon = self.dst.mapFromItem(self.dst, self.dst.boundingRect())
+        p1 = endPolygon.first() + self.dst.pos()
         p2 = None
         intersectPoint = QPointF()
 
         for i in endPolygon:
-            p2 = i + self.end.pos()
+            p2 = i + self.dst.pos()
 
             polyLine = QLineF(p1, p2)
 
@@ -649,9 +591,11 @@ class AttackTreeScene(QGraphicsScene):
         """
         super().__init__(parent)
         self.startCollisions = None
-        self.endCollisions = None
+        self.dstCollisions = None
         self.conjunction = None
         self.insertLine = None
+
+        self.mousePos = (0, 0)
 
         self.menu = QMenu(parent)
 
@@ -670,7 +614,7 @@ class AttackTreeScene(QGraphicsScene):
         """
         Adds an composition as edge
         """
-        self.addEdge('alternative')
+        self.addEdge('composition')
 
     def addSequence(self):
         """
@@ -689,33 +633,13 @@ class AttackTreeScene(QGraphicsScene):
         Adds an edge to the graph with the specific type
         @param type: Type of the edge (alternative|alternative|sequence|threshold)
         """
-        if self.endCollisions.node.type == 'countermeasure':
-            if self.startCollisions.node.type == 'threat':
-                self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type, 0, 50)
-            else:
-                self.startCollisions.counterConjunction = Conjunction(self.startCollisions, type, 0)
 
-            self.addItem(self.startCollisions.counterConjunction)
-            self.addItem(self.startCollisions.counterConjunction.addParentArrow())
-            self.startCollisions.counterConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
-            self.addItem(self.startCollisions.counterConjunction.addArrow(self.endCollisions))
+        node = types.Conjunction(conjunctionType=type)
+        self.parent().tree.addNode(node)
 
-            self.startCollisions.counterConjunction.setPos(self.startCollisions.counterConjunction.x() + 100, self.startCollisions.counterConjunction.y())
-        else:
-            if self.startCollisions.node.type == 'threat':
-                self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type, 1, -50)
-            else:
-                self.startCollisions.threatConjunction = Conjunction(self.startCollisions, type, 1)
+        n = Conjunction(node, self.parent(), self.parent().threatBackground, self.parent().threatBorder, self.parent().threatFont,x=self.mousePos[0],y=self.mousePos[1], offset=60)  # @TODO: Change color
+        self.addItem(n)
 
-            self.addItem(self.startCollisions.threatConjunction)
-            self.addItem(self.startCollisions.threatConjunction.addParentArrow())
-            self.startCollisions.threatConjunction.setPos(self.startCollisions.x() + self.startCollisions.boundingRect().center().x() - 100, self.startCollisions.y() + self.startCollisions.boundingRect().height() + 100)
-            self.addItem(self.startCollisions.threatConjunction.addArrow(self.endCollisions))
-
-        self.removeItem(self.insertLine)
-        self.insertLine = None
-
-        self.parent().tree.addEdge(self.startCollisions.node.id, self.endCollisions.node.id, type)
         self.parent().graphicsView.update()
         self.reset()
         self.parent().saved = False
@@ -726,7 +650,7 @@ class AttackTreeScene(QGraphicsScene):
         Also deletes the Line for inserting a edge
         """
         self.startCollisions = None
-        self.endCollisions = None
+        self.dstCollisions = None
         self.conjunction = None
         self.parent().mode = 0
         self.parent().modeAction.setChecked(False)
@@ -757,7 +681,11 @@ class AttackTreeScene(QGraphicsScene):
 
                     self.parent().graphicsView.update()
 
+                    edit = NodeEdit(n, n.parent)
+                    edit.exec()
+
                     self.parent().saved = False
+                    self.reset()
                     super().mousePressEvent(mouseEvent)
                 elif self.parent().mode == 2:
                     self.parent().addLastAction()
@@ -769,8 +697,17 @@ class AttackTreeScene(QGraphicsScene):
                     self.parent().graphicsView.update()
                     self.parent().saved = False
 
+                    edit = NodeEdit(n, n.parent)
+                    edit.exec()
+
                     super().mousePressEvent(mouseEvent)
+                    self.reset()
                 elif self.parent().mode == 3:
+                    self.mousePos = mouseEvent.scenePos().x(), mouseEvent.scenePos().y()
+                    self.menu.popup(self.parent().mapToGlobal(self.parent().graphicsView.mapFromScene(mouseEvent.scenePos())), None)
+                    super().mousePressEvent(mouseEvent)
+                    self.reset()
+                elif self.parent().mode == 4:
 
                     self.startCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
                     self.insertLine = QGraphicsLineItem(QLineF(mouseEvent.scenePos(), mouseEvent.scenePos()))
@@ -803,53 +740,45 @@ class AttackTreeScene(QGraphicsScene):
 
         @param mouseEvent: Mouse Event
         """
+
         if mouseEvent.button() == Qt.LeftButton:
-            if self.parent().mode == 3:
-                self.parent().addLastAction()
-                self.insertLine.setZValue(-1)
-                self.endCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
-                if self.startCollisions is None or self.endCollisions is None or self.startCollisions == self.endCollisions:
-                    self.reset()
-                    self.removeItem(self.insertLine)
-                    self.insertLine = None
-                    super().mouseReleaseEvent(mouseEvent)
-                    return
-                if isinstance(self.startCollisions.parentItem(), Node):
-                    self.startCollisions = self.startCollisions.parentItem()
-                elif isinstance(self.startCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.startCollisions.parentItem().parentItem(), Node):
-                    self.startCollisions = self.startCollisions.parentItem().parentItem()
-                else:
-                    self.reset()
-
-                    super().mouseReleaseEvent(mouseEvent)
-                    return
-                if isinstance(self.endCollisions.parentItem(), Node):
-                    self.endCollisions = self.endCollisions.parentItem()
-                elif isinstance(self.endCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.endCollisions.parentItem().parentItem(), Node):
-                    self.endCollisions = self.endCollisions.parentItem().parentItem()
-                else:
-                    super().mouseReleaseEvent(mouseEvent)
-                    return
-                if isinstance(self.endCollisions, Node) and isinstance(self.startCollisions, Node):
-                    if (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'countermeasure') \
-                            or (self.startCollisions.node.type == 'countermeasure' and self.endCollisions.node.type == 'countermeasure'):
-                        self.conjunction = self.startCollisions.counterConjunction
-                    elif (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'countermeasure') \
-                            or (self.startCollisions.node.type == 'threat' and self.endCollisions.node.type == 'threat'):
-                        self.conjunction = self.startCollisions.threatConjunction
-                    else:
-                        MessageBox('Adding Edge is not possible', 'Edge from Countermeasure to Threat not possible', icon=QMessageBox.Critical).run()
+            if self.parent().mode == 4:
+                try:
+                    self.parent().addLastAction()
+                    self.insertLine.setZValue(-1)
+                    self.dstCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
+                    if self.startCollisions is None or self.dstCollisions is None or self.startCollisions == self.dstCollisions:
+                        self.reset()
+                        super().mouseReleaseEvent(mouseEvent)
                         return
-                    if self.conjunction is None:
-                        self.menu.popup(self.parent().mapToGlobal(self.parent().graphicsView.mapFromScene(mouseEvent.scenePos())), None)
+                    if isinstance(self.startCollisions.parentItem(), Node):
+                        self.startCollisions = self.startCollisions.parentItem()
+                    elif isinstance(self.startCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.startCollisions.parentItem().parentItem(), Node):
+                        self.startCollisions = self.startCollisions.parentItem().parentItem()
                     else:
-                        self.parent().tree.addEdge(self.startCollisions.node.id, self.endCollisions.node.id)
-                        self.addItem(self.conjunction.addArrow(self.endCollisions))
+                        self.reset()
+                        super().mouseReleaseEvent(mouseEvent)
+                        return
+                    if isinstance(self.dstCollisions.parentItem(), Node):
+                        self.dstCollisions = self.dstCollisions.parentItem()
+                    elif isinstance(self.dstCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.dstCollisions.parentItem().parentItem(), Node):
+                        self.dstCollisions = self.dstCollisions.parentItem().parentItem()
+                    else:
+                        self.reset()
+                        super().mouseReleaseEvent(mouseEvent)
+                        return
 
+                    if self.parent().tree.addEdge(self.startCollisions.node.id, self.dstCollisions.node.id) is True:
+                        self.startCollisions.addEdge(self.dstCollisions)
                         self.parent().graphicsView.update()
                         self.reset()
                         self.parent().saved = False
-            elif self.parent().mode == 4:  # @TODO: Rework
+                    else:
+                        MessageBox('Adding Edge is not possible', 'The Edge is not supported', icon=QMessageBox.Critical).run()
+                        self.reset()
+                except Exception as e:
+                    print(traceback.format_exc())
+            elif self.parent().mode == 5:  # @TODO: Rework
                 self.parent().addLastAction()
                 try:  # @TODO: remove try
                     deleted = []

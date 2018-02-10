@@ -49,7 +49,7 @@ class Main(QMainWindow):
         self.lastAction = []
         self.nextAction = []
 
-        self.mode = 0  # 0: default, 1: add threat, 2: add countermeasure, 3: add composition
+        self.mode = 0  # 0: default, 1: add threat, 2: add countermeasure, 3: add conjunction, 4: new edge, 5: delete item
 
         self.initUI()
 
@@ -114,7 +114,8 @@ class Main(QMainWindow):
             'Mouse': [os.path.join(includePath, 'assets/icons/mouse.png'), 'M', 'Use Mouse (M)', self.mouse, True],
             'New Threat': [os.path.join(includePath, 'assets/icons/threat.png'), 'T', 'New Threat (T)', self.newThreat, False],
             'New Counter': [os.path.join(includePath, 'assets/icons/counter.png'), 'C', 'New Countermeasure (C)', self.newCountermeasure, False],
-            'New Composition': [os.path.join(includePath, 'assets/icons/arrow.png'), 'E', 'New Composition (E)', self.newComposition, False],
+            'New Conjunction': [os.path.join(includePath, 'assets/icons/conjunction.png'), 'J', 'New Conjunction (J)', self.newConjunction, False],
+            'New Edge': [os.path.join(includePath, 'assets/icons/arrow.png'), 'E', 'New Edge (E)', self.newEdge, False],
             'Delete Item': [os.path.join(includePath, 'assets/icons/trash.png'), 'D', 'Delete selected Items (D)', self.delete, False],
 
         }
@@ -240,13 +241,14 @@ class Main(QMainWindow):
         @param parent: parent node
         """
         rec = False
+
         if node.view is None:
             if node.type == 'threat':
                 n = Threat(node, self)
             elif node.type == 'countermeasure':
                 n = Countermeasure(node, self)
             else:
-                n = Node(node, self)
+                n = Conjunction(node, self, self.threatBackground, self.threatBorder, self.threatFont, offset=60)
 
             node.view = n
             self.scene.addItem(n)
@@ -254,69 +256,36 @@ class Main(QMainWindow):
         else:
             n = node.view
             rec = True
-        startX = (n.x() + n.boundingRect().center().x()) - ((len(node.edges.keys()) / 2) * 250)
+        startX = (n.x() + n.boundingRect().center().x()) - ((len(node.children) / 2) * 250)
 
         if parent is not None:
-            if parent.node.type == 'threat' and n.node.type == 'threat':
-                self.scene.addItem(parent.threatConjunction.addArrow(n))
-            elif n.node.type == 'countermeasure':
-                self.scene.addItem(parent.counterConjunction.addArrow(n))
+            parent.addEdge(n)
 
         node.visited = True
 
-        threatConj = False
-        counterConj = False
-
         children = []
-        threatConjChildren = []
-        counterConjChildren = []
 
         it = 0
-        for k, v in node.edges.items():
-            if self.tree.nodeList[v.destination].type == 'threat':
-                if n.threatConjunction is None:
-                    if node.type == 'threat':
-                        n.threatConjunction = Conjunction(n, v.conjunction, 1, -50)
-                    else:
-                        n.threatConjunction = Conjunction(n, v.conjunction, 1)
-                    self.scene.addItem(n.threatConjunction)
-                    self.scene.addItem(n.threatConjunction.addParentArrow())
-                    n.threatConjunction.setPos(n.x() + n.boundingRect().center().x() - 100, n.y() + n.boundingRect().height() + 100)
-                    threatConj = True
+        for c in node.children:
                 if rec is False:
-                    subG = self.printGraphRecursion(self.tree.nodeList[v.destination], startX + (it * 250), n.threatConjunction.y() + n.threatConjunction.boundingRect().height() + 100, n)
-                    threatConjChildren.append(subG)
+                    subG = self.printGraphRecursion(self.tree.nodeList[c], startX + (it * 250), n.y() + n.boundingRect().height() + 100, n)
+                    children.append(subG)
                 it += 1
 
-        if threatConj is True:
-            children.append((n.threatConjunction, threatConjChildren))
+        n.actualizeEdges()
 
-        for k, v in node.edges.items():
-            if self.tree.nodeList[v.destination].type == 'countermeasure':
-                if n.counterConjunction is None:
-                    if node.type == 'threat':
-                        n.counterConjunction = Conjunction(n, v.conjunction, 0, 50)
-                    else:
-                        n.counterConjunction = Conjunction(n, v.conjunction, 0)
-                    self.scene.addItem(n.counterConjunction)
-                    self.scene.addItem(n.counterConjunction.addParentArrow())
-                    n.counterConjunction.setPos(n.x() + n.boundingRect().center().x() + 25, n.y() + n.boundingRect().height() + 100)
-                    counterConj = True
-                if rec is False:
-                    subG = self.printGraphRecursion(self.tree.nodeList[v.destination], startX + (it * 250), n.counterConjunction.y() + n.counterConjunction.boundingRect().height() + 100, n)
-                    counterConjChildren.append(subG)
-                it += 1
+        left = []
+        right = []
 
-        if counterConj is True:
-            children.append((n.counterConjunction, counterConjChildren))
+        sortedChildren = n.getLeftRightChildren()
 
-        if threatConj is not counterConj:
-            if n.threatConjunction is not None:
-                n.threatConjunction.setPos(n.x() + n.boundingRect().x() + 50, n.y() + n.boundingRect().height() + 100)
-            if n.counterConjunction is not None:
-                n.counterConjunction.setPos(n.x() + n.boundingRect().x() + 50, n.y() + n.boundingRect().height() + 100)
+        for c in children:
+            if c[0] in sortedChildren[0]:
+                left.append(c)
+            else:
+                right.append(c)
 
-        return n, children
+        return n, (left, right)
 
     def reorderTree(self, g):
         """
@@ -327,15 +296,20 @@ class Main(QMainWindow):
         @return: True if no collisions where found
         """
         r = False
-        for subG in g[1]:
+
+        for subG in g[1][0]:
+            i = self.reorderTree(subG)
+            if i is True:
+                r = True
+        for subG in g[1][1]:
             i = self.reorderTree(subG)
             if i is True:
                 r = True
 
-        if len(g[1]) == 2:
-            i = self.fixCollision(g[1][0], g[1][1])
-            if i is True:
-                r = True
+        i = self.fixCollision(g[1][0], g[1][1])
+        if i is True:
+            r = True
+
         return r
 
     def fixCollision(self, l, r):
@@ -347,19 +321,16 @@ class Main(QMainWindow):
         @param r: right part of the subtree
         @return: True if there was an collision
         """
-        left = []
-        right = []
-
-        self.makeList(l, left)
-        self.makeList(r, right)
+        left = l
+        right = r
 
         collisions = self.checkCollRec(left, right)
         collision = collisions
 
         while collisions is True:
-            for leftItem in list(set(left)):
+            for leftItem in left:
                 self.moveRec(leftItem, -125, 0)
-            for rightItem in list(set(right)):
+            for rightItem in right:
                 self.moveRec(rightItem, 125, 0)
             collisions = self.checkCollRec(left, right)
 
@@ -386,12 +357,20 @@ class Main(QMainWindow):
         """
         if isinstance(item, list):
             for i in item:
-                if self.checkCollRec(i, toCheckList) is True:
+                if self.checkCollRec(i[0], toCheckList) is True:
+                    return True
+                if self.checkCollRec(i[1][0], toCheckList) is True:
+                    return True
+                if self.checkCollRec(i[1][1], toCheckList) is True:
                     return True
         else:
             if isinstance(toCheckList, list):
                 for r in toCheckList:
-                    if self.checkCollRec(item, r) is True:
+                    if self.checkCollRec(item, r[0]) is True:
+                        return True
+                    if self.checkCollRec(item, r[1][0]) is True:
+                        return True
+                    if self.checkCollRec(item, r[1][1]) is True:
                         return True
             else:
                 if toCheckList in item.collidingItems():  # and isinstance(toCheckList):
@@ -410,7 +389,9 @@ class Main(QMainWindow):
             for i in item:
                 self.moveRec(i, x, y)
         else:
-            item.setPos(item.x() + x, item.y() + y)
+            item[0].setPos(item[0].x() + x, item[0].y() + y)
+            self.moveRec(item[1][0], x, y)
+            self.moveRec(item[1][1], x, y)
 
     def loadFile(self):
         """
@@ -434,13 +415,22 @@ class Main(QMainWindow):
         try:
             h = TreeHandler()
             self.tree = h.buildFromXML(fileName[0])
-        except ParserError:
-            MessageBox('Loading is not possible', 'The requested file is not compatible', icon=QMessageBox.Critical).run()
+        except ParserError as e:
+            MessageBox('Loading is not possible', 'The requested file is not compatible\n%s' % e, icon=QMessageBox.Critical).run()
+            print(traceback.format_exc())
+            return
         except XMLXSDError as e:
             MessageBox('Loading is not possible', '%s' % e, icon=QMessageBox.Critical).run()
-        finally:
+            print(traceback.format_exc())
+            return
+        except Exception:
+            print(traceback.format_exc())
+            return
+        try:
             self.scene.clear()
             self.printGraph()
+        except Exception:
+            print(traceback.format_exc())
 
     def saveFile(self):
         """
@@ -483,8 +473,10 @@ class Main(QMainWindow):
 
         if self.file[1] == 'Extended Attack Tree File (*.xml)':
             self.tree.extended = True
-
-        save = handler.saveToXML(self.tree, self.file[0])
+        try:
+            save = handler.saveToXML(self.tree, self.file[0])
+        except Exception:
+            print(traceback.format_exc())
         if save is not True:
             MessageBox('Error while saving file', 'There was an error saving the tree.\nError Message: %s' % save, icon=QMessageBox.Information).run()
             return False
@@ -662,7 +654,7 @@ class Main(QMainWindow):
         self.modeAction = action
         self.setCursor(Qt.CrossCursor)
 
-    def newComposition(self, action):
+    def newConjunction(self, action):
         """
         Sets the edit mode to composition insertion
 
@@ -682,6 +674,26 @@ class Main(QMainWindow):
         self.setCursor(Qt.CrossCursor)
         self.graphicsView.setDragMode(QGraphicsView.NoDrag)
 
+    def newEdge(self, action):
+        """
+        Sets the edit mode to composition insertion
+
+         @param action: Button for the edit mode
+         """
+        if self.modeAction is not None:
+            self.modeAction.setChecked(False)
+            if self.modeAction is action:
+                self.mode = 0
+                self.modeAction = self.defaultModeAction
+                self.modeAction.setChecked(True)
+                self.setCursor(Qt.ArrowCursor)
+                self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
+                return
+        self.mode = 4
+        self.modeAction = action
+        self.setCursor(Qt.CrossCursor)
+        self.graphicsView.setDragMode(QGraphicsView.NoDrag)
+
     def delete(self, action):
         """
         Sets the edit mode to delete items
@@ -697,7 +709,7 @@ class Main(QMainWindow):
                 self.setCursor(Qt.ArrowCursor)
                 self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
                 return
-        self.mode = 4
+        self.mode = 5
         self.modeAction = action
         self.setCursor(Qt.CrossCursor)
 

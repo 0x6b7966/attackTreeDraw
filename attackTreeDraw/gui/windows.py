@@ -53,7 +53,6 @@ class NodeEdit(QDialog):
         self.nodeItem = node
         self.parentWidget = parent
         self.setupUi()
-        self.show()
 
     def setupUi(self):
         """

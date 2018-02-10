@@ -152,6 +152,7 @@ class Handler:
         """
         self.generateTemplate(False)
         xmlTree = self.xml.find('tree')
+        tree.meta['root'] = tree.root
         self.generateMetaElements(tree.meta)
         self.addSimpleNode(tree, xmlTree, tree.nodeList[tree.root])
 
@@ -162,6 +163,7 @@ class Handler:
         @param tree: Tree to generate the xml from
         """
         self.generateTemplate(True)
+        tree.meta['root'] = tree.root
         self.generateMetaElements(tree.meta)
         self.addExtendedNodes(tree)
         self.addExtendedEdges(tree)

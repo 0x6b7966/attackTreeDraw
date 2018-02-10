@@ -18,7 +18,7 @@ class Node:
         self.description = ''
         self.attributes = {}
         self.parents = []
-        self.edges = {}
+        self.children = []
 
         self.view = None
 
@@ -47,20 +47,30 @@ class Countermeasure(Node):
     type = 'countermeasure'
 
 
+class Conjunction(Node):
+    type = 'conjunction'
+
+    def __init__(self, id=None, conjunctionType=None):
+        super().__init__()
+
+        self.id = id
+        self.conjunctionType = conjunctionType
+        self.title = conjunctionType
+
+
 class Edge:
     """
      Class for edges
 
      The Class contains the source, destination and the conjunction for the edge
      """
-    def __init__(self, source, destination, conjunction):
+    def __init__(self, source, destination):
         """
         Constructor for Node.
         Initialises all needed variables
         """
         self.source = source
         self.destination = destination
-        self.conjunction = conjunction
 
     def __hash__(self):
         """
@@ -93,6 +103,82 @@ class Tree:
         self.root = None
         self.meta = {'title': '', 'author': '', 'date': '', 'description': '', 'root': ''}
 
+    def getTypeRecursiveDown(self, node):
+        """
+        Returns the first type of a node which is not a Conjunction.
+        The function searches downwards.
+        If there was no other element it will return Conjunction
+
+        @param node: Node to start the search from
+        @return: Type of node
+        """
+        if isinstance(node, Conjunction):
+            for c in node.children:
+                if isinstance(self.nodeList[c], Conjunction):
+                    return self.getTypeRecursiveDown(self.nodeList[c])
+                else:
+                    return type(self.nodeList[c])
+            return type(node)
+        else:
+            return type(node)
+
+    def getTypeRecursiveUp(self, node):
+        """
+        Returns the first type of a node which is not a Conjunction.
+        The function searches upwards.
+        If there was no other element it will return Conjunction
+
+        @param node: Node to start the search from
+        @return: Type of node
+        """
+        if isinstance(node, Conjunction):
+            for c in node.parents:
+                if isinstance(self.nodeList[c], Conjunction):
+                    return self.getTypeRecursiveUp(self.nodeList[c])
+                else:
+                    return type(self.nodeList[c])
+            return type(node)
+        else:
+            return type(node)
+
+    def getFirstElementRecursiveDown(self, node):
+        """
+        Returns the first node which is not a Conjunction.
+        The function searches downwards.
+        If there was no other element it will return the Conjunction
+
+        @param node: Node to start the search from
+        @return: node
+        """
+        if isinstance(node, Conjunction):
+            for c in node.parents:
+                if isinstance(self.nodeList[c], Conjunction):
+                    return self.getFirstElementRecursiveDown(self.nodeList[c])
+                else:
+                    return self.nodeList[c]
+            return node
+        else:
+            return node
+
+    def getFirstElementRecursiveUp(self, node):
+        """
+        Returns the first node which is not a Conjunction.
+        The function searches upwards.
+        If there was no other element it will return the Conjunction
+
+        @param node: Node to start the search from
+        @return: node
+        """
+        if isinstance(node, Conjunction):
+            for c in node.parents:
+                if isinstance(self.nodeList[c], Conjunction):
+                    return self.getFirstElementRecursiveUp(self.nodeList[c])
+                else:
+                    return self.nodeList[c]
+            return node
+        else:
+            return node
+
     def addNode(self, node):
         """
         Adds a node to the tree
@@ -109,7 +195,7 @@ class Tree:
         self.nodeList[node.id] = node
         return True
 
-    def addEdge(self, sourceId, destinationId, conjunction=None):
+    def addEdge(self, sourceId, destinationId, conjunction=None):  # @TODO: remove conjunction
         """
         Adds a edge to the tree
         If conjunction is none, the conjunction from the other edges from source will be taken
@@ -127,34 +213,32 @@ class Tree:
         source = self.nodeList[sourceId]
         destination = self.nodeList[destinationId]
 
-        # @TODO: Check if source is C and dst is T,
-        # @TODO: Add return value for error
-        # @TODO: Add conjunction
-
-        if conjunction is None:
-            for e in self.edgeList:
-                if destination.type == self.nodeList[e.destination].type:
-                    conjunction = e.conjunction
-            if conjunction is None:
-                return False
-        else:
-            for e in self.nodeList[sourceId].edges:
-                if destination.type == self.nodeList[e].type:
-                    if conjunction != self.nodeList[sourceId].edges[e].conjunction:
-                        print('Edge %s to %s not equal conjunctions' % (sourceId, destinationId))  # @TODO: Better error handling
-                        return False
-
-        edge = Edge(sourceId, destinationId, conjunction)
-
+        edge = Edge(sourceId, destinationId)
         for c in self.edgeList:
             if edge.__hash__() == c.__hash__():
-                print('Edge %s to %s already exists' % (edge.source, edge.destination), file=sys.stderr)  # @TODO: Better error handling
-                if edge.conjunction != c.conjunction:
-                    print('Edge %s to %s not equal conjunctions' % (edge.source, edge.destination), file=sys.stderr)  # @TODO: Better error handling
+                # raise ValueError('Edge %s to %s already exists' % edge.source, edge.destination) @TODO: Exception needed?
                 return False
-        self.edgeList.append(edge)
 
-        self.nodeList[edge.source].edges[edge.destination] = edge  # @TODO: Edge to id?
+        if self.getTypeRecursiveUp(source) is Countermeasure and self.getTypeRecursiveDown(source) is Threat:
+            return False
+
+        if self.getTypeRecursiveUp(source) is Conjunction and len(source.children) > 0 and self.getTypeRecursiveDown(source) is not self.getTypeRecursiveDown(destination):
+            return False
+
+        if len(self.getFirstElementRecursiveUp(source).children) > 0 and self.getTypeRecursiveDown(self.getFirstElementRecursiveUp(source)) is self.getTypeRecursiveDown(destination):
+            return False
+
+        if not isinstance(source, Conjunction) and len(source.children) > 0 and self.getTypeRecursiveDown(source) is Countermeasure and self.getTypeRecursiveDown(destination) is Countermeasure:
+            return False
+
+        if not isinstance(source, Conjunction) and len(source.children) > 0 and self.getTypeRecursiveDown(source) is Countermeasure and self.getTypeRecursiveDown(destination) is Countermeasure:
+            return False
+
+        if not isinstance(source, Conjunction) and len(source.children) > 0 and self.getTypeRecursiveDown(source) is Countermeasure and isinstance(destination, Conjunction):
+            return False
+
+        self.edgeList.append(edge)
+        self.nodeList[edge.source].children.append(edge.destination)  # @TODO: Edge to id?
         self.nodeList[edge.destination].parents.append(edge.source)
 
         return True
@@ -233,7 +317,7 @@ class Tree:
             self.cycleNode = node
             return False
         node.visited = True
-        for subN in node.edges.keys():
+        for subN in node.children:
             c = self.dfs(self.nodeList[subN])
             if c is not True:
                 return False

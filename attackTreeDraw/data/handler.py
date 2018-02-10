@@ -47,6 +47,7 @@ class TreeHandler:
                 raise ParserError('Root Element with ID %s not found in node list' % tree.root)
         else:
             return None
+
         return tree
 
     @staticmethod
@@ -106,16 +107,22 @@ class Parsers:
         if node.tag == 'threat':
             n = Threat()
             n.id = node.get('id')
+
+            for a in node.findall('attribute'):
+                n.attributes[a.get('key')] = a.text
+            n.title = node.find('title').text
+            n.description = node.find('description').text
         elif node.tag == 'countermeasure':
             n = Countermeasure()
             n.id = node.get('id')
+            for a in node.findall('attribute'):
+                n.attributes[a.get('key')] = a.text
+            n.title = node.find('title').text
+            n.description = node.find('description').text
+        elif node.tag == 'alternative' or node.tag == 'composition' or node.tag == 'sequence' or node.tag == 'threshold':
+            n = Conjunction(node.get('id'), node.tag)
         else:
             raise ParserError('Parsing failed for element %s' % node.tag)
-
-        for a in node.findall('attribute'):
-            n.attributes[a.get('key')] = a.text
-        n.title = node.find('title').text
-        n.description = node.find('description').text
 
         return n
 
@@ -138,6 +145,41 @@ class Parsers:
         return n
 
     @staticmethod
+    def parseSimpleConjunction(tree, node, parent=None):
+        """
+        Parses a simple conjunction and adds it to a tree
+
+        @param tree: Tree to add the node to
+        @param node: Node to parse
+        @param parent: paren from node
+        @return: Parsed node
+        """
+        n = Parsers.parseNode(node)
+
+        if parent is None:
+            n.isRoot = True
+            tree.root = n.id
+        check = tree.addNode(n)
+
+        for subTreeNode in node.iterchildren():
+            if subTreeNode.tag == 'alternative' or subTreeNode.tag == 'composition' or subTreeNode.tag == 'sequence' or subTreeNode.tag == 'threshold':
+                conjunction = Parsers.parseSimpleConjunction(tree, subTreeNode, n.id)
+                tree.addEdge(n.id, conjunction.id, conjunction.conjunctionType)
+            else:
+                subN = Parsers.parseSimpleNode(tree, subTreeNode, n.id)
+                if not tree.addEdge(n.id, subN.id, 'singleNode'):
+                    raise ParserError('Cant\'t add Edge %s to %s with %s' % (n.id, subN.id, 'singleNode'))
+
+        if check is False:
+            raise ParserError('Can\'t add node %s. NodeID exists' % n.id)
+        if n is None:
+            raise ParserError('Can\'t add node %s.' % n.id)
+
+        return n
+
+
+
+    @staticmethod
     def parseSimpleNode(tree, node, parent=None):
         """
         Parses a simple node and adds it to a tree
@@ -155,19 +197,24 @@ class Parsers:
         check = tree.addNode(n)
 
         if node.find('subtree') is not None:
-            conjunction = node.find('subtree')[0].tag
-            for subNode in node.find('subtree')[0].iterchildren():
-                subN = Parsers.parseSimpleNode(tree, subNode, n.id)
-                if subN is not None:
-                    tree.addEdge(n.id, subN.id, conjunction)
+            for subTreeNode in node.find('subtree'):
+                if subTreeNode.tag == 'alternative' or subTreeNode.tag == 'composition' or subTreeNode.tag == 'sequence' or subTreeNode.tag == 'threshold':
+                    conjunction = Parsers.parseSimpleConjunction(tree, subTreeNode, n.id)
+                    tree.addEdge(n.id, conjunction.id, conjunction.conjunctionType)
+                else:
+                    subN = Parsers.parseSimpleNode(tree, subTreeNode, n.id)
+                    if not tree.addEdge(n.id, subN.id, 'singleNode'):
+                        raise ParserError('Cant\'t add Edge %s to %s with %s' % (n.id, subN.id, 'singleNode'))
 
         if node.find('countermeasures') is not None:
-            conjunction = node.find('countermeasures')[0].tag
-            for subNode in node.find('countermeasures')[0].iterchildren():
-                subN = Parsers.parseSimpleNode(tree, subNode, n.id)
-                if subN is not None:
-                    if not tree.addEdge(n.id, subN.id, conjunction):
-                        raise ParserError('Cant\'t add Edge %s to %s with %s' % (n.id, subN.id, conjunction))
+            for subTreeNode in node.find('countermeasures'):
+                if subTreeNode.tag == 'alternative' or subTreeNode.tag == 'composition' or subTreeNode.tag == 'sequence' or subTreeNode.tag == 'threshold':
+                    conjunction = Parsers.parseSimpleConjunction(tree, subTreeNode, n.id)
+                    tree.addEdge(n.id, conjunction.id, conjunction.conjunctionType)
+                else:
+                    subN = Parsers.parseSimpleNode(tree, subTreeNode, n.id)
+                    if not tree.addEdge(n.id, subN.id, 'singleNode'):
+                        raise ParserError('Cant\'t add Edge %s to %s with %s' % (n.id, subN.id, 'singleNode'))
 
         if check is False:
             raise ParserError('Can\'t add node %s. NodeID exists' % n.id)

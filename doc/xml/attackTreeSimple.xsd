@@ -20,17 +20,108 @@
         </xs:complexType>
     </xs:element>
 
+    <!-- Attribute declaration -->
+    <xs:attribute name="id">
+        <xs:simpleType>
+            <xs:restriction base="xs:ID">
+                <xs:pattern value="N[0-9]{4}"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:attribute>
+
     <xs:element name="meta">
         <xs:complexType>
-            <xs:sequence>
+            <xs:all>
                 <xs:element ref="title"/>
                 <xs:element ref="author"/>
                 <xs:element ref="date" minOccurs="0"/>
                 <xs:element ref="description" minOccurs="0"/>
                 <xs:element ref="root" minOccurs="0"/>
-            </xs:sequence>
+            </xs:all>
         </xs:complexType>
     </xs:element>
+
+    <xs:group name="threatChoiceGroup">
+        <xs:choice>
+            <xs:element name="alternative">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element ref="threat" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:group ref="threatChoiceGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:choice>
+                    <xs:attribute ref="id" use="required"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="composition">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element ref="threat" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:group ref="threatChoiceGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:choice>
+                    <xs:attribute ref="id" use="required"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="sequence">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element ref="threat" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:group ref="threatChoiceGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:choice>
+                    <xs:attribute ref="id" use="required"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="threshold">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element ref="threat" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:group ref="threatChoiceGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:choice>
+                    <xs:attribute ref="id" use="required"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:choice>
+    </xs:group>
+
+    <xs:group name="countermeasureChoiceGroup">
+        <xs:choice>
+            <xs:element name="alternative">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element ref="countermeasure" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:group ref="countermeasureChoiceGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:choice>
+                    <xs:attribute ref="id" use="required"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="composition">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element ref="countermeasure" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:group ref="countermeasureChoiceGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:choice>
+                    <xs:attribute ref="id" use="required"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="sequence">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element ref="countermeasure" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:group ref="countermeasureChoiceGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:choice>
+                    <xs:attribute ref="id" use="required"/>
+                </xs:complexType>
+            </xs:element>
+            <xs:element name="threshold">
+                <xs:complexType>
+                    <xs:choice minOccurs="0" maxOccurs="unbounded">
+                        <xs:element ref="countermeasure" minOccurs="0" maxOccurs="unbounded"/>
+                        <xs:group ref="countermeasureChoiceGroup" minOccurs="0" maxOccurs="unbounded"/>
+                    </xs:choice>
+                    <xs:attribute ref="id" use="required"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:choice>
+    </xs:group>
 
     <xs:element name="countermeasure">
         <xs:complexType>
@@ -41,45 +132,13 @@
                 <xs:element name="subtree" minOccurs="0">
                     <xs:complexType>
                         <xs:choice>
-                            <xs:element name="alternative">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element name="composition">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element name="sequence">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element name="threshold">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
+                            <xs:element ref="countermeasure"/>
+                            <xs:group ref="countermeasureChoiceGroup"/>
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
-            <xs:attribute name="id" use="required">
-                <xs:simpleType>
-                    <xs:restriction base="xs:ID">
-                        <xs:pattern value="N[0-9]{4}"/>
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:attribute>
+            <xs:attribute ref="id" use="required"/>
         </xs:complexType>
     </xs:element>
 
@@ -92,80 +151,29 @@
                 <xs:element name="subtree" minOccurs="0">
                     <xs:complexType>
                         <xs:choice>
-                            <xs:element name="alternative">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element ref="threat" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element name="composition">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element ref="threat" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element name="sequence">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element ref="threat" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
+                            <xs:element ref="threat"/>
+                            <xs:group ref="threatChoiceGroup"/>
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>
                 <xs:element name="countermeasures" minOccurs="0">
                     <xs:complexType>
                         <xs:choice>
-                            <xs:element name="alternative">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element name="composition">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element name="sequence">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
-                            <xs:element name="threshold">
-                                <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element ref="countermeasure" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                </xs:complexType>
-                            </xs:element>
+                            <xs:element ref="countermeasure"/>
+                            <xs:group ref="countermeasureChoiceGroup"/>
                         </xs:choice>
                     </xs:complexType>
                 </xs:element>
             </xs:sequence>
-            <xs:attribute name="id" use="required">
-                <xs:simpleType>
-                    <xs:restriction base="xs:ID">
-                        <xs:pattern value="N[0-9]{4}"/>
-                    </xs:restriction>
-                </xs:simpleType>
-            </xs:attribute>
+            <xs:attribute ref="id" use="required"/>
         </xs:complexType>
     </xs:element>
 
     <xs:element name="tree">
         <xs:complexType>
-            <xs:sequence>
+            <xs:all>
                 <xs:element ref="threat"/>
-            </xs:sequence>
+            </xs:all>
         </xs:complexType>
     </xs:element>
 
