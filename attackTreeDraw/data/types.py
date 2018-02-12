@@ -1,17 +1,15 @@
-import sys
-
-
 class Node:
     """
     Parent class for all nodes
     """
-    type = None
 
     def __init__(self):
         """
         Constructor for Node.
         Initialises all needed variables
         """
+        self.type = 'Node'
+
         self.isRoot = False  # @TODO: check if there is only one root / move to Tree()
         self.id = None  # @TODO: move ID to constructor
         self.title = ''
@@ -21,6 +19,7 @@ class Node:
         self.children = []
 
         self.view = None
+        self.position = None
 
         self.visited = False
         self.finished = False
@@ -37,18 +36,17 @@ class Threat(Node):
     """
     Class for threat nodes
     """
-    type = 'threat'
+    pass
 
 
 class Countermeasure(Node):
     """
     Class for countermeasure nodes
     """
-    type = 'countermeasure'
+    pass
 
 
 class Conjunction(Node):
-    type = 'conjunction'
 
     def __init__(self, id=None, conjunctionType=None):
         super().__init__()
@@ -64,6 +62,7 @@ class Edge:
 
      The Class contains the source, destination and the conjunction for the edge
      """
+
     def __init__(self, source, destination):
         """
         Constructor for Node.
@@ -219,13 +218,10 @@ class Tree:
                 # raise ValueError('Edge %s to %s already exists' % edge.source, edge.destination) @TODO: Exception needed?
                 return False
 
-        if self.getTypeRecursiveUp(source) is Countermeasure and self.getTypeRecursiveDown(source) is Threat:
+        if self.getTypeRecursiveUp(source) is Countermeasure and self.getTypeRecursiveDown(destination) is Threat:
             return False
 
-        if self.getTypeRecursiveUp(source) is Conjunction and len(source.children) > 0 and self.getTypeRecursiveDown(source) is not self.getTypeRecursiveDown(destination):
-            return False
-
-        if len(self.getFirstElementRecursiveUp(source).children) > 0 and self.getTypeRecursiveDown(self.getFirstElementRecursiveUp(source)) is self.getTypeRecursiveDown(destination):
+        if isinstance(source, Conjunction) and isinstance(destination, Conjunction) and self.getTypeRecursiveDown(source) is not Conjunction and self.getTypeRecursiveDown(destination) is not Conjunction and self.getTypeRecursiveDown(source) is not self.getTypeRecursiveDown(destination):
             return False
 
         if not isinstance(source, Conjunction) and len(source.children) > 0 and self.getTypeRecursiveDown(source) is Countermeasure and self.getTypeRecursiveDown(destination) is Countermeasure:
@@ -270,7 +266,6 @@ class Tree:
         """
         Checks if the Tree is an extended or an simple tree
 
-
         @return: True if tree is extended else false
         """
         # @TODO check if edge has no parent (except root)
@@ -281,6 +276,10 @@ class Tree:
             else:
                 self.extended = True
                 return True
+        # for id, node in self.nodeList.items():  # @TODO Move to own function. Checks if all conjunction have children
+        #    if isinstance(node, Conjunction) and len(node.children) == 0:
+        #        self.extended = True
+        #        return True
         for k, n in self.nodeList.items():
             n.initDFS()
         self.dfs(self.nodeList[self.root])
@@ -331,8 +330,8 @@ class Tree:
         @return: next free node id
         """
         for i in range(10000):
-            if 'N'+str(i).zfill(4) not in self.nodeList.keys():
-                return 'N'+str(i).zfill(4)
+            if 'N' + str(i).zfill(4) not in self.nodeList.keys():
+                return 'N' + str(i).zfill(4)
         return None
 
     def removeNode(self, nodeId):
@@ -343,12 +342,9 @@ class Tree:
         """
         if nodeId in self.nodeList:
             for i in self.nodeList[nodeId].parents:
-                print(self.nodeList[i].edges)
-                self.edgeList.remove(self.nodeList[i].edges[nodeId])
-                del self.nodeList[i].edges[nodeId]
-            for i, e in self.nodeList[nodeId].edges.items():
-                self.nodeList[i].parents.remove(nodeId)
-                self.edgeList.remove(e)
+                self.removeEdge(i + '-' + nodeId)
+            for i in self.nodeList[nodeId].children:
+                self.removeEdge(nodeId + '-' + i)
             del self.nodeList[nodeId]
             return True
         else:
@@ -366,7 +362,7 @@ class Tree:
             if edgeId == e.__hash__():
                 edge = e
         if edge is not None:
-            del self.nodeList[edge.source].edges[edge.destination]
+            self.nodeList[edge.source].children.remove(edge.destination)
             self.nodeList[edge.destination].parents.remove(edge.source)
             self.edgeList.remove(edge)
             return True

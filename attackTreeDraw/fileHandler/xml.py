@@ -2,6 +2,7 @@ import os
 from lxml import etree
 
 from data.exceptions import XMLXSDError
+from data.types import Countermeasure, Conjunction, Threat
 
 
 class Handler:
@@ -89,7 +90,7 @@ class Handler:
             root = etree.XML('''
                         <attackTree
                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns=""
-                                xsi:noNamespaceSchemaLocation="../doc/xml/attackTreeSimple.xsd">
+                                xsi:noNamespaceSchemaLocation="https://masteroflittle.github.io/attackTreeDraw/attackTreeSimple.xsd">
                             <meta>
                             </meta>
                             <tree>
@@ -100,13 +101,15 @@ class Handler:
             root = etree.XML('''
                         <attackTree
                                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns=""
-                                xsi:noNamespaceSchemaLocation="../doc/xml/attackTreeExtended.xsd">
+                                xsi:noNamespaceSchemaLocation="https://masteroflittle.github.io/attackTreeDraw/attackTreeExtended.xsd">
                             <meta>
                             </meta>
                             <threats>
                             </threats>
                             <countermeasures>
                             </countermeasures>
+                            <conjunctions>
+                            </conjunctions>
                             <connections>
                             </connections>
                         </attackTree>
@@ -151,6 +154,7 @@ class Handler:
         @param tree: Tree to generate the xml from
         """
         self.generateTemplate(False)
+        self.extended = False
         xmlTree = self.xml.find('tree')
         tree.meta['root'] = tree.root
         self.generateMetaElements(tree.meta)
@@ -163,10 +167,38 @@ class Handler:
         @param tree: Tree to generate the xml from
         """
         self.generateTemplate(True)
+        self.extended = True
         tree.meta['root'] = tree.root
         self.generateMetaElements(tree.meta)
         self.addExtendedNodes(tree)
         self.addExtendedEdges(tree)
+
+    def addNode(self, root, element):
+        """
+        Generates a node and inserts it as sub element of root
+
+        @param root: Parent element for edge
+        @param element: Element to insert
+        @return: Generated XML Element
+        """
+        if isinstance(element, Conjunction):
+            if self.extended is True:
+                e = etree.SubElement(root, 'conjunction', type=element.conjunctionType, id=element.id)
+            else:
+                e = etree.SubElement(root, element.conjunctionType, id=element.id)
+        else:
+            e = etree.SubElement(root, type(element).__name__.lower(), id=element.id)
+            title = etree.SubElement(e, 'title')
+            title.text = element.title
+
+            description = etree.SubElement(e, 'description')
+            description.text = element.description
+
+            for k, v, in element.attributes.items():
+                el = etree.SubElement(e, 'attribute', key=k)
+                el.text = v
+
+        return e
 
     def addSimpleNode(self, tree, root, element):
         """
@@ -178,25 +210,26 @@ class Handler:
         """
         e = self.addNode(root, element)
 
-        if len(element.edges) > 0:
-            subGenerated = False
-            counterGenerated = False
-            conjunctionCounter = None
-            conjunctionSubTree = None
-            for dst, edge in element.edges.items():
-                if tree.nodeList[dst].type == 'countermeasure':
-                    if counterGenerated is False:
-                        counter = etree.SubElement(e, 'countermeasures')
-                        conjunctionCounter = etree.SubElement(counter, edge.conjunction)
-                        counterGenerated = True
-                    self.addSimpleNode(tree, conjunctionCounter, tree.nodeList[dst])
-                else:
-                    if subGenerated is False:
-                        subtree = etree.SubElement(e, 'subtree')
-                        conjunctionSubTree = etree.SubElement(subtree, edge.conjunction)
-                        subGenerated = True
-                    self.addSimpleNode(tree, conjunctionSubTree, tree.nodeList[dst])
-
+        if len(element.children) > 0:
+            if isinstance(element, Conjunction):
+                for dst in element.children:
+                    self.addSimpleNode(tree, e, tree.nodeList[dst])
+            else:
+                subGenerated = False
+                counterGenerated = False
+                counter = None
+                subTree = None
+                for dst in element.children:
+                    if tree.getTypeRecursiveDown(tree.nodeList[dst]) is Countermeasure and isinstance(element, Threat):
+                        if counterGenerated is False:
+                            counter = etree.SubElement(e, 'countermeasures')
+                            counterGenerated = True
+                        self.addSimpleNode(tree, counter, tree.nodeList[dst])
+                    else:
+                        if subGenerated is False:
+                            subTree = etree.SubElement(e, 'subtree')
+                            subGenerated = True
+                        self.addSimpleNode(tree, subTree, tree.nodeList[dst])
         return e
 
     def addExtendedNodes(self, tree):
@@ -207,12 +240,15 @@ class Handler:
         """
         xmlThreats = self.xml.find('threats')
         xmlCounter = self.xml.find('countermeasures')
+        xmlConjunctions = self.xml.find('conjunctions')
 
         for v in tree.nodeList.values():
-            if v.type == 'countermeasure':
+            if isinstance(v, Countermeasure):
                 self.addNode(xmlCounter, v)
-            else:
+            elif isinstance(v, Threat):
                 self.addNode(xmlThreats, v)
+            else:
+                self.addNode(xmlConjunctions, v)
 
     def addExtendedEdges(self, tree):
         """
@@ -221,39 +257,9 @@ class Handler:
         @param tree: Tree from which are the edges
         """
         xmlConnection = self.xml.find('connections')
-        edges = {}
+
         for edge in tree.edgeList:
-            if edge.source in edges.keys():
-                edges[edge.source].append(edge)
-            else:
-                edges[edge.source] = [edge]
-
-        for k, v in edges.items():
-            c = etree.SubElement(xmlConnection, 'connection', source=k, type=v[0].conjunction)
-            for edge in v:
-                e = etree.SubElement(c, 'destination')
-                e.text = edge.destination
-
-    def addNode(self, root, element):
-        """
-        Generates a node and inserts it as sub element of root
-
-        @param root: Parent element for edge
-        @param element: Element to insert
-        @return: Generated XML Element
-        """
-        e = etree.SubElement(root, element.type, id=element.id)
-        title = etree.SubElement(e, 'title')
-        title.text = element.title
-
-        description = etree.SubElement(e, 'description')
-        description.text = element.description
-
-        for k, v, in element.attributes.items():
-            el = etree.SubElement(e, 'attribute', key=k)
-            el.text = v
-
-        return e
+            etree.SubElement(xmlConnection, 'connection', source=edge.source, destination=edge.destination)
 
     def saveToFile(self, file):
         """

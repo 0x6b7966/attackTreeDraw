@@ -1,8 +1,11 @@
 import os
+
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
 from PyQt5.QtWidgets import QWidget, QMessageBox, QDialog, QLabel, QColorDialog, QFrame
 from PyQt5 import QtCore, QtWidgets
+
+from data.types import Threat
 
 
 class MessageBox:
@@ -281,7 +284,7 @@ class MetaEdit(QDialog):
         self.ok.clicked.connect(self.submit)
 
         for k, v in self.parentWidget.tree.nodeList.items():
-            if len(v.parents) == 0 and v.type == 'threat':
+            if len(v.parents) == 0 and isinstance(v, Threat):
                 self.rootSelect.addItem(k + ' -- ' + v.title)
 
     def submit(self):

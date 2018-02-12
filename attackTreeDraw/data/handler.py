@@ -37,6 +37,9 @@ class TreeHandler:
             countermeasures = xmlHandler.xml.find('countermeasures')
             for c in countermeasures.iterchildren():
                 Parsers.parseExtendedNode(tree, c)
+            conjunctions = xmlHandler.xml.find('conjunctions')
+            for c in conjunctions.iterchildren():
+                Parsers.parseExtendedNode(tree, c)
             connections = xmlHandler.xml.find('connections')
             for c in connections.iterchildren():
                 Parsers.parseExtendedConnection(tree, c)
@@ -80,19 +83,10 @@ class Parsers:
         @raise ParserError: if edge can't be parsed
         """
         if edge.get('source') in tree.nodeList.keys():
-            source = edge.get('source')
-            for dst in edge.iterchildren(tag='destination'):
-                if dst.text in tree.nodeList.keys():
-                    fail = False
-                    for c in tree.edgeList:
-                        if (source, dst.text) == c:
-                            # print(('Edge %s to %s already exists' % source, dst.text), file=sys.stderr)
-                            fail = True
-                            break
-                    if fail is not True and source is not None:
-                        tree.addEdge(source, dst.text, edge.get('type'))
-                else:
-                    raise ParserError('Destination node %s does not exist' % dst.text)
+            if edge.get('destination') in tree.nodeList.keys():
+                tree.addEdge(edge.get('source'), edge.get('destination'))
+            else:
+                raise ParserError('Destination node %s does not exist' % edge.get('destination'))
         else:
             raise ParserError('Source node %s does not exist' % edge.get('source'))
 
@@ -121,6 +115,8 @@ class Parsers:
             n.description = node.find('description').text
         elif node.tag == 'alternative' or node.tag == 'composition' or node.tag == 'sequence' or node.tag == 'threshold':
             n = Conjunction(node.get('id'), node.tag)
+        elif  node.tag == 'conjunction':
+            n = Conjunction(node.get('id'), node.get('type'))
         else:
             raise ParserError('Parsing failed for element %s' % node.tag)
 
@@ -176,8 +172,6 @@ class Parsers:
             raise ParserError('Can\'t add node %s.' % n.id)
 
         return n
-
-
 
     @staticmethod
     def parseSimpleNode(tree, node, parent=None):

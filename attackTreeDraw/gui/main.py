@@ -204,37 +204,43 @@ class Main(QMainWindow):
 
         self.show()
 
-    def printGraph(self):
+    def printGraph(self, fixedPositions=False):
         """
         Prints the attack tree onto the graphics view
         after the full graph was printed it will be reordered to have a nice graph
+        @param fixedPositions: prints the node at a fixed position
         """
         for k, n in self.tree.nodeList.items():
             n.initDFS()
             n.view = None
 
-        g = self.printGraphRecursion(self.tree.nodeList[self.tree.root], 0, 10)
-        i = 0
+        if self.tree.root is not None:
+            g = self.printGraphRecursion(self.tree.nodeList[self.tree.root], 0, 10, fixedPositions=fixedPositions)
+            i = 0
 
-        while self.reorderTree(g) is not True and i < 100:
-            i += 1
+            while self.reorderTree(g) is not True and i < 100:
+                i += 1
 
         for k, n in self.tree.nodeList.items():
-            if len(n.parents) == 0 and n.visited is False:
-                g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50)
+            if n.visited is False:
+                g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50, fixedPositions=fixedPositions)
                 i = 0
                 while self.reorderTree(g) is not True and i < 100:
                    i += 1
 
+        for k, n in self.tree.nodeList.items():
+            n.view = None
+
         self.graphicsView.centerOn(0, 0)
         self.graphicsView.viewport().update()
 
-    def printGraphRecursion(self, node, x, y, parent=None):
+    def printGraphRecursion(self, node, x, y, parent=None, fixedPositions=False):
         """
         Prints a node recursively with its child nodes
         returns a tuple in the style of:
-                (node, [(threatConjunction, threatConjChildren), (counterConjunction, counterConjChildren)]
+                (node, ([left_half_of_children], [right_half_of_children])
 
+        @param fixedPositions: prints the node at a fixed position
         @param node: data node to print
         @param x: x position of the node
         @param y: y position of the mode
@@ -243,16 +249,20 @@ class Main(QMainWindow):
         rec = False
 
         if node.view is None:
-            if node.type == 'threat':
+            if isinstance(node, types.Threat):
                 n = Threat(node, self)
-            elif node.type == 'countermeasure':
+            elif isinstance(node, types.Countermeasure):
                 n = Countermeasure(node, self)
             else:
                 n = Conjunction(node, self, self.threatBackground, self.threatBorder, self.threatFont, offset=60)
 
             node.view = n
             self.scene.addItem(n)
-            n.setPos(x, y)
+
+            if fixedPositions is True and node.position is not None:
+                n.setPos(node.position[0], node.position[1])
+            else:
+                n.setPos(x, y)
         else:
             n = node.view
             rec = True
@@ -731,49 +741,29 @@ class Main(QMainWindow):
         """
         Undos the last action
         """
-        try:
-            if len(self.lastAction) > 0:
-                tree = self.lastAction.pop()
-                self.nextAction.append(copy.deepcopy(self.tree))
-                self.tree = copy.deepcopy(tree)
+        if len(self.lastAction) > 0:
+            tree = self.lastAction.pop()
+            self.nextAction.append(copy.deepcopy(self.tree))
+            self.tree = copy.deepcopy(tree)
 
-                if self.tree.root is None and len(self.tree.nodeList) != 0:
-                    self.tree.root = list(self.tree.nodeList.keys())[0]
-                    self.tree.nodeList[self.tree.root].isRoot = True
-                    self.scene.clear()
-                    self.printGraph()
-                else:
-                    self.scene.clear()
-        except Exception:
-            print(sys.exc_info())
-            print(traceback.format_exc())
-            exit(-1)
+            self.scene.clear()
+            self.printGraph(True)
 
     def redo(self):
         """
         Undos the last undid action
         """
-        try:
-            if len(self.nextAction) > 0:
-                tree = self.nextAction.pop()
-                self.lastAction.append(copy.deepcopy(self.tree))
-                self.tree = copy.deepcopy(tree)
 
-                if self.tree.root is None and len(self.tree.nodeList) != 0:
-                    self.tree.root = list(self.tree.nodeList.keys())[0]
-                    self.tree.nodeList[self.tree.root].isRoot = True
-                    self.scene.clear()
-                    self.printGraph()
-                else:
-                    self.scene.clear()
-        except Exception:
-            print(sys.exc_info())
-            print(traceback.format_exc())
-            exit(-1)
+        if len(self.nextAction) > 0:
+            tree = self.nextAction.pop()
+            self.lastAction.append(copy.deepcopy(self.tree))
+            self.tree = copy.deepcopy(tree)
+
+            self.scene.clear()
+            self.printGraph(True)
 
     def addLastAction(self):
         """
         adds the last undo action to the undo stack
         """
-        #self.lastAction.append(copy.deepcopy(self.tree))
-        pass
+        self.lastAction.append(copy.deepcopy(self.tree))

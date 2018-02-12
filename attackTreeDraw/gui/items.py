@@ -1,3 +1,4 @@
+import copy
 import math
 import traceback
 
@@ -48,8 +49,6 @@ class Node(QGraphicsItemGroup):
         self.childEdges = []
         self.parentEdges = []
 
-        self.parentConjunctions = []
-
         self.headerGroup = QGraphicsItemGroup()
         self.attributes = QGraphicsItemGroup()
         self.footerGroup = QGraphicsItemGroup()
@@ -65,6 +64,7 @@ class Node(QGraphicsItemGroup):
         self.printFooter(background, border, text)
 
         self.setPos(x, y)
+        self.node.position = (x, y)
 
     def getTypeRecursiveDown(self):
         if isinstance(self, Conjunction):
@@ -284,6 +284,7 @@ class Node(QGraphicsItemGroup):
         self.parent.graphicsView.update()
 
         self.setPos(x, y)
+        self.node.position = (x, y)
 
     def redraw(self):
         """
@@ -330,6 +331,18 @@ class Node(QGraphicsItemGroup):
         """
         edit = NodeEdit(self, self.parent)
         edit.exec()
+
+    def itemChange(self, change, value):
+        """
+        Sets the correct position to the data node
+
+        @param change: Changed event
+        @param value: Value of the event
+        @return: Changed Value
+        """
+        if change == QGraphicsItem.ItemPositionChange:
+            self.node.position = (value.toPointF().x(), value.toPointF().y())
+        return super().itemChange(change, value)
 
 
 class Threat(Node):
@@ -479,7 +492,7 @@ class Edge(QGraphicsLineItem):
         It adds also the parent arrow from the source to the conjunction rectangle
 
         @param start: Starting object of the arrow
-        @param end: End object of the arrow
+        @param dst: End object of the arrow
         @param offset: left/right offset for the starting arrow
         @param color: Color of the arrow
         """
@@ -717,9 +730,8 @@ class AttackTreeScene(QGraphicsScene):
                     self.parent().addLastAction()
                 else:
                     super().mousePressEvent(mouseEvent)
-            except Exception as e:
+            except Exception:
                 print(traceback.format_exc())
-                exit(-1)
 
     def mouseMoveEvent(self, mouseEvent):
         """
@@ -770,6 +782,7 @@ class AttackTreeScene(QGraphicsScene):
 
                     if self.parent().tree.addEdge(self.startCollisions.node.id, self.dstCollisions.node.id) is True:
                         self.startCollisions.addEdge(self.dstCollisions)
+                        self.update(self.startCollisions.childEdges[-1].boundingRect())
                         self.parent().graphicsView.update()
                         self.reset()
                         self.parent().saved = False
@@ -780,133 +793,31 @@ class AttackTreeScene(QGraphicsScene):
                     print(traceback.format_exc())
             elif self.parent().mode == 5:  # @TODO: Rework
                 self.parent().addLastAction()
-                try:  # @TODO: remove try
-                    deleted = []
+                deleted = []
+                try:
                     for i in self.selectedItems():
-                        if i not in deleted:
-                            if isinstance(i, Node):
-                                for c in i.parentConjunctions:
-                                    if len(c.arrows) != 0 and len(c.children) != 0:
-                                        deleted.append(c.arrows[c.children.index(i)])
-                                        self.removeItem(c.arrows[c.children.index(i)])
-                                        del c.arrows[c.children.index(i)]
-                                        c.children.remove(i)
-                                    if len(c.children) == 0:
-                                        if c == c.parent.threatConjunction:
-                                            c.parent.threatConjunction = None
-                                        else:
-                                            c.parent.counterConjunction = None
-                                        children = c.children.copy()
-                                        for a in children:
-                                            deleted.append(c.arrows[c.children.index(a)])
-                                            self.removeItem(c.arrows[c.children.index(a)])
-                                            del c.arrows[c.children.index(a)]
-                                            c.children.remove(a)
-                                        deleted.append(c.parentArrow)
-                                        deleted.append(c)
-                                        self.removeItem(c.parentArrow)
-                                        self.removeItem(c)
-
-                                if i.threatConjunction is not None:
-                                    deleted.append(i.threatConjunction.parentArrow)
-                                    self.removeItem(i.threatConjunction.parentArrow)
-                                    children = i.threatConjunction.children.copy()
-                                    for a in children:
-                                        deleted.append(i.threatConjunction.arrows[i.threatConjunction.children.index(a)])
-                                        self.removeItem(i.threatConjunction.arrows[i.threatConjunction.children.index(a)])
-                                        del i.threatConjunction.arrows[i.threatConjunction.children.index(a)]
-                                        i.threatConjunction.children.remove(a)
-                                    deleted.append(i.threatConjunction)
-                                    self.removeItem(i.threatConjunction)
-
-                                if i.counterConjunction is not None:
-                                    deleted.append(i.counterConjunction.parentArrow)
-                                    self.removeItem(i.counterConjunction.parentArrow)
-                                    children = i.counterConjunction.children.copy()
-                                    for a in children:
-                                        deleted.append(i.counterConjunction.arrows[i.counterConjunction.children.index(a)])
-                                        self.removeItem(i.counterConjunction.arrows[i.counterConjunction.children.index(a)])
-                                        del i.counterConjunction.arrows[i.counterConjunction.children.index(a)]
-                                        i.counterConjunction.children.remove(a)
-                                    deleted.append(i.counterConjunction)
-                                    self.removeItem(i.counterConjunction)
-
+                        if isinstance(i, Node):
+                            if i not in deleted:
+                                for e in i.parentEdges:
+                                    deleted.append(e)
+                                    self.removeItem(e)
+                                for e in i.childEdges:
+                                    deleted.append(e)
+                                    self.removeItem(e)
                                 self.parent().tree.removeNode(i.node.id)
                                 deleted.append(i)
                                 self.removeItem(i)
-                            elif isinstance(i, Conjunction):
-                                children = i.children.copy()
-                                for c in children:
-                                    self.parent().tree.removeEdge(i.parent.node.id + '-' + c.node.id)
-                                    deleted.append(i.arrows[i.children.index(c)])
-                                    self.removeItem(i.arrows[i.children.index(c)])
-                                    del i.arrows[i.children.index(c)]
-                                    i.children.remove(c)
-                                if i == i.parent.threatConjunction:
-                                    i.parent.threatConjunction = None
-                                else:
-                                    i.parent.counterConjunction = None
-                                deleted.append(i.parentArrow)
-                                deleted.append(i)
-                                self.removeItem(i.parentArrow)
-                                self.removeItem(i)
-                            elif isinstance(i, Arrow):
-                                if isinstance(i.start, Conjunction):
-                                    del i.start.children[i.start.arrows.index(i)]
-                                    i.start.arrows.remove(i)
-                                    self.parent().tree.removeEdge(i.start.parent.node.id + '-' + i.end.node.id)
-                                    deleted.append(i)
-                                    self.removeItem(i)
-                                    if len(i.start.children) == 0:
-                                        if i.start == i.start.parent.threatConjunction:
-                                            i.start.parent.threatConjunction = None
-                                        else:
-                                            i.start.parent.counterConjunction = None
-                                        for a in i.start.children:
-                                            deleted.append(i.start.arrows[i.start.children.index(a)])
-                                            self.removeItem(i.start.arrows[i.start.children.index(a)])
-                                            del i.start.arrows[i.start.children.index(a)]
-                                            i.start.children.remove(a)
-                                        deleted.append(i.start.parentArrow)
-                                        deleted.append(i.start)
-                                        self.removeItem(i.start.parentArrow)
-                                        self.removeItem(i.start)
-                                else:
-                                    if isinstance(i.start, Node):
-                                        edges = i.start.node.edges.copy()
-                                        for c in edges:
-                                            self.parent().tree.removeEdge(i.start.node.id + '-' + c)
-
-                                        children = i.end.children.copy()
-                                        for a in children:
-                                            deleted.append(i.end.arrows[i.end.children.index(a)])
-                                            self.removeItem(i.end.arrows[i.end.children.index(a)])
-                                            del i.end.arrows[i.end.children.index(a)]
-
-                                            a.parentConjunctions.remove(i.end)
-                                            i.end.children.remove(a)
-
-                                        if i.end == i.start.threatConjunction:
-                                            i.start.threatConjunction = None
-                                        else:
-                                            i.start.counterConjunction = None
-                                        deleted.append(i.end)
-                                        self.removeItem(i.end)
-                                    else:
-                                        for c in i.start.parent().node.edges:
-                                            self.parent().tree.removeEdge(i.start.parent().node.id + '-' + c.id)
-                                        deleted.append(i.end)
-                                        self.removeItem(i.end)
-                                    deleted.append(i)
-                                    self.removeItem(i)
+                        if isinstance(i, Edge):
+                            deleted.append(i)
+                            self.removeItem(i)
+                            i.start.childEdges.remove(i)
+                            i.dst.parentEdges.remove(i)
+                            self.parent().tree.removeEdge(i.start.node.id+'-'+i.dst.node.id)
+                    self.parent().graphicsView.update()
+                    self.reset()
+                    self.parent().saved = False
                 except Exception as e:
-                    print(sys.exc_info())
                     print(traceback.format_exc())
-                    exit(-1)
-
-                self.parent().graphicsView.update()
-                self.reset()
-                self.parent().saved = False
             else:
                 self.reset()
         super().mouseReleaseEvent(mouseEvent)

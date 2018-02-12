@@ -86,23 +86,31 @@
                         </xs:sequence>
                     </xs:complexType>
                 </xs:element>
-                <xs:element name="connections">
+                <xs:element name="conjunctions">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="connection" maxOccurs="unbounded">
+                            <xs:element name="conjunction" maxOccurs="unbounded">
                                 <xs:complexType>
-                                    <xs:sequence>
-                                        <xs:element name="destination" type="xs:IDREF" maxOccurs="unbounded"/>
-                                    </xs:sequence>
-                                    <xs:attribute name="id" use="required">
+                                   <xs:attribute name="id" use="required">
                                         <xs:simpleType>
                                             <xs:restriction base="xs:ID">
                                                 <xs:pattern value="N[0-9]{4}"/>
                                             </xs:restriction>
                                         </xs:simpleType>
                                     </xs:attribute>
-                                    <xs:attribute name="source" type="xs:IDREF" id="id" use="required"/>
                                     <xs:attribute ref="type" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="connections">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="connection" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="source" type="xs:IDREF" use="required"/>
+                                    <xs:attribute name="destination" type="xs:IDREF" use="required"/>
                                 </xs:complexType>
                             </xs:element>
                         </xs:sequence>
