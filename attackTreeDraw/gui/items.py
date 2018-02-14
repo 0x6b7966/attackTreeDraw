@@ -65,7 +65,6 @@ class Node(QGraphicsItemGroup):
         self.printFooter(background, border, text)
 
         self.setPos(x, y)
-        self.node.position = (x, y)
 
     def getTypeRecursiveDown(self):
         if isinstance(self, Conjunction):
@@ -287,7 +286,6 @@ class Node(QGraphicsItemGroup):
         self.parent.graphicsView.update()
 
         self.setPos(x, y)
-        self.node.position = (x, y)
 
     def redraw(self):
         """
@@ -305,6 +303,11 @@ class Node(QGraphicsItemGroup):
         @param text: text color for the node
         """
         pass
+
+    def setPos(self, x, y):
+        self.node.position = (x, y)
+        print(self.node.id, x, y)
+        super().setPos(x, y)
 
     def paint(self, painter, options, widget=None):
         """
@@ -751,6 +754,9 @@ class AttackTreeScene(QGraphicsScene):
                     self.addItem(self.insertLine)
 
                     self.parent().addLastAction()
+                elif self.parent().mode == 6:
+                    self.parent().insertCopyBuffer(mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
+                    self.reset()
                 else:
                     super().mousePressEvent(mouseEvent)
             except Exception:
@@ -765,38 +771,46 @@ class AttackTreeScene(QGraphicsScene):
 
         @param event: context menu Event
         """
+        try:
+            if len(self.selectedItems()) > 0:
+                menu = QMenu(self.parent())
+                menu.addAction('Delete', self.deleteSelected)
+                menu.addAction('Select Children', self.selectNodesChildren)
+                menu.addAction('Copy', self.parent().copy)
+                menu.addAction('Cut', self.parent().cut)
 
-        if len(self.selectedItems()) > 0:
-            menu = QMenu(self.parent())
-            menu.addAction('Delete', self.deleteSelected)
-            menu.addAction('Select Children', self.selectNodesChildren)
-            menu.addAction('Copy')
+                menu.popup(event.screenPos(), None)
+            elif self.itemAt(event.scenePos(), QTransform()) is not None:
+                item = self.itemAt(event.scenePos(), QTransform())
+                item.setSelected(True)
+                menu = QMenu(self.parent())
 
-            menu.popup(event.screenPos(), None)
-        elif self.itemAt(event.scenePos(), QTransform()) is not None:
-            item = self.itemAt(event.scenePos(), QTransform())
-            menu = QMenu(self.parent())
-
-            if isinstance(item.parentItem(), Node):
-                item = item.parentItem()
-                menu.addAction('Edit', item.edit)
-                menu.addAction('Delete', item.delete)
-                menu.addAction('Select Children', item.selectChildren)
-                menu.addAction('Copy')
-            elif isinstance(item.parentItem(), QGraphicsItemGroup) and isinstance(item.parentItem().parentItem(), Node):
-                item = item.parentItem().parentItem()
-                menu.addAction('Edit', item.edit)
-                menu.addAction('Delete', item.delete)
-                menu.addAction('Select Children', item.selectChildren)
-                menu.addAction('Copy')
-            elif isinstance(item, Edge):
-                menu.addAction('Delete', functools.partial(self.deleteEdge, item))
-                menu.addAction('Select Children', item.selectChildren)
+                if isinstance(item.parentItem(), Node):
+                    item = item.parentItem()
+                    menu.addAction('Edit', item.edit)
+                    menu.addAction('Delete', item.delete)
+                    menu.addAction('Select Children', item.selectChildren)
+                    menu.addAction('Copy', self.parent().copy)
+                    menu.addAction('Cut', self.parent().cut)
+                elif isinstance(item.parentItem(), QGraphicsItemGroup) and isinstance(item.parentItem().parentItem(), Node):
+                    item = item.parentItem().parentItem()
+                    menu.addAction('Edit', item.edit)
+                    menu.addAction('Delete', item.delete)
+                    menu.addAction('Select Children', item.selectChildren)
+                    menu.addAction('Copy', self.parent().copy)
+                    menu.addAction('Cut', self.parent().cut)
+                elif isinstance(item, Edge):
+                    menu.addAction('Delete', functools.partial(self.deleteEdge, item))
+                    menu.addAction('Select Children', item.selectChildren)
+                else:
+                    menu.popup(event.screenPos(), None)
             else:
-                return
-            menu.popup(event.screenPos(), None)
-        else:
-            pass
+                menu = QMenu(self.parent())
+                menu.addAction('Paste', functools.partial(self.parent().insertCopyBuffer, event.scenePos().x(), event.scenePos().y()))
+                menu.popup(event.screenPos(), None)
+
+        except Exception as e:
+            print(traceback.format_exc())
 
     def deleteEdge(self, edge):
         self.removeItem(edge)

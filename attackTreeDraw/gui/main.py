@@ -46,6 +46,8 @@ class Main(QMainWindow):
         self.itemList = []
         self.modeAction = None
         self.defaultModeAction = None
+        self.modeActions = {}
+
         self.lastAction = []
         self.nextAction = []
 
@@ -116,12 +118,13 @@ class Main(QMainWindow):
         }
 
         editToolbarItems = {
-            'Mouse': [os.path.join(includePath, 'assets/icons/mouse.png'), 'M', 'Use Mouse (M)', self.mouse, True],
-            'New Threat': [os.path.join(includePath, 'assets/icons/threat.png'), 'T', 'New Threat (T)', self.newThreat, False],
-            'New Counter': [os.path.join(includePath, 'assets/icons/counter.png'), 'C', 'New Countermeasure (C)', self.newCountermeasure, False],
-            'New Conjunction': [os.path.join(includePath, 'assets/icons/conjunction.png'), 'J', 'New Conjunction (J)', self.newConjunction, False],
-            'New Edge': [os.path.join(includePath, 'assets/icons/arrow.png'), 'E', 'New Edge (E)', self.newEdge, False],
-            'Delete Item': [os.path.join(includePath, 'assets/icons/trash.png'), 'D', 'Delete selected Items (D)', self.delete, False],
+            'Mouse': [os.path.join(includePath, 'assets/icons/mouse.png'), 'M', 'Use Mouse (M)', self.mouse, True, None],
+            'New Threat': [os.path.join(includePath, 'assets/icons/threat.png'), 'T', 'New Threat (T)', self.newThreat, False, None],
+            'New Counter': [os.path.join(includePath, 'assets/icons/counter.png'), 'C', 'New Countermeasure (C)', self.newCountermeasure, False, None],
+            'New Conjunction': [os.path.join(includePath, 'assets/icons/conjunction.png'), 'J', 'New Conjunction (J)', self.newConjunction, False, None],
+            'New Edge': [os.path.join(includePath, 'assets/icons/arrow.png'), 'E', 'New Edge (E)', self.newEdge, False, None],
+            'Delete Item': [os.path.join(includePath, 'assets/icons/trash.png'), 'D', 'Delete selected Items (D)', self.delete, False, None],
+            'Paste Items': [os.path.join(includePath, 'assets/icons/paste.png'), '', 'Paste Items', self.paste, False, 'pasteAction'],
 
         }
 
@@ -202,6 +205,8 @@ class Main(QMainWindow):
                 self.defaultModeAction = action
                 self.modeAction = action
                 action.setChecked(True)
+            if v[5] is not None:
+                self.modeActions[v[5]] = action
 
             workToolbar.addAction(action)
 
@@ -223,21 +228,23 @@ class Main(QMainWindow):
             g = self.printGraphRecursion(self.tree.nodeList[self.tree.root], 0, 10, fixedPositions=fixedPositions)
             i = 0
 
-            while self.reorderTree(g) is not True and i < 100:
+            while fixedPositions is False and self.reorderTree(g) is not True and i < 100:
                 i += 1
 
         for k, n in self.tree.nodeList.items():
             if n.visited is False:
                 g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50, fixedPositions=fixedPositions)
                 i = 0
-                while self.reorderTree(g) is not True and i < 100:
-                   i += 1
+                while fixedPositions is False and self.reorderTree(g) is not True and i < 100:
+                    i += 1
 
         for k, n in self.tree.nodeList.items():
             n.view = None
 
         self.graphicsView.centerOn(0, 0)
         self.graphicsView.viewport().update()
+
+        print('----- DONE ------')
 
     def printGraphRecursion(self, node, x, y, parent=None, fixedPositions=False):
         """
@@ -254,20 +261,19 @@ class Main(QMainWindow):
         rec = False
 
         if node.view is None:
+            if fixedPositions is True and node.position is not None:
+                x = node.position[0]
+                y = node.position[1]
             if isinstance(node, types.Threat):
-                n = Threat(node, self)
+                n = Threat(node, self, x, y)
             elif isinstance(node, types.Countermeasure):
-                n = Countermeasure(node, self)
+                n = Countermeasure(node, self, x, y)
             else:
-                n = Conjunction(node, self, self.threatBackground, self.threatBorder, self.threatFont, offset=60)
+                n = Conjunction(node, self, self.threatBackground, self.threatBorder, self.threatFont, x, y, offset=60)
 
             node.view = n
             self.scene.addItem(n)
 
-            if fixedPositions is True and node.position is not None:
-                n.setPos(node.position[0], node.position[1])
-            else:
-                n.setPos(x, y)
         else:
             n = node.view
             rec = True
@@ -282,10 +288,10 @@ class Main(QMainWindow):
 
         it = 0
         for c in node.children:
-                if rec is False:
-                    subG = self.printGraphRecursion(self.tree.nodeList[c], startX + (it * 250), n.y() + n.boundingRect().height() + 100, n)
-                    children.append(subG)
-                it += 1
+            if rec is False:
+                subG = self.printGraphRecursion(self.tree.nodeList[c], startX + (it * 250), n.y() + n.boundingRect().height() + 100, n, fixedPositions=fixedPositions)
+                children.append(subG)
+            it += 1
 
         n.actualizeEdges()
 
@@ -514,6 +520,7 @@ class Main(QMainWindow):
         """
         Opens a dialog to export the tree as png.
         Saves the tree to the declared location
+
         @return: True if saving was successful
         """
         self.mouse()
@@ -535,6 +542,7 @@ class Main(QMainWindow):
         """
         Opens a dialog to export the tree as pdf.
         Saves the tree to the declared location
+
         @return: True if saving was successful
         """
         self.mouse()
@@ -788,6 +796,8 @@ class Main(QMainWindow):
             if isinstance(i, Node):
                 self.copyBuffer.append(copy.copy(i.node))
 
+        self.scene.clearSelection()
+
         idMapper = {}
 
         for n in self.copyBuffer:
@@ -817,11 +827,46 @@ class Main(QMainWindow):
             if isinstance(i, Node):
                 self.copyBuffer.append(copy.copy(i.node))
         self.scene.deleteSelected()
+        self.scene.clearSelection()
 
-    def paste(self):
-        self.modeAction.setChecked(False)
-        self.modeAction = self.defaultModeAction
-        self.modeAction.setChecked(True)
+    def paste(self, action=None):
+        """
+        Sets the edit mode to insert the  items from the copy buffer
+
+        @param action: Button for the edit mode
+        """
+        if action is None or action is False:
+            action = self.modeActions['pasteAction']
+
+        if self.modeAction is not None:
+            self.modeAction.setChecked(False)
+            if self.modeAction is action:
+                self.mode = 0
+                self.modeAction = self.defaultModeAction
+                self.modeAction.setChecked(True)
+                self.setCursor(Qt.ArrowCursor)
+                self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
+                return
         self.mode = 6
+        self.modeAction = action
         self.setCursor(Qt.CrossCursor)
+        self.modeAction.setChecked(True)
         self.graphicsView.setDragMode(QGraphicsView.NoDrag)
+
+    def insertCopyBuffer(self, x, y):
+        xStart = None
+        yStart = None
+
+        for i in self.copyBuffer:
+            if xStart is None:
+                xStart = i.position[0]
+                yStart = i.position[1]
+            i.position = (i.position[0] + x - xStart, i.position[1] + y - yStart)
+            for e in i.children:
+                self.tree.edgeList.append(types.Edge(i.id, e))
+            self.tree.nodeList[i.id] = copy.copy(i)
+
+        self.copyBuffer = []
+
+        self.scene.clear()
+        self.printGraph(True)
