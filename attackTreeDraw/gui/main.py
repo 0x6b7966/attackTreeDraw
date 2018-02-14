@@ -49,7 +49,9 @@ class Main(QMainWindow):
         self.lastAction = []
         self.nextAction = []
 
-        self.mode = 0  # 0: default, 1: add threat, 2: add countermeasure, 3: add conjunction, 4: new edge, 5: delete item
+        self.copyBuffer = []
+
+        self.mode = 0  # 0: default, 1: add threat, 2: add countermeasure, 3: add conjunction, 4: new edge, 5: delete item, 6: paste item
 
         self.initUI()
 
@@ -82,6 +84,9 @@ class Main(QMainWindow):
                 '&Undo': ['Ctrl+U', 'Undo Action', self.undo],
                 '&Redo': ['Ctrl+Shift+U', 'Redo Action', self.redo],
                 'SEPARATOR01': [],
+                '&Copy': ['Ctrl+C', 'Copy Selection', self.copy],
+                'Cu&t': ['Ctrl+X', 'Cut Selection', self.cut],
+                '&Paste': ['Ctrl+V', 'Pate Selection', self.paste],
 
             },
             'Tree': {
@@ -408,6 +413,7 @@ class Main(QMainWindow):
         Opens a dialog to load a file.
         Also checks if the file is compatible and tries to load it
         """
+        self.mouse()
         if len(self.tree.nodeList) > 0 and self.saved is False:
 
             reply = MessageBox('The document has been modified', 'Do you want to save your changes?', QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning, QMessageBox.Save).run()
@@ -449,6 +455,7 @@ class Main(QMainWindow):
         and does a check for an cycle
         @return: True if saving was successful
         """
+        self.mouse()
         if len(self.tree.nodeList) == 0:
             MessageBox('Saving is not possible', 'Won\'t save an empty tree!', icon=QMessageBox.Critical).run()
             return False
@@ -496,6 +503,7 @@ class Main(QMainWindow):
         """
         Opens a dialog to save the tree to a specific file
         """
+        self.mouse()
         # @TODO: reset file if save as failed
         file = self.file
         self.file = ('', '')
@@ -508,6 +516,7 @@ class Main(QMainWindow):
         Saves the tree to the declared location
         @return: True if saving was successful
         """
+        self.mouse()
         dialog = QFileDialog()
         fileName = dialog.getSaveFileName(self, 'Export as PNG', '', 'PNG (*.png)')
 
@@ -528,6 +537,7 @@ class Main(QMainWindow):
         Saves the tree to the declared location
         @return: True if saving was successful
         """
+        self.mouse()
         dialog = QFileDialog()
         fileName = dialog.getSaveFileName(self, 'Export as PDF', '', 'PDF (*.pdf)')
 
@@ -554,6 +564,7 @@ class Main(QMainWindow):
         return False
 
     def print(self):
+        self.mouse()
         printer = QPrinter(QPrinter.HighResolution)
         printer.setPageSize(QPrinter.A4)
         printer.setOrientation(QPrinter.Portrait)
@@ -575,6 +586,7 @@ class Main(QMainWindow):
         """
         Resets the Scene
         """
+        self.mouse()
         if len(self.tree.nodeList) > 0 and self.saved is False:
             reply = MessageBox('The document has been modified', 'Do you want to save your changes?', QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning, QMessageBox.Save).run()
             if reply == QMessageBox.Yes:
@@ -584,9 +596,7 @@ class Main(QMainWindow):
         self.tree = types.Tree(False)
         self.scene.clear()
         self.graphicsView.centerOn(0, 0)
-        # print(self.scene.itemsBoundingRect())
         self.graphicsView.setSceneRect(self.scene.itemsBoundingRect())
-        # print(self.scene.sceneRect())
         self.graphicsView.viewport().update()
 
     def redrawGraph(self):
@@ -594,6 +604,7 @@ class Main(QMainWindow):
         Redraws the graph.
         Before the redrawing it checks the meta information of the tree
         """
+        self.mouse()
         if self.tree.checkMeta() is False:
             edit = MetaEdit(self)
             edit.exec()
@@ -610,7 +621,7 @@ class Main(QMainWindow):
             if isinstance(e, Node) or isinstance(e, Conjunction):
                 e.redraw()
 
-    def mouse(self, action):
+    def mouse(self, action=None):
         """
          Sets the edit mode to normal mouse mode
 
@@ -741,6 +752,7 @@ class Main(QMainWindow):
         """
         Undos the last action
         """
+        self.mouse()
         if len(self.lastAction) > 0:
             tree = self.lastAction.pop()
             self.nextAction.append(copy.deepcopy(self.tree))
@@ -753,6 +765,7 @@ class Main(QMainWindow):
         """
         Undos the last undid action
         """
+        self.mouse()
 
         if len(self.nextAction) > 0:
             tree = self.nextAction.pop()
@@ -767,3 +780,48 @@ class Main(QMainWindow):
         adds the last undo action to the undo stack
         """
         self.lastAction.append(copy.deepcopy(self.tree))
+
+    def copy(self):
+        self.copyBuffer = []
+
+        for i in self.scene.selectedItems():
+            if isinstance(i, Node):
+                self.copyBuffer.append(copy.copy(i.node))
+
+        idMapper = {}
+
+        for n in self.copyBuffer:
+            id = n.id
+            n.id = self.tree.getNextID()
+            idMapper[id] = n.id
+
+        for n in self.copyBuffer:
+            for p in n.parents:
+                if p in idMapper.keys():
+                    n.parents.remove(p)
+                    n.parents.append(idMapper[p])
+                else:
+                    n.parents.remove(p)
+            for c in n.children:
+                if c in idMapper.keys():
+                    n.children.remove(c)
+                    n.children.append(idMapper[c])
+                else:
+                    n.children.remove(c)
+
+    def cut(self):
+        self.addLastAction()
+        self.copyBuffer = []
+
+        for i in self.scene.selectedItems():
+            if isinstance(i, Node):
+                self.copyBuffer.append(copy.copy(i.node))
+        self.scene.deleteSelected()
+
+    def paste(self):
+        self.modeAction.setChecked(False)
+        self.modeAction = self.defaultModeAction
+        self.modeAction.setChecked(True)
+        self.mode = 6
+        self.setCursor(Qt.CrossCursor)
+        self.graphicsView.setDragMode(QGraphicsView.NoDrag)

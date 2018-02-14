@@ -1,4 +1,5 @@
 import copy
+import functools
 import math
 import traceback
 
@@ -45,7 +46,7 @@ class Node(QGraphicsItemGroup):
         self.threatEdge = None
         self.counterEdge = None
         self.defaultEdge = None
-        
+
         self.childEdges = []
         self.parentEdges = []
 
@@ -156,7 +157,7 @@ class Node(QGraphicsItemGroup):
         self.titleText.setTextWidth(200)
 
         self.idText.setPlainText(self.node.id)
-        self.typeText.setPlainText(self.node.type)
+        self.typeText.setPlainText(type(self.node).__name__)
         self.titleText.setPlainText(self.node.title)
 
         titleHeight = int(self.titleText.boundingRect().height() / 20 + 0.5) * 20
@@ -178,6 +179,8 @@ class Node(QGraphicsItemGroup):
         self.titleText.setPos(x, y + 18)
 
         self.headerHeight = titleHeight + 20
+
+        self.setToolTip(self.node.description)
 
         self.headerGroup.addToGroup(self.idRect)
         self.headerGroup.addToGroup(self.typeRect)
@@ -322,6 +325,23 @@ class Node(QGraphicsItemGroup):
             rect = QRect(self.boundingRect().x() - 2, self.boundingRect().y() - 2, self.boundingRect().x() + self.boundingRect().width() + 4, self.boundingRect().y() + self.boundingRect().height() + 3)
             painter.drawRect(rect)
 
+    def selectChildren(self):
+        self.setSelected(True)
+        for i in self.childEdges:
+            i.setSelected(True)
+            i.dst.selectChildren()
+
+    def delete(self):
+        for e in self.parentEdges:
+            self.parent.scene.removeItem(e)
+        for e in self.childEdges:
+            self.parent.scene.removeItem(e)
+        self.parent.tree.removeNode(self.node.id)
+        self.parent.scene.removeItem(self)
+
+    def edit(self):
+        NodeEdit(self, self.parent).exec()
+
     def mouseDoubleClickEvent(self, event):
         """
         Handles a double click on the node.
@@ -329,8 +349,7 @@ class Node(QGraphicsItemGroup):
 
         @param event: click event
         """
-        edit = NodeEdit(self, self.parent)
-        edit.exec()
+        self.edit()
 
     def itemChange(self, change, value):
         """
@@ -485,6 +504,7 @@ class Edge(QGraphicsLineItem):
     """
     Implements an Edge to two nodes
     """
+
     def __init__(self, start, dst, offset, color=Qt.black):
         """
         Constructor for a conjunction.
@@ -589,6 +609,9 @@ class Edge(QGraphicsLineItem):
             myLine.translate(0, -8.0)
             painter.drawLine(myLine)
 
+    def selectChildren(self):
+        self.dst.selectChildren()
+
 
 class AttackTreeScene(QGraphicsScene):
     """
@@ -650,7 +673,7 @@ class AttackTreeScene(QGraphicsScene):
         node = types.Conjunction(conjunctionType=type)
         self.parent().tree.addNode(node)
 
-        n = Conjunction(node, self.parent(), self.parent().threatBackground, self.parent().threatBorder, self.parent().threatFont,x=self.mousePos[0],y=self.mousePos[1], offset=60)  # @TODO: Change color
+        n = Conjunction(node, self.parent(), self.parent().threatBackground, self.parent().threatBorder, self.parent().threatFont, x=self.mousePos[0], y=self.mousePos[1], offset=60)  # @TODO: Change color
         self.addItem(n)
 
         self.parent().graphicsView.update()
@@ -732,6 +755,71 @@ class AttackTreeScene(QGraphicsScene):
                     super().mousePressEvent(mouseEvent)
             except Exception:
                 print(traceback.format_exc())
+        elif mouseEvent != Qt.LeftButton:
+            mouseEvent.accept()
+
+    def contextMenuEvent(self, event):
+        """
+        Handles the event to open a context menu on a node
+        The event will open a context menu to edit the node
+
+        @param event: context menu Event
+        """
+
+        if len(self.selectedItems()) > 0:
+            menu = QMenu(self.parent())
+            menu.addAction('Delete', self.deleteSelected)
+            menu.addAction('Select Children', self.selectNodesChildren)
+            menu.addAction('Copy')
+
+            menu.popup(event.screenPos(), None)
+        elif self.itemAt(event.scenePos(), QTransform()) is not None:
+            item = self.itemAt(event.scenePos(), QTransform())
+            menu = QMenu(self.parent())
+
+            if isinstance(item.parentItem(), Node):
+                item = item.parentItem()
+                menu.addAction('Edit', item.edit)
+                menu.addAction('Delete', item.delete)
+                menu.addAction('Select Children', item.selectChildren)
+                menu.addAction('Copy')
+            elif isinstance(item.parentItem(), QGraphicsItemGroup) and isinstance(item.parentItem().parentItem(), Node):
+                item = item.parentItem().parentItem()
+                menu.addAction('Edit', item.edit)
+                menu.addAction('Delete', item.delete)
+                menu.addAction('Select Children', item.selectChildren)
+                menu.addAction('Copy')
+            elif isinstance(item, Edge):
+                menu.addAction('Delete', functools.partial(self.deleteEdge, item))
+                menu.addAction('Select Children', item.selectChildren)
+            else:
+                return
+            menu.popup(event.screenPos(), None)
+        else:
+            pass
+
+    def deleteEdge(self, edge):
+        self.removeItem(edge)
+        edge.start.childEdges.remove(edge)
+        edge.dst.parentEdges.remove(edge)
+        self.parent().tree.removeEdge(edge.start.node.id + '-' + edge.dst.node.id)
+
+    def deleteSelected(self):
+        deleted = []
+        for i in self.selectedItems():
+            if isinstance(i, Node):
+                deleted.append(i)
+                i.delete()
+            elif isinstance(i, Edge):
+                deleted.append(i)
+                self.removeItem(i)
+                i.start.childEdges.remove(i)
+                i.dst.parentEdges.remove(i)
+                self.parent().tree.removeEdge(i.start.node.id + '-' + i.dst.node.id)
+
+    def selectNodesChildren(self):
+        for i in self.selectedItems():
+            i.selectChildren()
 
     def mouseMoveEvent(self, mouseEvent):
         """
@@ -752,7 +840,6 @@ class AttackTreeScene(QGraphicsScene):
 
         @param mouseEvent: Mouse Event
         """
-
         if mouseEvent.button() == Qt.LeftButton:
             if self.parent().mode == 4:
                 try:
@@ -791,7 +878,7 @@ class AttackTreeScene(QGraphicsScene):
                         self.reset()
                 except Exception as e:
                     print(traceback.format_exc())
-            elif self.parent().mode == 5:  # @TODO: Rework
+            elif self.parent().mode == 5:
                 self.parent().addLastAction()
                 deleted = []
                 try:
@@ -812,7 +899,7 @@ class AttackTreeScene(QGraphicsScene):
                             self.removeItem(i)
                             i.start.childEdges.remove(i)
                             i.dst.parentEdges.remove(i)
-                            self.parent().tree.removeEdge(i.start.node.id+'-'+i.dst.node.id)
+                            self.parent().tree.removeEdge(i.start.node.id + '-' + i.dst.node.id)
                     self.parent().graphicsView.update()
                     self.reset()
                     self.parent().saved = False
