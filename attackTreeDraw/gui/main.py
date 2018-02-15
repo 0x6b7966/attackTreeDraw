@@ -802,22 +802,20 @@ class Main(QMainWindow):
 
         for n in self.copyBuffer:
             id = n.id
-            n.id = self.tree.getNextID()
+            n.id = self.tree.getNextID(idMapper.values())
             idMapper[id] = n.id
 
         for n in self.copyBuffer:
-            for p in n.parents:
+            parents = copy.copy(n.parents)
+            n.parents = []
+            for p in parents:
                 if p in idMapper.keys():
-                    n.parents.remove(p)
                     n.parents.append(idMapper[p])
-                else:
-                    n.parents.remove(p)
-            for c in n.children:
+            children = copy.copy(n.children)
+            for c in children:
+                n.children = []
                 if c in idMapper.keys():
-                    n.children.remove(c)
                     n.children.append(idMapper[c])
-                else:
-                    n.children.remove(c)
 
     def cut(self):
         self.addLastAction()

@@ -306,7 +306,6 @@ class Node(QGraphicsItemGroup):
 
     def setPos(self, x, y):
         self.node.position = (x, y)
-        print(self.node.id, x, y)
         super().setPos(x, y)
 
     def paint(self, painter, options, widget=None):

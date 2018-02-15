@@ -323,14 +323,17 @@ class Tree:
         node.finished = True
         return True
 
-    def getNextID(self):
+    def getNextID(self, keyList=None):
         """
         Gets the next free id for a node in the format N[0-9]{4}
 
+        @param: keyList list of keys already used
         @return: next free node id
         """
+        if keyList is None:
+            keyList = []
         for i in range(10000):
-            if 'N' + str(i).zfill(4) not in self.nodeList.keys():
+            if 'N' + str(i).zfill(4) not in self.nodeList.keys() and 'N' + str(i).zfill(4) not in keyList:
                 return 'N' + str(i).zfill(4)
         return None
 
