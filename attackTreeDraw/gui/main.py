@@ -232,6 +232,13 @@ class Main(QMainWindow):
                 i += 1
 
         for k, n in self.tree.nodeList.items():
+            if n.visited is False and len(n.parents) == 0:
+                g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50, fixedPositions=fixedPositions)
+                i = 0
+                while fixedPositions is False and self.reorderTree(g) is not True and i < 100:
+                    i += 1
+
+        for k, n in self.tree.nodeList.items():
             if n.visited is False:
                 g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50, fixedPositions=fixedPositions)
                 i = 0
@@ -241,7 +248,8 @@ class Main(QMainWindow):
         for k, n in self.tree.nodeList.items():
             n.view = None
 
-        self.graphicsView.centerOn(0, 0)
+        if fixedPositions is not True:
+            self.graphicsView.centerOn(0, 0)
         self.graphicsView.viewport().update()
 
         print('----- DONE ------')
@@ -269,7 +277,7 @@ class Main(QMainWindow):
             elif isinstance(node, types.Countermeasure):
                 n = Countermeasure(node, self, x, y)
             else:
-                n = Conjunction(node, parent, x, y)
+                n = Conjunction(node, self, x, y)
 
             node.view = n
             self.scene.addItem(n)
@@ -812,12 +820,14 @@ class Main(QMainWindow):
                 if p in idMapper.keys():
                     n.parents.append(idMapper[p])
             children = copy.copy(n.children)
+            n.children = []
             for c in children:
-                n.children = []
                 if c in idMapper.keys():
                     n.children.append(idMapper[c])
 
     def cut(self):
+        self.addLastAction()
+        self.saved = False
         self.addLastAction()
         self.copyBuffer = []
 
@@ -852,6 +862,8 @@ class Main(QMainWindow):
         self.graphicsView.setDragMode(QGraphicsView.NoDrag)
 
     def insertCopyBuffer(self, x, y):
+        self.addLastAction()
+        self.saved = False
         xStart = None
         yStart = None
 
@@ -861,6 +873,7 @@ class Main(QMainWindow):
                 yStart = i.position[1]
             i.position = (i.position[0] + x - xStart, i.position[1] + y - yStart)
             for e in i.children:
+                print(e)
                 self.tree.edgeList.append(types.Edge(i.id, e))
             self.tree.nodeList[i.id] = copy.copy(i)
 
