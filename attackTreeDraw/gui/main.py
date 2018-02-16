@@ -180,10 +180,10 @@ class Main(QMainWindow):
 
         self.graphicsView.setAlignment(Qt.AlignTop)
 
-        self.graphicsView.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
+        #self.graphicsView.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
         self.graphicsView.setRenderHint(QPainter.Antialiasing)
-        self.graphicsView.setCacheMode(QGraphicsView.CacheBackground)
-        self.graphicsView.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
+        self.graphicsView.setRenderHint(QPainter.SmoothPixmapTransform)
+        #self.graphicsView.setCacheMode(QGraphicsView.CacheBackground)
         self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
         self.graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
@@ -269,7 +269,7 @@ class Main(QMainWindow):
             elif isinstance(node, types.Countermeasure):
                 n = Countermeasure(node, self, x, y)
             else:
-                n = Conjunction(node, self, self.threatBackground, self.threatBorder, self.threatFont, x, y, offset=60)
+                n = Conjunction(node, parent, x, y)
 
             node.view = n
             self.scene.addItem(n)

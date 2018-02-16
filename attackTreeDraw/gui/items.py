@@ -1,12 +1,10 @@
-import copy
 import functools
 import math
 import traceback
 
-import sys
 from PyQt5.QtCore import Qt, QRectF, QSizeF, QLineF, QPointF, QRect
 
-from PyQt5.QtGui import QBrush, QFont, QPen, QPolygonF, QTransform
+from PyQt5.QtGui import QBrush, QFont, QPen, QPolygonF, QTransform, QPainter
 from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QGraphicsScene, QMenu, QGraphicsView, QMessageBox
 
 from .windows import NodeEdit, MessageBox
@@ -169,9 +167,9 @@ class Node(QGraphicsItemGroup):
         self.typeRect.setBrush(QBrush(background))
         self.titleRect.setBrush(QBrush(background))
 
-        self.idRect.setPen(QPen(border))
-        self.typeRect.setPen(QPen(border))
-        self.titleRect.setPen(QPen(border))
+        self.idRect.setPen(QPen(border, 2))
+        self.typeRect.setPen(QPen(border, 2))
+        self.titleRect.setPen(QPen(border, 2))
 
         self.idText.setPos(x, y)
         self.typeText.setPos(x + self.typeOffset, y)
@@ -228,8 +226,8 @@ class Node(QGraphicsItemGroup):
             keyRect.setBrush(QBrush(background))
             valueRect.setBrush(QBrush(background))
 
-            keyRect.setPen(QPen(border, 1))
-            valueRect.setPen(QPen(border, 1))
+            keyRect.setPen(QPen(border, 2))
+            valueRect.setPen(QPen(border, 2))
 
             key.setPos(x, y)
             value.setPos(x + 100, y)
@@ -322,9 +320,9 @@ class Node(QGraphicsItemGroup):
 
         super().paint(painter, myOption, widget=None)
 
-        if self.isSelected():
-            painter.setPen(QPen(Qt.black, 1, Qt.DashLine))
-            rect = QRect(self.boundingRect().x() - 2, self.boundingRect().y() - 2, self.boundingRect().x() + self.boundingRect().width() + 4, self.boundingRect().y() + self.boundingRect().height() + 3)
+        if options.state & QStyle.State_Selected:
+            painter.setPen(QPen(Qt.black, 2, Qt.DotLine))
+            rect = QRect(self.boundingRect().x() - 1.5, self.boundingRect().y() - 1.5, self.boundingRect().x() + self.boundingRect().width() + 3, self.boundingRect().y() + self.boundingRect().height() + 0.5)
             painter.drawRect(rect)
 
     def selectChildren(self):
@@ -414,8 +412,8 @@ class Threat(Node):
         self.threatBox.setBrush(QBrush(background))
         self.counterBox.setBrush(QBrush(background))
 
-        self.threatBox.setPen(QPen(border))
-        self.counterBox.setPen(QPen(border))
+        self.threatBox.setPen(QPen(border, 2))
+        self.counterBox.setPen(QPen(border, 2))
 
         self.footerGroup = QGraphicsItemGroup()
 
@@ -458,17 +456,6 @@ class Countermeasure(Node):
         """
         super().__init__(node, parent, parent.countermeasureBackground, parent.countermeasureBorder, parent.countermeasureFont, x, y, 63)
 
-    def printFooter(self, background, border, text):
-        """
-        This function is not needed in the countermeasure node
-        But needs to be implemented because it is called in the parent node
-
-        @param background: background color of the node
-        @param border: border color for the node
-        @param text: text color for the node
-        """
-        pass
-
     def redraw(self):
         """
         Redraws the node with the colors set in the options menu
@@ -477,7 +464,54 @@ class Countermeasure(Node):
 
 
 class Conjunction(Node):
-    pass
+    """
+    This class handles the gui for a countermeasure node
+    """
+
+    def __init__(self, node, parent, x=0, y=0):
+        """
+        Constructor for the countermeasure node.
+        It generates all necessary variables and calls the draw function
+
+        @param node: data node which it gets the data from
+        @param parent: parent widget
+        @param x: x-position of the node
+        @param y: y-position of the node
+        """
+        super().__init__(node, parent, parent.countermeasureBackground, parent.countermeasureBorder, parent.countermeasureFont, x, y, 60)  # @TODO: fix colors
+        self.conjunctionRect = ConjunctionRect()
+        self.conjunctionRect.setPen(QPen(parent.countermeasureBorder, 2))
+        self.conjunctionRect.setRect(self.x() - 20, self.y() + 1, 240, self.headerHeight - 2)
+        self.addToGroup(self.conjunctionRect)
+
+    def redraw(self):
+        """
+        Redraws the node with the colors set in the options menu
+        """
+        super().redrawOptions(self.parent.countermeasureBackground, self.parent.countermeasureBorder, self.parent.countermeasureFont)
+        self.conjunctionRect.setPen(QPen(self.parent.countermeasureBorder, 2))
+        self.removeFromGroup(self.conjunctionRect)
+        self.conjunctionRect.setRect(self.x() - 20, self.y() + 1, 240, self.headerHeight - 2)
+        self.addToGroup(self.conjunctionRect)
+
+    def paint(self, painter, options, widget=None):
+        """
+        Reimplementation for the paint function of the QGraphicsItemGroup.
+        The Reimplementation is needed to print a proper border when the item is selected
+
+        @param painter: The painter, which draws the node
+        @param options: options for the paint job
+        @param widget: widget of the Item
+        """
+        myOption = QStyleOptionGraphicsItem(options)
+        myOption.state &= ~QStyle.State_Selected
+
+        if options.state & QStyle.State_Selected:
+            painter.setPen(QPen(Qt.black, 2, Qt.DotLine))
+            rect = QRect(self.boundingRect().x() - 1.5, self.boundingRect().y() - 1.5, self.boundingRect().x() + self.boundingRect().width() + 23.5, self.boundingRect().y() + self.boundingRect().height() + 3.5)
+            painter.drawRect(rect)
+
+        super().paint(painter, myOption, widget=None)
 
 
 class ConjunctionRect(QGraphicsRectItem):
@@ -491,12 +525,9 @@ class ConjunctionRect(QGraphicsRectItem):
         @param options: options for the paint job
         @param widget: widget of the Item
         """
-        if self.isSelected():
-            painter.setPen(QPen(Qt.black, 1, Qt.DashLine))
-            rect = QRect(self.boundingRect().x() - 2, self.boundingRect().y() - 2, self.boundingRect().x() + self.boundingRect().width() + 4, self.boundingRect().y() + self.boundingRect().height() + 3)
-            painter.drawRect(rect)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)
 
-        painter.setBrush(self.brush())
         painter.setPen(self.pen())
 
         painter.drawRoundedRect(self.boundingRect(), 20, 20)
@@ -675,7 +706,7 @@ class AttackTreeScene(QGraphicsScene):
         node = types.Conjunction(conjunctionType=type)
         self.parent().tree.addNode(node)
 
-        n = Conjunction(node, self.parent(), self.parent().threatBackground, self.parent().threatBorder, self.parent().threatFont, x=self.mousePos[0], y=self.mousePos[1], offset=60)  # @TODO: Change color
+        n = Conjunction(node, self.parent(), x=self.mousePos[0], y=self.mousePos[1])
         self.addItem(n)
 
         self.parent().graphicsView.update()
