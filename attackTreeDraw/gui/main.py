@@ -180,10 +180,10 @@ class Main(QMainWindow):
 
         self.graphicsView.setAlignment(Qt.AlignTop)
 
-        #self.graphicsView.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
+        self.graphicsView.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
         self.graphicsView.setRenderHint(QPainter.Antialiasing)
         self.graphicsView.setRenderHint(QPainter.SmoothPixmapTransform)
-        #self.graphicsView.setCacheMode(QGraphicsView.CacheBackground)
+        self.graphicsView.setCacheMode(QGraphicsView.CacheBackground)
         self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
         self.graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)

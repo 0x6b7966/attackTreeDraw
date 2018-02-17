@@ -105,6 +105,13 @@ class Node(QGraphicsItemGroup):
             else:
                 e.offset = 0
 
+    def fixParentEdgeRec(self):
+        for p in self.parentEdges:
+            if isinstance(p.start, Conjunction):
+                p.start.fixParentEdgeRec()
+            else:
+                p.start.actualizeEdges()
+
     def getLeftRightChildren(self):
         left = []
         right = []
@@ -914,6 +921,13 @@ class AttackTreeScene(QGraphicsScene):
                     if self.parent().tree.addEdge(self.startCollisions.node.id, self.dstCollisions.node.id) is True:
                         self.startCollisions.addEdge(self.dstCollisions)
                         self.update(self.startCollisions.childEdges[-1].boundingRect())
+
+                        if isinstance(self.startCollisions, Conjunction):
+                            self.startCollisions.fixParentEdgeRec()
+
+
+
+
                         self.parent().graphicsView.update()
                         self.reset()
                         self.parent().saved = False

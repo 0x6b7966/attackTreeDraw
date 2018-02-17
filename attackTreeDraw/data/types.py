@@ -233,6 +233,11 @@ class Tree:
         if not isinstance(source, Conjunction) and len(source.children) > 0 and self.getTypeRecursiveDown(source) is Countermeasure and isinstance(destination, Conjunction):
             return False
 
+        if self.getTypeRecursiveUp(source) is not Conjunction:
+            for c in self.getFirstElementRecursiveUp(source).children:
+                if not isinstance(self.getTypeRecursiveDown(destination), Conjunction) and self.getTypeRecursiveDown(self.nodeList[c]) is self.getTypeRecursiveDown(destination):
+                    return False
+
         self.edgeList.append(edge)
         self.nodeList[edge.source].children.append(edge.destination)  # @TODO: Edge to id?
         self.nodeList[edge.destination].parents.append(edge.source)
