@@ -1,17 +1,21 @@
+import functools
 import os
 
 from PyQt5.QtCore import Qt, QDate
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon
-from PyQt5.QtWidgets import QWidget, QMessageBox, QDialog, QLabel, QColorDialog, QFrame
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon, QFont, QColor
+from PyQt5.QtWidgets import QWidget, QMessageBox, QDialog, QLabel, QColorDialog, QFrame, QFontDialog
 from PyQt5 import QtCore, QtWidgets
 
 from data.types import Threat
+from gui import helper
+from gui.helper import Configuration
 
 
 class MessageBox:
     """
     Class to display a message box with options
     """
+
     def __init__(self, title, text, buttons=QMessageBox.Ok, icon=QMessageBox.Information, default=QMessageBox.Ok):
         """
         Constructor for the message box.
@@ -45,6 +49,7 @@ class NodeEdit(QDialog):
     Dialog box to edit nodes
     The user can change the title or attributes of a node in this window
     """
+
     def __init__(self, node, parent):
         """
         Constructor for the node edit UI
@@ -182,7 +187,7 @@ class NodeEdit(QDialog):
             newEntires[self.model.item(i, 0).text()] = self.model.item(i, 1).text()
 
         self.nodeItem.node.attributes = newEntires.copy()
-        self.nodeItem.node.title = self.titleEdit.text()
+        self.nodeItem.node.title = self.titleEdit.text().replace('\n', ' ').replace('\r', '')
         self.nodeItem.node.description = self.descriptionEdit.toPlainText()
 
         self.nodeItem.redraw()
@@ -198,6 +203,7 @@ class MetaEdit(QDialog):
     Dialog box to edit the meta information of the tree
     The user can change the title, author, date, description and the root node
     """
+
     def __init__(self, parent):
         """
         Constructor for the node edit UI
@@ -314,11 +320,12 @@ class MetaEdit(QDialog):
         self.close()
 
 
-class Options(QDialog):
+class Options(QWidget):
     """
     Dialog box to edit the options of the GUI
     The user can change the color of the nodes
     """
+
     def __init__(self, parent):
         """
         Constructor for the node edit UI
@@ -327,6 +334,11 @@ class Options(QDialog):
         """
         QWidget.__init__(self)
         self.parentWidget = parent
+        self.rows = {
+            'threat': {'node': {}, 'composition': {}, 'alternative': {}, 'sequence': {}, 'threshold': {}},
+            'countermeasure': {'node': {}, 'composition': {}, 'alternative': {}, 'sequence': {}, 'threshold': {}}
+        }
+
         self.setupUi()
         self.show()
 
@@ -334,84 +346,226 @@ class Options(QDialog):
         """
         Sets up the UI.
         """
-        self.resize(407, 408)
-        self.verticalLayout = QtWidgets.QVBoxLayout(self)
+        self.resize(432, 392)
 
-        includePath = os.path.dirname(os.path.abspath(__file__))
-        self.setWindowIcon(QIcon(os.path.join(includePath, 'assets/icons/logo.png')))
+        self.mainLayout = QtWidgets.QVBoxLayout(self)
 
         self.tabWidget = QtWidgets.QTabWidget(self)
-        self.tab = QtWidgets.QWidget()
-        self.tabWidget.addTab(self.tab, "")
+        self.generalTab = QtWidgets.QWidget()
+        self.threatColorTab = QtWidgets.QWidget()
+        self.countermeasureColorTab = QtWidgets.QWidget()
 
-        self.colors = QtWidgets.QWidget()
+        colorParts = ['background', 'border', 'font']
 
-        self.colorsLayout = QtWidgets.QVBoxLayout(self.colors)
-        self.threatLabel = QtWidgets.QLabel(self.colors)
-        self.colorsLayout.addWidget(self.threatLabel)
+        """ General Tab """
+        self.generalTabLayout = QtWidgets.QVBoxLayout(self.generalTab)
+        self.fontLayout = QtWidgets.QHBoxLayout()
+        spacer = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.fontLayout.addItem(spacer)
+        self.fontTitleLabel = QtWidgets.QLabel(self.generalTab)
+        self.fontLayout.addWidget(self.fontTitleLabel)
+        self.fontValueLabel = QtWidgets.QLabel(self.generalTab)
+        self.fontLayout.addWidget(self.fontValueLabel)
+        self.fontChangeButton = QtWidgets.QPushButton(self.generalTab)
+        self.fontLayout.addWidget(self.fontChangeButton)
+        self.generalTabLayout.addLayout(self.fontLayout)
+        self.generalLine = QtWidgets.QFrame(self.generalTab)
+        self.generalLine.setFrameShape(QtWidgets.QFrame.HLine)
+        self.generalLine.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.generalTabLayout.addWidget(self.generalLine)
 
-        self.threatBackgroundLayout = QtWidgets.QHBoxLayout()
-        self.threatBackgroundLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
-        self.threatBackgroundLabel = QtWidgets.QLabel(self.colors)
-        self.threatBackgroundLayout.addWidget(self.threatBackgroundLabel)
-        self.threatBackgroundPicker = ColorLabel(self.parentWidget.threatBackground, self.colors)
-        self.threatBackgroundLayout.addWidget(self.threatBackgroundPicker)
-        self.colorsLayout.addLayout(self.threatBackgroundLayout)
+        self.generalTabFreeLayout = QtWidgets.QVBoxLayout()
+        self.generalTabLayout.addLayout(self.generalTabFreeLayout)
 
-        self.threatBorderLayout = QtWidgets.QHBoxLayout()
-        self.threatBorderLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
-        self.threatBorderLabel = QtWidgets.QLabel(self.colors)
-        self.threatBorderLayout.addWidget(self.threatBorderLabel)
-        self.threatBorderPicker = ColorLabel(self.parentWidget.threatBorder, self.colors)
-        self.threatBorderLayout.addWidget(self.threatBorderPicker)
-        self.colorsLayout.addLayout(self.threatBorderLayout)
+        self.fontTitleLabel.setText("Font:")
+        self.fontValueLabel.setText(Configuration.font.family() + ' ' + str(Configuration.font.pointSizeF()))
+        self.fontChangeButton.setText("Change")
+        self.fontChangeButton.clicked.connect(self.openFontPicker)
 
-        self.threatFontLayout = QtWidgets.QHBoxLayout()
-        self.threatFontLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
-        self.threatFontLabel = QtWidgets.QLabel(self.colors)
-        self.threatFontLayout.addWidget(self.threatFontLabel)
-        self.threatFontPicker = ColorLabel(self.parentWidget.threatFont, self.colors)
-        self.threatFontLayout.addWidget(self.threatFontPicker)
-        self.colorsLayout.addLayout(self.threatFontLayout)
+        """ Threat Color Tab """
+        self.threatColorTabLayout = QtWidgets.QVBoxLayout(self.threatColorTab)
+        self.threatColorTabTitle = QtWidgets.QLabel(self.threatColorTab)
+        self.threatColorTabTitle.setText('Threat Colors')
+        self.threatColorTabLayout.addWidget(self.threatColorTabTitle)
 
-        self.line_2 = QtWidgets.QFrame(self.colors)
-        self.line_2.setFrameShape(QtWidgets.QFrame.HLine)
-        self.line_2.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.colorsLayout.addWidget(self.line_2)
+        for k, r in self.rows['threat'].items():
+            layout = QtWidgets.QHBoxLayout()
+            spacer1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+            layout.addItem(spacer1)
+            titleLabel = QtWidgets.QLabel(self.threatColorTab)
+            titleLabel.setMinimumSize(QtCore.QSize(90, 0))
+            titleLabel.setMaximumSize(QtCore.QSize(90, 16777215))
+            titleLabel.setText(k.title() + ':')
+            layout.addWidget(titleLabel)
+            for c in colorParts:
+                pass
+                r[c] = (QtWidgets.QLabel(self.threatColorTab))
+                palette = r[c].palette()
+                palette.setColor(r[c].backgroundRole(), QColor(Configuration.colors['threat'][k][c]))
+                r[c].setAutoFillBackground(True)
+                r[c].setPalette(palette)
+                r[c].setFrameStyle(QFrame.Panel)
+                layout.addWidget(r[c])
 
-        self.countermeasureLabel = QtWidgets.QLabel(self.colors)
-        self.colorsLayout.addWidget(self.countermeasureLabel)
+            change = QtWidgets.QPushButton(self.threatColorTab)
+            change.setText('Change')
 
-        self.countermeasureBackgroundLayout = QtWidgets.QHBoxLayout()
-        self.countermeasureBackgroundLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
-        self.countermeasureBackgroundLabel = QtWidgets.QLabel(self.colors)
-        self.countermeasureBackgroundLayout.addWidget(self.countermeasureBackgroundLabel)
-        self.countermeasureBackgroundPicker = ColorLabel(self.parentWidget.countermeasureBackground, self.colors)
-        self.countermeasureBackgroundLayout.addWidget(self.countermeasureBackgroundPicker)
-        self.colorsLayout.addLayout(self.countermeasureBackgroundLayout)
+            change.clicked.connect(functools.partial(self.openColorPicker, 'threat', k))
 
-        self.countermeasureBorderLayout = QtWidgets.QHBoxLayout()
-        self.countermeasureBorderLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
-        self.countermeasureBorderLabel = QtWidgets.QLabel(self.colors)
-        self.countermeasureBorderLayout.addWidget(self.countermeasureBorderLabel)
-        self.countermeasureBorderPicker = ColorLabel(self.parentWidget.countermeasureBorder, self.colors)
-        self.countermeasureBorderLayout.addWidget(self.countermeasureBorderPicker)
-        self.colorsLayout.addLayout(self.countermeasureBorderLayout)
+            layout.addWidget(change)
 
-        self.countermeasureFontLayout = QtWidgets.QHBoxLayout()
-        self.countermeasureFontLayout.addItem(QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum))
-        self.countermeasureFontLabel = QtWidgets.QLabel(self.colors)
-        self.countermeasureFontLayout.addWidget(self.countermeasureFontLabel)
-        self.countermeasureFontPicker = ColorLabel(self.parentWidget.countermeasureFont, self.colors)
-        self.countermeasureFontLayout.addWidget(self.countermeasureFontPicker)
-        self.colorsLayout.addLayout(self.countermeasureFontLayout)
+            self.threatColorTabLayout.addLayout(layout)
 
-        self.line = QtWidgets.QFrame(self.colors)
+        """ Countermeasure Color Tab """
+        self.countermeasureColorTabLayout = QtWidgets.QVBoxLayout(self.countermeasureColorTab)
+        self.countermeasureColorTabTitle = QtWidgets.QLabel(self.countermeasureColorTab)
+        self.countermeasureColorTabTitle.setText('Countermeasure Colors')
+        self.countermeasureColorTabLayout.addWidget(self.countermeasureColorTabTitle)
+
+        for k, r in self.rows['countermeasure'].items():
+            layout = QtWidgets.QHBoxLayout()
+            spacer1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+            layout.addItem(spacer1)
+            titleLabel = QtWidgets.QLabel(self.countermeasureColorTab)
+            titleLabel.setMinimumSize(QtCore.QSize(90, 0))
+            titleLabel.setMaximumSize(QtCore.QSize(90, 16777215))
+            titleLabel.setText(k.title() + ':')
+            layout.addWidget(titleLabel)
+            for c in colorParts:
+                pass
+                r[c] = (QtWidgets.QLabel(self.countermeasureColorTab))
+                palette = r[c].palette()
+                palette.setColor(r[c].backgroundRole(), QColor(Configuration.colors['countermeasure'][k][c]))
+                r[c].setAutoFillBackground(True)
+                r[c].setPalette(palette)
+                r[c].setFrameStyle(QFrame.Panel)
+                layout.addWidget(r[c])
+
+            change = QtWidgets.QPushButton(self.countermeasureColorTab)
+            change.setText('Change')
+
+            change.clicked.connect(functools.partial(self.openColorPicker, 'countermeasure', k))
+
+            layout.addWidget(change)
+
+            self.countermeasureColorTabLayout.addLayout(layout)
+
+        self.mainLayout.addWidget(self.tabWidget)
+
+
+        self.buttonLayout = QtWidgets.QHBoxLayout()
+        self.ok = QtWidgets.QPushButton(self)
+        self.buttonLayout.addWidget(self.ok)
+        self.ok.setDefault(True)
+        self.cancel = QtWidgets.QPushButton(self)
+        self.buttonLayout.addWidget(self.cancel)
+        self.mainLayout.addLayout(self.buttonLayout)
+
+        self.cancel.setText("Cancel")
+        self.ok.setText("Ok")
+
+        self.tabWidget.setCurrentIndex(1)
+
+        self.ok.clicked.connect(self.submit)
+        self.cancel.clicked.connect(self.close)
+
+        self.tabWidget.addTab(self.generalTab, "General")
+        self.tabWidget.addTab(self.threatColorTab, "Threat Colors")
+        self.tabWidget.addTab(self.countermeasureColorTab, "Countermeasure Colors")
+
+    def submit(self):
+        """
+        This function saves the config and calls the configuration helper to save it to the config file
+
+        After that the window will be closed
+        """
+        helper.Configuration.saveConfig()
+
+        self.parentWidget.redrawItems()
+        self.close()
+
+    def openColorPicker(self, parentType, childType):
+        picker = ColorPicker(self, parentType, childType)
+        picker.exec()
+        for k, i in self.rows[parentType][childType].items():
+            palette = i.palette()
+            palette.setColor(i.backgroundRole(), QColor(Configuration.colors[parentType][childType][k]))
+            i.setAutoFillBackground(True)
+            i.setPalette(palette)
+            i.setFrameStyle(QFrame.Panel)
+
+    def openFontPicker(self):
+        dialog = QFontDialog()
+        font, ok = dialog.getFont(QFont('Roboto Mono', 12), self)
+        Configuration.font = font
+
+        self.fontValueLabel.setText(font.family() + ' ' + str(font.pointSizeF()))
+
+
+class ColorPicker(QDialog):
+    """
+    Dialog box to edit the options of the GUI
+    The user can change the color of the nodes
+    """
+
+    def __init__(self, parent, parentType, childType):
+        """
+        Constructor for the node edit UI
+
+        @param parent: Parent widget
+        """
+        QWidget.__init__(self)
+        self.parentWidget = parent
+        self.parentType = parentType
+        self.childType = childType
+        self.setupUi()
+
+    def setupUi(self):
+        """
+        Sets up the UI.
+        """
+        self.resize(400, 300)
+        self.verticalLayout = QtWidgets.QVBoxLayout(self)
+        self.nodeLabel = QtWidgets.QLabel(self)
+        self.verticalLayout.addWidget(self.nodeLabel)
+
+        self.borderLayout = QtWidgets.QHBoxLayout()
+        spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.borderLayout.addItem(spacerItem)
+        self.borderLabel = QtWidgets.QLabel(self)
+
+        self.borderLayout.addWidget(self.borderLabel)
+        self.borderPicker = ColorLabel(Configuration.colors[self.parentType][self.childType]['border'], self)
+
+        self.borderLayout.addWidget(self.borderPicker)
+        self.verticalLayout.addLayout(self.borderLayout)
+        self.fontLayout = QtWidgets.QHBoxLayout()
+
+        spacer = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.fontLayout.addItem(spacer)
+        self.fontLabel = QtWidgets.QLabel(self)
+
+        self.fontLayout.addWidget(self.fontLabel)
+        self.fontPicker = ColorLabel(Configuration.colors[self.parentType][self.childType]['font'], self)
+
+        self.fontLayout.addWidget(self.fontPicker)
+        self.verticalLayout.addLayout(self.fontLayout)
+        self.backgroundLayout = QtWidgets.QHBoxLayout()
+
+        spacer2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
+        self.backgroundLayout.addItem(spacer2)
+        self.backgroundLabel = QtWidgets.QLabel(self)
+
+        self.backgroundLayout.addWidget(self.backgroundLabel)
+        self.backgroundPicker = ColorLabel(Configuration.colors[self.parentType][self.childType]['background'], self)
+
+        self.backgroundLayout.addWidget(self.backgroundPicker)
+        self.verticalLayout.addLayout(self.backgroundLayout)
+
+        self.line = QtWidgets.QFrame(self)
         self.line.setFrameShape(QtWidgets.QFrame.HLine)
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.colorsLayout.addWidget(self.line)
-        self.tabWidget.addTab(self.colors, "")
-        self.verticalLayout.addWidget(self.tabWidget)
+        self.verticalLayout.addWidget(self.line)
         self.horizontalLayout = QtWidgets.QHBoxLayout()
 
         self.ok = QtWidgets.QPushButton(self)
@@ -422,24 +576,18 @@ class Options(QDialog):
 
         self.verticalLayout.addLayout(self.horizontalLayout)
 
-        self.tabWidget.setCurrentIndex(1)
-        
-        self.setWindowTitle("Dialog")
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), "General")
-        self.threatLabel.setText("Threat colors:")
-        self.threatBackgroundLabel.setText("Background:")
-        self.threatBorderLabel.setText("Border:")
-        self.threatFontLabel.setText("Font:")
-        self.countermeasureLabel.setText("Countermeasure colors:")
-        self.countermeasureBackgroundLabel.setText("Background:")
-        self.countermeasureBorderLabel.setText("Border:")
-        self.countermeasureFontLabel.setText("Font:")
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.colors), "Colors")
         self.cancel.setText("Cancel")
         self.ok.setText("Ok")
 
         self.cancel.clicked.connect(self.close)
         self.ok.clicked.connect(self.submit)
+
+        self.setWindowTitle(self.parentType + ' ' + self.childType + ' Colors')
+        self.nodeLabel.setText(self.parentType + ' ' + self.childType + ' Colors:')
+
+        self.borderLabel.setText('Border:')
+        self.fontLabel.setText('Font:')
+        self.backgroundLabel.setText('Background:')
 
     def submit(self):
         """
@@ -447,15 +595,10 @@ class Options(QDialog):
 
         After that the window will be closed
         """
-        self.parentWidget.threatBackground = self.threatBackgroundPicker.color
-        self.parentWidget.threatBorder = self.threatBorderPicker.color
-        self.parentWidget.threatFont = self.threatFontPicker.color
+        helper.Configuration.colors[self.parentType][self.childType]['background'] = QColor(self.backgroundPicker.color).name()
+        helper.Configuration.colors[self.parentType][self.childType]['border'] = QColor(self.borderPicker.color).name()
+        helper.Configuration.colors[self.parentType][self.childType]['font'] = QColor(self.fontPicker.color).name()
 
-        self.parentWidget.countermeasureBackground = self.countermeasureBackgroundPicker.color
-        self.parentWidget.countermeasureBorder = self.countermeasureBorderPicker.color
-        self.parentWidget.countermeasureFont = self.countermeasureFontPicker.color
-
-        self.parentWidget.redrawItems()
         self.close()
 
 
@@ -463,6 +606,7 @@ class ColorLabel(QLabel):
     """
     This class implements an color picker for the options GUI
     """
+
     def __init__(self, color, parent=None):
         """
         Constructor for the node edit UI
@@ -475,7 +619,7 @@ class ColorLabel(QLabel):
         self.color = color
 
         palette = self.palette()
-        palette.setColor(self.backgroundRole(), color)
+        palette.setColor(self.backgroundRole(), QColor(color))
         self.setAutoFillBackground(True)
         self.setPalette(palette)
 
@@ -487,8 +631,8 @@ class ColorLabel(QLabel):
 
         @param QMouseEvent: Mouse event
         """
-        self.color = QColorDialog.getColor(self.color, self, "Pick a color", QColorDialog.DontUseNativeDialog)
+        self.color = QColorDialog.getColor(QColor(self.color), self, "Pick a color", QColorDialog.DontUseNativeDialog)
         palette = self.palette()
-        palette.setColor(self.backgroundRole(), self.color)
+        palette.setColor(self.backgroundRole(), QColor(self.color))
         self.setAutoFillBackground(True)
         self.setPalette(palette)

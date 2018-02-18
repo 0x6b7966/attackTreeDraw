@@ -67,7 +67,7 @@
                 <xs:element name="countermeasures">
                     <xs:complexType>
                         <xs:sequence>
-                            <xs:element name="countermeasure" maxOccurs="unbounded">
+                            <xs:element name="countermeasure" minOccurs="0" maxOccurs="unbounded">
                                 <xs:complexType>
                                     <xs:sequence>
                                         <xs:element ref="title"/>

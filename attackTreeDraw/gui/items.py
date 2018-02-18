@@ -4,12 +4,13 @@ import traceback
 
 from PyQt5.QtCore import Qt, QRectF, QSizeF, QLineF, QPointF, QRect
 
-from PyQt5.QtGui import QBrush, QFont, QPen, QPolygonF, QTransform, QPainter
+from PyQt5.QtGui import QBrush, QFont, QPen, QPolygonF, QTransform, QPainter, QColor
 from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QGraphicsScene, QMenu, QGraphicsView, QMessageBox
 
 from .windows import NodeEdit, MessageBox
 
 from data import types
+from .helper import Configuration
 
 
 class Node(QGraphicsItemGroup):
@@ -150,13 +151,13 @@ class Node(QGraphicsItemGroup):
         self.typeRect = QGraphicsRectItem()
         self.titleRect = QGraphicsRectItem()
 
-        self.typeText.setFont(QFont('Arial', 10))
-        self.titleText.setFont(QFont('Arial', 10))
-        self.idText.setFont(QFont('Arial', 10))
+        self.typeText.setFont(Configuration.font)
+        self.titleText.setFont(Configuration.font)
+        self.idText.setFont(Configuration.font)
 
-        self.typeText.setDefaultTextColor(text)
-        self.titleText.setDefaultTextColor(text)
-        self.idText.setDefaultTextColor(text)
+        self.typeText.setDefaultTextColor(QColor(text))
+        self.titleText.setDefaultTextColor(QColor(text))
+        self.idText.setDefaultTextColor(QColor(text))
 
         self.titleText.setTextWidth(200)
 
@@ -170,13 +171,13 @@ class Node(QGraphicsItemGroup):
         self.typeRect.setRect(x + 50, y, 150, 20)
         self.titleRect.setRect(x, y + 20, 200, titleHeight)
 
-        self.idRect.setBrush(QBrush(background))
-        self.typeRect.setBrush(QBrush(background))
-        self.titleRect.setBrush(QBrush(background))
+        self.idRect.setBrush(QBrush(QColor(background)))
+        self.typeRect.setBrush(QBrush(QColor(background)))
+        self.titleRect.setBrush(QBrush(QColor(background)))
 
-        self.idRect.setPen(QPen(border, 2))
-        self.typeRect.setPen(QPen(border, 2))
-        self.titleRect.setPen(QPen(border, 2))
+        self.idRect.setPen(QPen(QColor(border), 2))
+        self.typeRect.setPen(QPen(QColor(border), 2))
+        self.titleRect.setPen(QPen(QColor(border), 2))
 
         self.idText.setPos(x, y)
         self.typeText.setPos(x + self.typeOffset, y)
@@ -210,15 +211,15 @@ class Node(QGraphicsItemGroup):
 
         for k, v in self.node.attributes.items():
             key = QGraphicsTextItem()
-            key.setFont(QFont('Arial', 10))
-            key.setDefaultTextColor(text)
+            key.setFont(Configuration.font)
+            key.setDefaultTextColor(QColor(text))
             key.setTextWidth(100)
             key.setPlainText(k)
             keyHeight = int(key.boundingRect().height() / 20 + 0.5) * 20
 
             value = QGraphicsTextItem()
-            value.setFont(QFont('Arial', 10))
-            value.setDefaultTextColor(text)
+            value.setFont(Configuration.font)
+            value.setDefaultTextColor(QColor(text))
             value.setTextWidth(100)
             value.setPlainText(v)
             valueHeight = int(value.boundingRect().height() / 20 + 0.5) * 20
@@ -230,11 +231,11 @@ class Node(QGraphicsItemGroup):
             valueRect = QGraphicsRectItem()
             valueRect.setRect(x + 100, y, 100, height)
 
-            keyRect.setBrush(QBrush(background))
-            valueRect.setBrush(QBrush(background))
+            keyRect.setBrush(QBrush(QColor(background)))
+            valueRect.setBrush(QBrush(QColor(background)))
 
-            keyRect.setPen(QPen(border, 2))
-            valueRect.setPen(QPen(border, 2))
+            keyRect.setPen(QPen(QColor(border), 2))
+            valueRect.setPen(QPen(QColor(border), 2))
 
             key.setPos(x, y)
             value.setPos(x + 100, y)
@@ -392,7 +393,7 @@ class Threat(Node):
         self.threatBoxText = None
         self.counterBoxText = None
 
-        super().__init__(node, parent, parent.threatBackground, parent.threatBorder, parent.threatFont, x, y, 91)
+        super().__init__(node, parent, Configuration.colors['threat']['node']['background'], Configuration.colors['threat']['node']['border'], Configuration.colors['threat']['node']['font'], x, y, 91)
 
     def printFooter(self, background, border, text):
         """
@@ -404,23 +405,23 @@ class Threat(Node):
         @param text: text color for the node
         """
         self.threatBoxText = QGraphicsTextItem()
-        self.threatBoxText.setFont(QFont('Arial', 10))
-        self.threatBoxText.setDefaultTextColor(text)
+        self.threatBoxText.setFont(Configuration.font)
+        self.threatBoxText.setDefaultTextColor(QColor(text))
         self.threatBoxText.setPlainText('T')
 
         self.counterBoxText = QGraphicsTextItem()
-        self.counterBoxText.setFont(QFont('Arial', 10))
-        self.counterBoxText.setDefaultTextColor(text)
+        self.counterBoxText.setFont(Configuration.font)
+        self.counterBoxText.setDefaultTextColor(QColor(text))
         self.counterBoxText.setPlainText('C')
 
         self.threatBox = QGraphicsRectItem()
         self.counterBox = QGraphicsRectItem()
 
-        self.threatBox.setBrush(QBrush(background))
-        self.counterBox.setBrush(QBrush(background))
+        self.threatBox.setBrush(QBrush(QColor(background)))
+        self.counterBox.setBrush(QBrush(QColor(background)))
 
-        self.threatBox.setPen(QPen(border, 2))
-        self.counterBox.setPen(QPen(border, 2))
+        self.threatBox.setPen(QPen(QColor(border), 2))
+        self.counterBox.setPen(QPen(QColor(border), 2))
 
         self.footerGroup = QGraphicsItemGroup()
 
@@ -443,7 +444,7 @@ class Threat(Node):
         """
         Redraws the node with the colors set in the options menu
         """
-        super().redrawOptions(self.parent.threatBackground, self.parent.threatBorder, self.parent.threatFont)
+        super().redrawOptions(Configuration.colors['threat']['node']['background'], Configuration.colors['threat']['node']['border'], Configuration.colors['threat']['node']['font'])
 
 
 class Countermeasure(Node):
@@ -461,13 +462,13 @@ class Countermeasure(Node):
         @param x: x-position of the node
         @param y: y-position of the node
         """
-        super().__init__(node, parent, parent.countermeasureBackground, parent.countermeasureBorder, parent.countermeasureFont, x, y, 63)
+        super().__init__(node, parent, Configuration.colors['countermeasure']['node']['background'], Configuration.colors['countermeasure']['node']['border'], Configuration.colors['countermeasure']['node']['font'], x, y, 63)
 
     def redraw(self):
         """
         Redraws the node with the colors set in the options menu
         """
-        super().redrawOptions(self.parent.countermeasureBackground, self.parent.countermeasureBorder, self.parent.countermeasureFont)
+        super().redrawOptions(Configuration.colors['countermeasure']['node']['background'], Configuration.colors['countermeasure']['node']['border'], Configuration.colors['countermeasure']['node']['font'])
 
 
 class Conjunction(Node):
@@ -485,20 +486,43 @@ class Conjunction(Node):
         @param x: x-position of the node
         @param y: y-position of the node
         """
-        super().__init__(node, parent, parent.countermeasureBackground, parent.countermeasureBorder, parent.countermeasureFont, x, y, 60)  # @TODO: fix colors
+        if len(node.children) > 0:
+            if parent.tree.getTypeRecursiveDown(parent.tree.nodeList[node.children[0]]) is types.Countermeasure:
+                parentType = 'countermeasure'
+            elif parent.tree.getTypeRecursiveDown(parent.tree.nodeList[node.children[0]]) is types.Threat:
+                parentType = 'threat'
+            else:
+                parentType = 'default'
+        else:
+            parentType = 'default'
+        super().__init__(node, parent, Configuration.colors[parentType][node.conjunctionType]['background'], Configuration.colors[parentType][node.conjunctionType]['border'], Configuration.colors[parentType][node.conjunctionType]['font'], x, y, 60)  # @TODO: fix colors
         self.conjunctionRect = ConjunctionRect()
-        self.conjunctionRect.setPen(QPen(parent.countermeasureBorder, 2))
+        self.conjunctionRect.setPen(QPen(QColor(Configuration.colors[parentType][node.conjunctionType]['border']), 2))
+        self.conjunctionRect.setBrush(QBrush(QColor(Configuration.colors[parentType][node.conjunctionType]['background'])))
         self.conjunctionRect.setRect(self.x() - 20, self.y() + 1, 240, self.headerHeight - 2)
+        self.conjunctionRect.setZValue(-1)
         self.addToGroup(self.conjunctionRect)
 
     def redraw(self):
         """
         Redraws the node with the colors set in the options menu
         """
-        super().redrawOptions(self.parent.countermeasureBackground, self.parent.countermeasureBorder, self.parent.countermeasureFont)
-        self.conjunctionRect.setPen(QPen(self.parent.countermeasureBorder, 2))
+        if len(self.node.children) > 0:
+            if self.parent.tree.getTypeRecursiveDown(self.parent.tree.nodeList[self.node.children[0]]) is types.Countermeasure:
+                parentType = 'countermeasure'
+            elif self.parent.tree.getTypeRecursiveDown(self.parent.tree.nodeList[self.node.children[0]]) is types.Threat:
+                parentType = 'threat'
+            else:
+                parentType = 'default'
+        else:
+            parentType = 'default'
         self.removeFromGroup(self.conjunctionRect)
+        self.parent.scene.removeItem(self.conjunctionRect)
+        super().redrawOptions(Configuration.colors[parentType][self.node.conjunctionType]['background'], Configuration.colors[parentType][self.node.conjunctionType]['border'], Configuration.colors[parentType][self.node.conjunctionType]['font'])
+        self.conjunctionRect.setPen(QPen(QColor(Configuration.colors[parentType][self.node.conjunctionType]['border']), 2))
+        self.conjunctionRect.setBrush(QBrush(QColor(Configuration.colors[parentType][self.node.conjunctionType]['background'])))
         self.conjunctionRect.setRect(self.x() - 20, self.y() + 1, 240, self.headerHeight - 2)
+        self.conjunctionRect.setZValue(-1)
         self.addToGroup(self.conjunctionRect)
 
     def paint(self, painter, options, widget=None):
@@ -536,6 +560,7 @@ class ConjunctionRect(QGraphicsRectItem):
         painter.setRenderHint(QPainter.SmoothPixmapTransform)
 
         painter.setPen(self.pen())
+        painter.setBrush(self.brush())
 
         painter.drawRoundedRect(self.boundingRect(), 20, 20)
 

@@ -1,6 +1,5 @@
 import copy
 import functools
-import sys
 import traceback
 
 import os
@@ -9,9 +8,10 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 from PyQt5.QtWidgets import QMainWindow, QAction, QToolBox, QFileDialog, QMessageBox, QDialog, QGraphicsView
-from PyQt5.QtGui import QIcon, QImage, QPainter
+from PyQt5.QtGui import QIcon, QImage, QPainter, QFontDatabase, QFont, QPageSize
 
 from data.exceptions import ParserError, XMLXSDError
+from gui.helper import Configuration
 from .items import Node, Threat, Countermeasure, Conjunction, AttackTreeScene
 from .windows import MessageBox, MetaEdit, Options
 
@@ -128,6 +128,11 @@ class Main(QMainWindow):
 
         }
 
+        QFontDatabase.addApplicationFont(os.path.join(includePath, 'assets/fonts/RobotoMono-Regular.ttf'))
+        if Configuration.font is None:
+            Configuration.font = QFont('Roboto Mono', 12)
+        Configuration.loadConfigFile()
+
         self.setObjectName("MainWindow")
 
         self.resize(814, 581)
@@ -214,7 +219,7 @@ class Main(QMainWindow):
 
         self.show()
 
-    def printGraph(self, fixedPositions=False):
+    def printGraph(self, fixedPositions=False, doReorderTree=True):
         """
         Prints the attack tree onto the graphics view
         after the full graph was printed it will be reordered to have a nice graph
@@ -226,24 +231,19 @@ class Main(QMainWindow):
 
         if self.tree.root is not None:
             g = self.printGraphRecursion(self.tree.nodeList[self.tree.root], 0, 10, fixedPositions=fixedPositions)
-            i = 0
-
-            while fixedPositions is False and self.reorderTree(g) is not True and i < 100:
-                i += 1
 
         for k, n in self.tree.nodeList.items():
             if n.visited is False and len(n.parents) == 0:
                 g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50, fixedPositions=fixedPositions)
-                i = 0
-                while fixedPositions is False and self.reorderTree(g) is not True and i < 100:
-                    i += 1
 
         for k, n in self.tree.nodeList.items():
             if n.visited is False:
                 g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50, fixedPositions=fixedPositions)
-                i = 0
-                while fixedPositions is False and self.reorderTree(g) is not True and i < 100:
-                    i += 1
+
+        if doReorderTree is True:
+            i = 0
+            while fixedPositions is False and self.reorderTree(g) is not True and i < 20:
+                i += 1
 
         for k, n in self.tree.nodeList.items():
             n.view = None
@@ -457,8 +457,9 @@ class Main(QMainWindow):
             print(traceback.format_exc())
             return
         try:
+            self.file = fileName
             self.scene.clear()
-            self.printGraph()
+            self.printGraph(doReorderTree=False)
         except Exception:
             print(traceback.format_exc())
 
@@ -543,6 +544,7 @@ class Main(QMainWindow):
             self.scene.render(painter)
             self.scene.setSceneRect(QRectF())
             image.save(fileName[0])
+            painter.end()
             return True
         return False
 
@@ -561,6 +563,7 @@ class Main(QMainWindow):
             try:
                 printer = QPrinter(QPrinter.HighResolution)
                 printer.setOutputFormat(QPrinter.PdfFormat)
+                printer.setPageSize(QPageSize(self.scene.itemsBoundingRect().size(), QPageSize.Point))
                 printer.setOutputFileName(fileName[0])
 
                 p = QPainter()
@@ -568,13 +571,12 @@ class Main(QMainWindow):
                 if p.begin(printer) is False:
                     raise Exception('Error starting painter')
 
-                self.scene.setSceneRect(self.scene.itemsBoundingRect())
+                self.scene.setSceneRect(QRectF())
 
                 self.scene.render(p)
                 p.end()
-                self.scene.setSceneRect(QRectF())
             except Exception as e:
-                MessageBox('Error while saving to pdf', e)
+                MessageBox('Error while saving to pdf', str(e))
                 return False
             return True
         return False
@@ -762,7 +764,7 @@ class Main(QMainWindow):
         Opens the options dialog
         """
         options = Options(self)
-        options.exec()
+        options.show()
 
     def undo(self):
         """

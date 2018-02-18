@@ -1,3 +1,6 @@
+import copy
+
+
 class Node:
     """
     Parent class for all nodes
@@ -233,7 +236,7 @@ class Tree:
         if not isinstance(source, Conjunction) and len(source.children) > 0 and self.getTypeRecursiveDown(source) is Countermeasure and isinstance(destination, Conjunction):
             return False
 
-        if self.getTypeRecursiveUp(source) is not Conjunction:
+        if self.getTypeRecursiveUp(source) is not Conjunction and self.getTypeRecursiveDown(destination) is Conjunction:
             for c in self.getFirstElementRecursiveUp(source).children:
                 if not isinstance(self.getTypeRecursiveDown(destination), Conjunction) and self.getTypeRecursiveDown(self.nodeList[c]) is self.getTypeRecursiveDown(destination):
                     return False
@@ -349,9 +352,11 @@ class Tree:
         @return: True if it was successful else false
         """
         if nodeId in self.nodeList:
-            for i in self.nodeList[nodeId].parents:
+            parents = copy.copy(self.nodeList[nodeId].parents)
+            for i in parents:
                 self.removeEdge(i + '-' + nodeId)
-            for i in self.nodeList[nodeId].children:
+            children = copy.copy(self.nodeList[nodeId].children)
+            for i in children:
                 self.removeEdge(nodeId + '-' + i)
             del self.nodeList[nodeId]
             return True
@@ -369,6 +374,7 @@ class Tree:
         for e in self.edgeList:
             if edgeId == e.__hash__():
                 edge = e
+                break
         if edge is not None:
             self.nodeList[edge.source].children.remove(edge.destination)
             self.nodeList[edge.destination].parents.remove(edge.source)
