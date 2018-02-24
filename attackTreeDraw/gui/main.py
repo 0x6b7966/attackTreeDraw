@@ -224,6 +224,7 @@ class Main(QMainWindow):
         Prints the attack tree onto the graphics view
         after the full graph was printed it will be reordered to have a nice graph
         @param fixedPositions: prints the node at a fixed position
+        @param doReorderTree:
         """
         for k, n in self.tree.nodeList.items():
             n.initDFS()
@@ -231,19 +232,26 @@ class Main(QMainWindow):
 
         if self.tree.root is not None:
             g = self.printGraphRecursion(self.tree.nodeList[self.tree.root], 0, 10, fixedPositions=fixedPositions)
+            if doReorderTree is True:
+                i = 0
+                while fixedPositions is False and self.reorderTree(g) is not True and i < 20:
+                    i += 1
 
         for k, n in self.tree.nodeList.items():
             if n.visited is False and len(n.parents) == 0:
                 g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50, fixedPositions=fixedPositions)
+                if doReorderTree is True:
+                    i = 0
+                    while fixedPositions is False and self.reorderTree(g) is not True and i < 20:
+                        i += 1
 
         for k, n in self.tree.nodeList.items():
             if n.visited is False:
                 g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50, fixedPositions=fixedPositions)
-
-        if doReorderTree is True:
-            i = 0
-            while fixedPositions is False and self.reorderTree(g) is not True and i < 20:
-                i += 1
+                if doReorderTree is True:
+                    i = 0
+                    while fixedPositions is False and self.reorderTree(g) is not True and i < 20:
+                        i += 1
 
         for k, n in self.tree.nodeList.items():
             n.view = None

@@ -89,7 +89,8 @@ class Node(QGraphicsItemGroup):
 
     def addEdge(self, dst):
         if isinstance(self, Threat) and dst.getTypeRecursiveDown() is Threat:
-            self.childEdges.append(Edge(self, dst, -50))
+            edge = Edge(self, dst, -50)
+            self.childEdges.append(edge)
         elif isinstance(self, Threat) and dst.getTypeRecursiveDown() is Countermeasure:
             self.childEdges.append(Edge(self, dst, 50))
         else:
@@ -519,6 +520,7 @@ class Conjunction(Node):
         self.removeFromGroup(self.conjunctionRect)
         self.parent.scene.removeItem(self.conjunctionRect)
         super().redrawOptions(Configuration.colors[parentType][self.node.conjunctionType]['background'], Configuration.colors[parentType][self.node.conjunctionType]['border'], Configuration.colors[parentType][self.node.conjunctionType]['font'])
+        self.conjunctionRect = ConjunctionRect()
         self.conjunctionRect.setPen(QPen(QColor(Configuration.colors[parentType][self.node.conjunctionType]['border']), 2))
         self.conjunctionRect.setBrush(QBrush(QColor(Configuration.colors[parentType][self.node.conjunctionType]['background'])))
         self.conjunctionRect.setRect(self.x() - 20, self.y() + 1, 240, self.headerHeight - 2)
@@ -945,14 +947,10 @@ class AttackTreeScene(QGraphicsScene):
 
                     if self.parent().tree.addEdge(self.startCollisions.node.id, self.dstCollisions.node.id) is True:
                         self.startCollisions.addEdge(self.dstCollisions)
-                        self.update(self.startCollisions.childEdges[-1].boundingRect())
-
+                        self.update()
                         if isinstance(self.startCollisions, Conjunction):
                             self.startCollisions.fixParentEdgeRec()
-
-
-
-
+                            self.startCollisions.redraw()
                         self.parent().graphicsView.update()
                         self.reset()
                         self.parent().saved = False
