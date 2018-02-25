@@ -23,11 +23,11 @@ class Handler:
         includePath = os.path.dirname(os.path.abspath(__file__))
 
         try:
-            self.simpleXSD = etree.XMLSchema(etree.parse(os.path.join(includePath, '../../doc/xml/attackTreeSimple.xsd')))  # @TODO: change path
+            self.simpleXSD = etree.XMLSchema(etree.parse(os.path.join(includePath, 'assets/attackTreeSimple.xsd')))
         except OSError:
             raise XMLXSDError('Can\'t load attackTreeSimple.xsd, check installation')
         try:
-            self.extendedXSD = etree.XMLSchema(etree.parse(os.path.join(includePath, '../../doc/xml/attackTreeExtended.xsd')))  # @TODO: change path
+            self.extendedXSD = etree.XMLSchema(etree.parse(os.path.join(includePath, 'assets/attackTreeExtended.xsd')))
         except OSError:
             raise XMLXSDError('Can\'t load attackTreeExtended.xsd, check installation')
 

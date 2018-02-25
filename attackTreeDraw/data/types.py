@@ -13,7 +13,7 @@ class Node:
         """
         self.type = 'Node'
 
-        self.isRoot = False  # @TODO: check if there is only one root / move to Tree()
+        self.isRoot = False
         self.id = None  # @TODO: move ID to constructor
         self.title = ''
         self.description = ''
@@ -50,8 +50,18 @@ class Countermeasure(Node):
 
 
 class Conjunction(Node):
+    """
+    Class for conjunction nodes
+    """
 
     def __init__(self, id=None, conjunctionType=None):
+        """
+        Constructor for conjunctions.
+        sets the conjunction type and the id, calls Node.__init__()
+
+        @param id: ID of the node
+        @param conjunctionType: Type for this conjunction
+        """
         super().__init__()
 
         self.id = id
@@ -101,9 +111,10 @@ class Tree:
         self.extended = False
         self.falseNodes = []
         self.cycleNode = None
-        # @TODO: check if there is only one root / move to Tree()
         self.root = None
         self.meta = {'title': '', 'author': '', 'date': '', 'description': '', 'root': ''}
+
+        self.lastError = ''
 
     def getTypeRecursiveDown(self, node):
         """
@@ -191,20 +202,21 @@ class Tree:
         if node.id is None:
             node.id = self.getNextID()
             if node.id is None:
-                return False  # @TODO: Return error code?
+                self.lastError = 'No free node IDs left'
+                return False
         if node.id in self.nodeList:
+            self.lastError = 'Node ID already in tree'
             return False
         self.nodeList[node.id] = node
         return True
 
-    def addEdge(self, sourceId, destinationId, conjunction=None):  # @TODO: remove conjunction
+    def addEdge(self, sourceId, destinationId):
         """
         Adds a edge to the tree
         If conjunction is none, the conjunction from the other edges from source will be taken
 
         @param sourceId: Id of the source node
         @param destinationId: Id of the destination node
-        @param conjunction: Conjunction for the edge
         @return: True if add was successful else false
         """
         if sourceId not in self.nodeList:
@@ -218,7 +230,6 @@ class Tree:
         edge = Edge(sourceId, destinationId)
         for c in self.edgeList:
             if edge.__hash__() == c.__hash__():
-                # raise ValueError('Edge %s to %s already exists' % edge.source, edge.destination) @TODO: Exception needed?
                 return False
 
         if self.getTypeRecursiveUp(source) is Countermeasure and self.getTypeRecursiveDown(destination) is Threat:
@@ -238,11 +249,11 @@ class Tree:
 
         if self.getTypeRecursiveUp(source) is not Conjunction and self.getTypeRecursiveDown(destination) is Conjunction:
             for c in self.getFirstElementRecursiveUp(source).children:
-                if not isinstance(self.getTypeRecursiveDown(destination), Conjunction) and self.getTypeRecursiveDown(self.nodeList[c]) is self.getTypeRecursiveDown(destination):
+                if self.getTypeRecursiveDown(destination) is not Conjunction and self.getTypeRecursiveDown(self.nodeList[c]) is self.getTypeRecursiveDown(destination):
                     return False
 
         self.edgeList.append(edge)
-        self.nodeList[edge.source].children.append(edge.destination)  # @TODO: Edge to id?
+        self.nodeList[edge.source].children.append(edge.destination)
         self.nodeList[edge.destination].parents.append(edge.source)
 
         return True
@@ -276,7 +287,6 @@ class Tree:
 
         @return: True if tree is extended else false
         """
-        # @TODO check if edge has no parent (except root)
         test = []
         for edge in self.edgeList:
             if edge.destination not in test:
@@ -284,10 +294,14 @@ class Tree:
             else:
                 self.extended = True
                 return True
-        # for id, node in self.nodeList.items():  # @TODO Move to own function. Checks if all conjunction have children
-        #    if isinstance(node, Conjunction) and len(node.children) == 0:
-        #        self.extended = True
-        #        return True
+        for node in self.nodeList.values():
+            if isinstance(node, Conjunction) and len(node.children) == 0:
+                self.extended = True
+                return True
+        for node in self.nodeList.values():
+            if node.root is False and len(node.parents) == 0:
+                self.extended = True
+                return True
         for k, n in self.nodeList.items():
             n.initDFS()
         self.dfs(self.nodeList[self.root])

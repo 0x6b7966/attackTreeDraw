@@ -1,5 +1,3 @@
-from PyQt5.QtCore import Qt
-
 from .exceptions import ParserError
 from .types import *
 from fileHandler.xml import Handler as XmlHandler
@@ -160,11 +158,11 @@ class Parsers:
         for subTreeNode in node.iterchildren():
             if subTreeNode.tag == 'alternative' or subTreeNode.tag == 'composition' or subTreeNode.tag == 'sequence' or subTreeNode.tag == 'threshold':
                 conjunction = Parsers.parseSimpleConjunction(tree, subTreeNode, n.id)
-                tree.addEdge(n.id, conjunction.id, conjunction.conjunctionType)
+                tree.addEdge(n.id, conjunction.id)
             else:
                 subN = Parsers.parseSimpleNode(tree, subTreeNode, n.id)
-                if not tree.addEdge(n.id, subN.id, 'singleNode'):
-                    raise ParserError('Cant\'t add Edge %s to %s with %s' % (n.id, subN.id, 'singleNode'))
+                if not tree.addEdge(n.id, subN.id):
+                    raise ParserError('Cant\'t add Edge %s to %s' % (n.id, subN.id))
 
         if check is False:
             raise ParserError('Can\'t add node %s. NodeID exists' % n.id)
@@ -194,42 +192,24 @@ class Parsers:
             for subTreeNode in node.find('subtree'):
                 if subTreeNode.tag == 'alternative' or subTreeNode.tag == 'composition' or subTreeNode.tag == 'sequence' or subTreeNode.tag == 'threshold':
                     conjunction = Parsers.parseSimpleConjunction(tree, subTreeNode, n.id)
-                    tree.addEdge(n.id, conjunction.id, conjunction.conjunctionType)
+                    tree.addEdge(n.id, conjunction.id)
                 else:
                     subN = Parsers.parseSimpleNode(tree, subTreeNode, n.id)
-                    if not tree.addEdge(n.id, subN.id, 'singleNode'):
+                    if not tree.addEdge(n.id, subN.id):
                         raise ParserError('Cant\'t add Edge %s to %s with %s' % (n.id, subN.id, 'singleNode'))
 
         if node.find('countermeasures') is not None:
             for subTreeNode in node.find('countermeasures'):
                 if subTreeNode.tag == 'alternative' or subTreeNode.tag == 'composition' or subTreeNode.tag == 'sequence' or subTreeNode.tag == 'threshold':
                     conjunction = Parsers.parseSimpleConjunction(tree, subTreeNode, n.id)
-                    tree.addEdge(n.id, conjunction.id, conjunction.conjunctionType)
+                    tree.addEdge(n.id, conjunction.id)
                 else:
                     subN = Parsers.parseSimpleNode(tree, subTreeNode, n.id)
-                    if not tree.addEdge(n.id, subN.id, 'singleNode'):
-                        raise ParserError('Cant\'t add Edge %s to %s with %s' % (n.id, subN.id, 'singleNode'))
+                    if not tree.addEdge(n.id, subN.id):
+                        raise ParserError('Cant\'t add Edge %s to %s' % (n.id, subN.id))
 
         if check is False:
             raise ParserError('Can\'t add node %s. NodeID exists' % n.id)
         if n is None:
             raise ParserError('Can\'t add node %s.' % n.id)
         return n
-
-
-class ConfigHandler:
-    # @TODO: Remove or implement
-    threatBackgroundColor = Qt.white
-    threatTextColor = Qt.black
-    threatBorderColor = Qt.black
-    countermeasureBackgroundColor = Qt.white
-    countermeasureTextColor = Qt.black
-    countermeasureBorderColor = Qt.black
-
-    @staticmethod
-    def loadConfig():
-        pass
-
-    @staticmethod
-    def saveConfig():
-        pass

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Simple element declarations -->
+    <xs:element name="title" type="xs:string"/>
+    <xs:element name="author" type="xs:string"/>
+    <xs:element name="date" type="xs:date"/>
+    <xs:element name="description" type="xs:string"/>
+    <xs:element name="name" type="xs:string"/>
+    <xs:element name="root" type="xs:IDREF"/>
+
+    <!-- Simple attribute declarations -->
+    <xs:element name="attribute">
+        <xs:complexType>
+            <xs:simpleContent>
+                <xs:extension base="xs:string">
+                    <xs:attribute name="key" type="xs:string"/>
+                </xs:extension>
+            </xs:simpleContent>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:attribute name="type">
+        <xs:simpleType>
+            <xs:restriction base="xs:string">
+                <xs:pattern value="alternative|composition|sequence|threshold"/>
+            </xs:restriction>
+        </xs:simpleType>
+    </xs:attribute>
+
+    <xs:element name="attackTree">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="meta">
+                    <xs:complexType>
+                        <xs:all>
+                            <xs:element ref="title"/>
+                            <xs:element ref="author"/>
+                            <xs:element ref="date" minOccurs="0"/>
+                            <xs:element ref="description" minOccurs="0"/>
+                            <xs:element ref="root" minOccurs="0"/>
+                        </xs:all>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="threats">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="threat" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="title"/>
+                                        <xs:element ref="description"/>
+                                        <xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                    <xs:attribute name="id" use="required">
+                                        <xs:simpleType>
+                                            <xs:restriction base="xs:ID">
+                                                <xs:pattern value="N[0-9]{4}"/>
+                                            </xs:restriction>
+                                        </xs:simpleType>
+                                    </xs:attribute>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="countermeasures">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="countermeasure" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:sequence>
+                                        <xs:element ref="title"/>
+                                        <xs:element ref="description"/>
+                                        <xs:element ref="attribute" minOccurs="0" maxOccurs="unbounded"/>
+                                    </xs:sequence>
+                                    <xs:attribute name="id" use="required">
+                                        <xs:simpleType>
+                                            <xs:restriction base="xs:ID">
+                                                <xs:pattern value="N[0-9]{4}"/>
+                                            </xs:restriction>
+                                        </xs:simpleType>
+                                    </xs:attribute>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="conjunctions">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="conjunction" maxOccurs="unbounded">
+                                <xs:complexType>
+                                   <xs:attribute name="id" use="required">
+                                        <xs:simpleType>
+                                            <xs:restriction base="xs:ID">
+                                                <xs:pattern value="N[0-9]{4}"/>
+                                            </xs:restriction>
+                                        </xs:simpleType>
+                                    </xs:attribute>
+                                    <xs:attribute ref="type" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="connections">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="connection" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="source" type="xs:IDREF" use="required"/>
+                                    <xs:attribute name="destination" type="xs:IDREF" use="required"/>
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>
