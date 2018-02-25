@@ -206,7 +206,7 @@ class MetaEdit(QDialog):
 
     def __init__(self, parent):
         """
-        Constructor for the node edit UI
+        Constructor for the meta edit UI
 
         @param parent: Parent widget
         """
@@ -255,7 +255,7 @@ class MetaEdit(QDialog):
         self.rootLabel = QtWidgets.QLabel(self)
         self.rootLabel.setMaximumSize(QtCore.QSize(80, 16777215))
         self.rootLayout.addWidget(self.rootLabel)
-        self.rootSelect = QtWidgets.QComboBox(self)
+        self.rootSelect = QtWidgets.QconjunctionChoose(self)
         self.rootLayout.addWidget(self.rootSelect)
         self.verticalLayout.addLayout(self.rootLayout)
 
@@ -328,7 +328,7 @@ class Options(QWidget):
 
     def __init__(self, parent):
         """
-        Constructor for the node edit UI
+        Constructor for the options UI
 
         @param parent: Parent widget
         """
@@ -452,7 +452,6 @@ class Options(QWidget):
 
         self.mainLayout.addWidget(self.tabWidget)
 
-
         self.buttonLayout = QtWidgets.QHBoxLayout()
         self.ok = QtWidgets.QPushButton(self)
         self.buttonLayout.addWidget(self.ok)
@@ -518,7 +517,7 @@ class ColorPicker(QDialog):
 
     def __init__(self, parent, parentType, childType):
         """
-        Constructor for the node edit UI
+        Constructor for the color picker UI
 
         @param parent: Parent widget
         """
@@ -644,3 +643,66 @@ class ColorLabel(QLabel):
         palette.setColor(self.backgroundRole(), QColor(self.color))
         self.setAutoFillBackground(True)
         self.setPalette(palette)
+        
+
+class ConjunctionEdit(QDialog):
+
+    def __init__(self, node, parent):
+        """
+        Constructor for the conjunction edit UI
+
+        @param parent: Parent widget
+        """
+        QWidget.__init__(self)
+        self.parentWidget = parent
+        self.nodeItem = node
+        self.setupUi()
+
+    def setupUi(self):
+        self.resize(284, 105)
+        self.mainLayout = QtWidgets.QVBoxLayout(self)
+        self.chooseLayout = QtWidgets.QHBoxLayout()
+        self.label = QtWidgets.QLabel(self)
+        self.chooseLayout.addWidget(self.label)
+        self.conjunctionChoose = QtWidgets.QComboBox(self)
+        self.conjunctionChoose.addItem('alternative')
+        self.conjunctionChoose.addItem('composition')
+        self.conjunctionChoose.addItem('sequence')
+        self.conjunctionChoose.addItem('threshold')
+        self.chooseLayout.addWidget(self.conjunctionChoose)
+        self.mainLayout.addLayout(self.chooseLayout)
+
+        self.buttonLayout = QtWidgets.QHBoxLayout()
+        self.ok = QtWidgets.QPushButton(self)
+        self.buttonLayout.addWidget(self.ok)
+        self.ok.setDefault(True)
+        self.cancel = QtWidgets.QPushButton(self)
+        self.buttonLayout.addWidget(self.cancel)
+        self.mainLayout.addLayout(self.buttonLayout)
+
+        self.cancel.setText("Cancel")
+        self.ok.setText("Ok")
+
+        self.cancel.clicked.connect(self.close)
+        self.ok.clicked.connect(self.submit)
+
+        self.setWindowTitle("Edit Node " + self.nodeItem.node.id)
+        self.label.setText("Conjunction type:")
+
+        index = self.conjunctionChoose.findText(self.nodeItem.node.conjunctionType)
+        if index != -1:
+            self.conjunctionChoose.setCurrentIndex(index)
+
+    def submit(self):
+        """
+        Changes the type of the conjunction on submit
+        """
+
+        self.nodeItem.node.conjunctionType = self.nodeItem.node.title = self.conjunctionChoose.currentText()
+
+        self.nodeItem.redraw()
+
+        viewport = self.parentWidget.graphicsView.viewport()
+        viewport.update()
+
+        self.close()

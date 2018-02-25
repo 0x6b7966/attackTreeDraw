@@ -7,7 +7,7 @@ from PyQt5.QtCore import Qt, QRectF, QSizeF, QLineF, QPointF, QRect, QPoint
 from PyQt5.QtGui import QBrush, QFont, QPen, QPolygonF, QTransform, QPainter, QColor
 from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QGraphicsScene, QMenu, QGraphicsView, QMessageBox
 
-from .windows import NodeEdit, MessageBox
+from .windows import NodeEdit, MessageBox, ConjunctionEdit
 
 from data import types
 from .helper import Configuration
@@ -586,7 +586,7 @@ class Conjunction(Node):
         """
         Opens the edit dialog for conjunction to change the conjunction type
         """
-        NodeEdit(self, self.parent).exec()  # @TODO: Change dialof
+        ConjunctionEdit(self, self.parent).exec()  # @TODO: Change dialof
 
 
 class ConjunctionRect(QGraphicsRectItem):
