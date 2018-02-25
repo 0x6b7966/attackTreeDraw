@@ -186,6 +186,8 @@ class NodeEdit(QDialog):
 
             newEntires[self.model.item(i, 0).text()] = self.model.item(i, 1).text()
 
+        self.parentWidget.addLastAction()
+
         self.nodeItem.node.attributes = newEntires.copy()
         self.nodeItem.node.title = self.titleEdit.text().replace('\n', ' ').replace('\r', '')
         self.nodeItem.node.description = self.descriptionEdit.toPlainText()
@@ -660,6 +662,10 @@ class ConjunctionEdit(QDialog):
 
     def setupUi(self):
         self.resize(284, 105)
+        includePath = os.path.dirname(os.path.abspath(__file__))
+        self.setWindowIcon(QIcon(os.path.join(includePath, 'assets/icons/logo.png')))
+        self.setWindowTitle("Edit Node " + self.nodeItem.node.id)
+
         self.mainLayout = QtWidgets.QVBoxLayout(self)
         self.chooseLayout = QtWidgets.QHBoxLayout()
         self.label = QtWidgets.QLabel(self)
@@ -686,7 +692,6 @@ class ConjunctionEdit(QDialog):
         self.cancel.clicked.connect(self.close)
         self.ok.clicked.connect(self.submit)
 
-        self.setWindowTitle("Edit Node " + self.nodeItem.node.id)
         self.label.setText("Conjunction type:")
 
         index = self.conjunctionChoose.findText(self.nodeItem.node.conjunctionType)
@@ -697,6 +702,7 @@ class ConjunctionEdit(QDialog):
         """
         Changes the type of the conjunction on submit
         """
+        self.parentWidget.addLastAction()
 
         self.nodeItem.node.conjunctionType = self.nodeItem.node.title = self.conjunctionChoose.currentText()
 
