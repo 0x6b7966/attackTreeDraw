@@ -2,7 +2,7 @@ import functools
 import math
 import traceback
 
-from PyQt5.QtCore import Qt, QRectF, QSizeF, QLineF, QPointF, QRect
+from PyQt5.QtCore import Qt, QRectF, QSizeF, QLineF, QPointF, QRect, QPoint
 
 from PyQt5.QtGui import QBrush, QFont, QPen, QPolygonF, QTransform, QPainter, QColor
 from PyQt5.QtWidgets import QGraphicsItemGroup, QGraphicsItem, QGraphicsTextItem, QGraphicsRectItem, QGraphicsLineItem, QStyleOptionGraphicsItem, QStyle, QGraphicsScene, QMenu, QGraphicsView, QMessageBox
@@ -66,6 +66,11 @@ class Node(QGraphicsItemGroup):
         self.setPos(x, y)
 
     def getTypeRecursiveDown(self):
+        """
+        Searches the children of a node to get a node with type != Conjunction
+        If there is no other node with type != Conjunction, Conjunction will be returned
+        @return: type of first child node with type != Conjunction or Conjunction
+        """
         if isinstance(self, Conjunction):
             for c in self.childEdges:
                 if isinstance(c.dst, Conjunction):
@@ -77,6 +82,11 @@ class Node(QGraphicsItemGroup):
             return type(self)
 
     def getTypeRecursiveUp(self):
+        """
+        Searches the parents of a node to get a node with type != Conjunction
+        If there is no other node with type != Conjunction, Conjunction will be returned
+        @return: type of first parent node with type != Conjunction or Conjunction
+        """
         if isinstance(self, Conjunction):
             for c in self.childEdges:
                 if isinstance(c.dst, Conjunction):
@@ -88,17 +98,24 @@ class Node(QGraphicsItemGroup):
             return type(self)
 
     def addEdge(self, dst):
+        """
+        Adds an child edge to this node an places the start of the arrow in the right place
+        @param dst: destination node for the edge
+        """
         if isinstance(self, Threat) and dst.getTypeRecursiveDown() is Threat:
             edge = Edge(self, dst, -50)
-            self.childEdges.append(edge)
         elif isinstance(self, Threat) and dst.getTypeRecursiveDown() is Countermeasure:
-            self.childEdges.append(Edge(self, dst, 50))
+            edge = Edge(self, dst, 50)
         else:
-            self.childEdges.append(Edge(self, dst, 0))
+            edge = Edge(self, dst, 0)
+        self.parent.scene.addItem(edge)
+        self.childEdges.append(edge)
         dst.parentEdges.append(self.childEdges[-1])
-        self.parent.scene.addItem(self.childEdges[-1])
 
     def actualizeEdges(self):
+        """
+        Actualizes all child edges of this node so they start at the right position
+        """
         for e in self.childEdges:
             if isinstance(self, Threat) and e.dst.getTypeRecursiveDown() is Threat:
                 e.offset = -50
@@ -108,6 +125,9 @@ class Node(QGraphicsItemGroup):
                 e.offset = 0
 
     def fixParentEdgeRec(self):
+        """
+        Fixes all starts of the parent edges so they start at the right position
+        """
         for p in self.parentEdges:
             if isinstance(p.start, Conjunction):
                 p.start.fixParentEdgeRec()
@@ -115,6 +135,10 @@ class Node(QGraphicsItemGroup):
                 p.start.actualizeEdges()
 
     def getLeftRightChildren(self):
+        """
+        Splits the children in to arrays with the same size
+        @return: Tuple (left, right) with child elements split in to arrays
+        """
         left = []
         right = []
         neutralLeft = False
@@ -289,9 +313,6 @@ class Node(QGraphicsItemGroup):
         self.parent.scene.removeItem(self)
         self.parent.scene.addItem(self)
 
-        self.update()
-        self.parent.graphicsView.update()
-
         self.setPos(x, y)
 
     def redraw(self):
@@ -312,6 +333,12 @@ class Node(QGraphicsItemGroup):
         pass
 
     def setPos(self, x, y):
+        """
+        Overloads setPos to set the position of the visible node in the data node
+
+        @param x: X part of the position
+        @param y: Y part of the position
+        """
         self.node.position = (x, y)
         super().setPos(x, y)
 
@@ -335,12 +362,18 @@ class Node(QGraphicsItemGroup):
             painter.drawRect(rect)
 
     def selectChildren(self):
+        """
+        Select all children
+        """
         self.setSelected(True)
         for i in self.childEdges:
             i.setSelected(True)
             i.dst.selectChildren()
 
     def delete(self):
+        """
+        Deletes this node
+        """
         for e in self.parentEdges:
             self.parent.scene.removeItem(e)
         for e in self.childEdges:
@@ -349,6 +382,9 @@ class Node(QGraphicsItemGroup):
         self.parent.scene.removeItem(self)
 
     def edit(self):
+        """
+        Opens the edit dialog
+        """
         NodeEdit(self, self.parent).exec()
 
     def mouseDoubleClickEvent(self, event):
@@ -496,7 +532,7 @@ class Conjunction(Node):
                 parentType = 'default'
         else:
             parentType = 'default'
-        super().__init__(node, parent, Configuration.colors[parentType][node.conjunctionType]['background'], Configuration.colors[parentType][node.conjunctionType]['border'], Configuration.colors[parentType][node.conjunctionType]['font'], x, y, 60)  # @TODO: fix colors
+        super().__init__(node, parent, Configuration.colors[parentType][node.conjunctionType]['background'], Configuration.colors[parentType][node.conjunctionType]['border'], Configuration.colors[parentType][node.conjunctionType]['font'], x, y, 60)
         self.conjunctionRect = ConjunctionRect()
         self.conjunctionRect.setPen(QPen(QColor(Configuration.colors[parentType][node.conjunctionType]['border']), 2))
         self.conjunctionRect.setBrush(QBrush(QColor(Configuration.colors[parentType][node.conjunctionType]['background'])))
@@ -545,6 +581,12 @@ class Conjunction(Node):
             painter.drawRect(rect)
 
         super().paint(painter, myOption, widget=None)
+
+    def edit(self):
+        """
+        Opens the edit dialog for conjunction to change the conjunction type
+        """
+        NodeEdit(self, self.parent).exec()  # @TODO: Change dialof
 
 
 class ConjunctionRect(QGraphicsRectItem):
@@ -596,6 +638,8 @@ class Edge(QGraphicsLineItem):
 
         self.setPen(QPen(color, 2, Qt.SolidLine, Qt.RoundCap, Qt.RoundJoin))
 
+        self.updatePosition()
+
     def boundingRect(self):
         """
         New calculation of the bounding rect, because the arrow is not only a line
@@ -603,7 +647,6 @@ class Edge(QGraphicsLineItem):
         @return: new bounding rectangle
         """
         extra = (self.pen().width() + 20) / 2.0
-
         return QRectF(self.line().p1(), QSizeF(self.line().p2().x() - self.line().p1().x(), self.line().p2().y() - self.line().p1().y())).normalized().adjusted(-extra, -extra, extra, extra)
 
     def shape(self):
@@ -677,6 +720,9 @@ class Edge(QGraphicsLineItem):
             painter.drawLine(myLine)
 
     def selectChildren(self):
+        """
+        Select all children of the destination
+        """
         self.dst.selectChildren()
 
 
@@ -743,7 +789,6 @@ class AttackTreeScene(QGraphicsScene):
         n = Conjunction(node, self.parent(), x=self.mousePos[0], y=self.mousePos[1])
         self.addItem(n)
 
-        self.parent().graphicsView.update()
         self.reset()
         self.parent().saved = False
 
@@ -782,8 +827,6 @@ class AttackTreeScene(QGraphicsScene):
                     n = Threat(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
                     self.addItem(n)
 
-                    self.parent().graphicsView.update()
-
                     edit = NodeEdit(n, n.parent)
                     edit.exec()
 
@@ -797,7 +840,6 @@ class AttackTreeScene(QGraphicsScene):
                     self.parent().tree.addNode(node)
                     n = Countermeasure(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
                     self.addItem(n)
-                    self.parent().graphicsView.update()
                     self.parent().saved = False
 
                     edit = NodeEdit(n, n.parent)
@@ -877,12 +919,19 @@ class AttackTreeScene(QGraphicsScene):
             print(traceback.format_exc())
 
     def deleteEdge(self, edge):
+        """
+        Deletes an edge
+        @param edge: Edge to delete
+        """
         self.removeItem(edge)
         edge.start.childEdges.remove(edge)
         edge.dst.parentEdges.remove(edge)
         self.parent().tree.removeEdge(edge.start.node.id + '-' + edge.dst.node.id)
 
     def deleteSelected(self):
+        """
+        Deletes an selection
+        """
         deleted = []
         for i in self.selectedItems():
             if isinstance(i, Node):
@@ -896,6 +945,9 @@ class AttackTreeScene(QGraphicsScene):
                 self.parent().tree.removeEdge(i.start.node.id + '-' + i.dst.node.id)
 
     def selectNodesChildren(self):
+        """
+        Selects all children of the selection
+        """
         for i in self.selectedItems():
             i.selectChildren()
 
@@ -947,11 +999,9 @@ class AttackTreeScene(QGraphicsScene):
 
                     if self.parent().tree.addEdge(self.startCollisions.node.id, self.dstCollisions.node.id) is True:
                         self.startCollisions.addEdge(self.dstCollisions)
-                        self.update()
                         if isinstance(self.startCollisions, Conjunction):
                             self.startCollisions.fixParentEdgeRec()
                             self.startCollisions.redraw()
-                        self.parent().graphicsView.update()
                         self.reset()
                         self.parent().saved = False
                     else:
@@ -981,7 +1031,6 @@ class AttackTreeScene(QGraphicsScene):
                             i.start.childEdges.remove(i)
                             i.dst.parentEdges.remove(i)
                             self.parent().tree.removeEdge(i.start.node.id + '-' + i.dst.node.id)
-                    self.parent().graphicsView.update()
                     self.reset()
                     self.parent().saved = False
                 except Exception as e:

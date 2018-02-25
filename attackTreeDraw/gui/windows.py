@@ -485,6 +485,11 @@ class Options(QWidget):
         self.close()
 
     def openColorPicker(self, parentType, childType):
+        """
+        Opens the color picker to choose a color for the node
+        @param parentType: Parent type for the color (Threat, Countermeasure, default)
+        @param childType: Conjunction type or node
+        """
         picker = ColorPicker(self, parentType, childType)
         picker.exec()
         for k, i in self.rows[parentType][childType].items():
@@ -495,6 +500,9 @@ class Options(QWidget):
             i.setFrameStyle(QFrame.Panel)
 
     def openFontPicker(self):
+        """
+        Opens the font picker for the font of the nodes
+        """
         dialog = QFontDialog()
         font, ok = dialog.getFont(QFont('Roboto Mono', 12), self)
         Configuration.font = font

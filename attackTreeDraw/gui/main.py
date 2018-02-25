@@ -1,5 +1,6 @@
 import copy
 import functools
+import platform
 import traceback
 
 import os
@@ -8,7 +9,7 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
 from PyQt5.QtWidgets import QMainWindow, QAction, QToolBox, QFileDialog, QMessageBox, QDialog, QGraphicsView
-from PyQt5.QtGui import QIcon, QImage, QPainter, QFontDatabase, QFont, QPageSize
+from PyQt5.QtGui import QIcon, QImage, QPainter, QFontDatabase, QFont, QPageSize, QKeySequence
 
 from data.exceptions import ParserError, XMLXSDError
 from gui.helper import Configuration
@@ -66,55 +67,55 @@ class Main(QMainWindow):
         menuBarItems = {
             'File': {
                 # Name     shortcut   tip          action
-                '&New': ['Ctrl+N', 'New Tree', self.new],
-                '&Open': ['Ctrl+O', 'Open File', self.loadFile],
-                '&Save': ['Ctrl+S', 'Print Tree', self.saveFile],
-                'Save &As ...': ['Ctrl+Shift+S', 'Print Tree', self.saveFileAs],
+                '&New': [QKeySequence.New, 'New Tree', self.new],
+                '&Open': [QKeySequence.Open, 'Open File', self.loadFile],
+                '&Save': [QKeySequence.Save, 'Print Tree', self.saveFile],
+                'Save &As ...': [QKeySequence.SaveAs, 'Print Tree', self.saveFileAs],
                 'SEPARATOR01': [],
                 'Export as P&DF': ['Ctrl+Shift+E', 'Export Tree', self.exportPDF],
                 'Export as PN&G': ['Ctrl+Shift+Alt+E', 'Export Tree', self.exportPNG],
                 'SEPARATOR02': [],
-                'Op&tions': ['Ctrl+Shift+Alt+O', 'Options', self.options],
+                'Op&tions': [QKeySequence.Preferences, 'Options', self.options],
                 'SEPARATOR03': [],
-                '&Close Tree': ['Ctrl+W', 'Open File', self.close],
-                '&Print': ['Ctrl+P', 'Print Tree', self.print],
-                '&Exit': ['Ctrl+Q', 'Print Tree', self.close],
+                '&Print': [QKeySequence.Print, 'Print Tree', self.print],
+                '&Close': [QKeySequence.Close, 'Open File', self.new],
+                '&Exit': [QKeySequence.Quit, 'Print Tree', self.close],
 
             },
             'Edit': {
                 # Name     shortcut   tip          action
-                '&Undo': ['Ctrl+U', 'Undo Action', self.undo],
-                '&Redo': ['Ctrl+Shift+U', 'Redo Action', self.redo],
+                '&Undo': [QKeySequence.Undo, 'Undo Action', self.undo],
+                '&Redo': [QKeySequence.Redo, 'Redo Action', self.redo],
                 'SEPARATOR01': [],
-                '&Copy': ['Ctrl+C', 'Copy Selection', self.copy],
-                'Cu&t': ['Ctrl+X', 'Cut Selection', self.cut],
-                '&Paste': ['Ctrl+V', 'Pate Selection', self.paste],
+                '&Copy': [QKeySequence.Copy, 'Copy Selection', self.copy],
+                'Cu&t': [QKeySequence.Cut, 'Cut Selection', self.cut],
+                '&Paste': [QKeySequence.Paste, 'Pate Selection', self.paste],
 
             },
             'Tree': {
                 # Name     shortcut   tip          action
-                '&Redraw Tree': ['Ctrl+Shift+R', 'Redraw and reorder Tree', self.redrawGraph],
+                '&Reload Tree': [QKeySequence.Refresh, 'Reload the Tree', self.refreshGraph],
+                '&Reformat Tree': ['Ctrl+Shift+R', 'Redraw and reorder Tree', self.redrawGraph],
                 '&Edit Meta Information': ['', 'Edit Meta Information', self.editMeta],
                 'SEPARATOR01': [],
+                'Zoom &In': [QKeySequence.ZoomIn, 'Zoom in', self.zoomIn],
+                'Zoom &Out': [QKeySequence.ZoomOut, 'Zoom out', self.zoomOut],
 
-            },
-            'Window': {
-                # Name     shortcut   tip          action
             },
             'About': {
                 # Name     shortcut   tip          action
-                '&Help': ['', 'Help', self.close],
-                '&About': ['', 'About', self.close],
+                '&Help': ['', 'Help', self.help],
+                '&About': ['', 'About', self.about],
             },
         }
         includePath = os.path.dirname(os.path.abspath(__file__))
         mainToolbarItems = {
-            'New': [os.path.join(includePath, 'assets/icons/new.png'), 'Ctrl+N', 'New Tree', self.new],
-            'Open': [os.path.join(includePath, 'assets/icons/open.png'), 'Ctrl+O', 'Open Tree', self.loadFile],
-            'Save': [os.path.join(includePath, 'assets/icons/save.png'), 'Ctrl+S', 'Save Tree', self.saveFile],
-            'Print': [os.path.join(includePath, 'assets/icons/print.png'), 'Ctrl+P', 'Print File', self.print],
-            'Undo': [os.path.join(includePath, 'assets/icons/undo.png'), 'Ctrl+U', 'Undo', self.undo],
-            'Redo': [os.path.join(includePath, 'assets/icons/redo.png'), 'Ctrl+Shift+U', 'Redo', self.redo],
+            'New': [os.path.join(includePath, 'assets/icons/new.png'), QKeySequence.New, 'New Tree', self.new],
+            'Open': [os.path.join(includePath, 'assets/icons/open.png'), QKeySequence.Open, 'Open Tree', self.loadFile],
+            'Save': [os.path.join(includePath, 'assets/icons/save.png'), QKeySequence.Save, 'Save Tree', self.saveFile],
+            'Print': [os.path.join(includePath, 'assets/icons/print.png'), QKeySequence.Print, 'Print File', self.print],
+            'Undo': [os.path.join(includePath, 'assets/icons/undo.png'), QKeySequence.Undo, 'Undo', self.undo],
+            'Redo': [os.path.join(includePath, 'assets/icons/redo.png'), QKeySequence.Redo, 'Redo', self.redo],
         }
 
         editToolbarItems = {
@@ -130,7 +131,10 @@ class Main(QMainWindow):
 
         QFontDatabase.addApplicationFont(os.path.join(includePath, 'assets/fonts/RobotoMono-Regular.ttf'))
         if Configuration.font is None:
-            Configuration.font = QFont('Roboto Mono', 12)
+            if platform.system() == 'Windows':
+                Configuration.font = QFont('Roboto Mono', 10)
+            else:
+                Configuration.font = QFont('Roboto Mono', 12)
         Configuration.loadConfigFile()
 
         self.setObjectName("MainWindow")
@@ -505,7 +509,7 @@ class Main(QMainWindow):
 
         if self.file == ('', ''):
             dialog = QFileDialog()
-            self.file = dialog.getSaveFileName(self, 'Save Attack Tree', '', fileExt)  # TODO: check if saving was good
+            self.file = dialog.getSaveFileName(self, 'Save Attack Tree', '', fileExt)
         handler = TreeHandler()
 
         if self.file == ('', ''):
@@ -513,10 +517,8 @@ class Main(QMainWindow):
 
         if self.file[1] == 'Extended Attack Tree File (*.xml)':
             self.tree.extended = True
-        try:
-            save = handler.saveToXML(self.tree, self.file[0])
-        except Exception:
-            print(traceback.format_exc())
+
+        save = handler.saveToXML(self.tree, self.file[0])
         if save is not True:
             MessageBox('Error while saving file', 'There was an error saving the tree.\nError Message: %s' % save, icon=QMessageBox.Information).run()
             return False
@@ -527,7 +529,6 @@ class Main(QMainWindow):
         Opens a dialog to save the tree to a specific file
         """
         self.mouse()
-        # @TODO: reset file if save as failed
         file = self.file
         self.file = ('', '')
         if self.saveFile() is False:
@@ -590,6 +591,9 @@ class Main(QMainWindow):
         return False
 
     def print(self):
+        """
+        Opens an printing dialog
+        """
         self.mouse()
         printer = QPrinter(QPrinter.HighResolution)
         printer.setPageSize(QPrinter.A4)
@@ -638,6 +642,13 @@ class Main(QMainWindow):
                 return
         self.scene.clear()
         self.printGraph()
+
+    def refreshGraph(self):
+        """
+        Refreshes the graph.
+        """
+        self.scene.clear()
+        self.printGraph(fixedPositions=True)
 
     def redrawItems(self):
         """
@@ -808,6 +819,9 @@ class Main(QMainWindow):
         self.lastAction.append(copy.deepcopy(self.tree))
 
     def copy(self):
+        """
+        Saves the selected elements in the copyBuffer
+        """
         self.copyBuffer = []
 
         for i in self.scene.selectedItems():
@@ -836,6 +850,9 @@ class Main(QMainWindow):
                     n.children.append(idMapper[c])
 
     def cut(self):
+        """
+        Saves the selected elements in the copyBuffer and deletes them from view
+        """
         self.addLastAction()
         self.saved = False
         self.addLastAction()
@@ -872,22 +889,73 @@ class Main(QMainWindow):
         self.graphicsView.setDragMode(QGraphicsView.NoDrag)
 
     def insertCopyBuffer(self, x, y):
+        """
+        Inserts the copied elements at the position (x,y)
+        @param x: X part of the position
+        @param y: Y part of the position
+        """
         self.addLastAction()
         self.saved = False
         xStart = None
         yStart = None
 
-        for i in self.copyBuffer:
-            if xStart is None:
-                xStart = i.position[0]
-                yStart = i.position[1]
-            i.position = (i.position[0] + x - xStart, i.position[1] + y - yStart)
-            for e in i.children:
-                print(e)
-                self.tree.edgeList.append(types.Edge(i.id, e))
-            self.tree.nodeList[i.id] = copy.copy(i)
+        if len(self.copyBuffer) > 0:
+            for i in self.copyBuffer:
+                if xStart is None:
+                    xStart = i.position[0]
+                    yStart = i.position[1]
+                i.position = (i.position[0] + x - xStart, i.position[1] + y - yStart)
+                for e in i.children:
+                    print(e)
+                    self.tree.edgeList.append(types.Edge(i.id, e))
+                self.tree.nodeList[i.id] = copy.copy(i)
 
-        self.copyBuffer = []
+            self.copyBuffer = []
 
-        self.scene.clear()
-        self.printGraph(True)
+            self.scene.clear()
+            self.printGraph(True)
+
+    def zoomIn(self):
+        """
+        Zoom in
+        """
+        self.graphicsView.scale(1.10, 1.10)
+
+    def zoomOut(self):
+        """
+        Zoom out
+        """
+        self.graphicsView.scale(0.90, 0.90)
+
+    def closeEvent(self, event):
+        """
+        Reimplemented the close event to ask if the user wants to save the changes
+        @param event: The close event
+        """
+        if len(self.tree.nodeList) > 0 and self.saved is False:
+            reply = MessageBox('The document has been modified', 'Do you want to save your changes?', QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning, QMessageBox.Save).run()
+            if reply == QMessageBox.Yes:
+                if self.saveFile() is True:
+                    event.accept()
+                    super().closeEvent(event)
+                else:
+                    event.ignore()
+            elif reply == QMessageBox.Discard:
+                event.accept()
+                super().closeEvent(event)
+            else:
+                event.ignore()
+        else:
+            super().closeEvent(event)
+
+    def about(self):
+        """
+        Prints a simple about box
+        """
+        QMessageBox.about(self, 'About attackTreeDraw', 'atackTreeDraw is a tool to draw attack trees<br>Author: Daniel Fischer <br><br>This is a part of his bachelor thesis')
+
+    def help(self):
+        """
+        Prints a simple help box
+        """
+        QMessageBox.about(self, 'Help', 'Visit <a href="https://github.com/masteroflittle/attackTreeDraw">https://github.com/masteroflittle/attackTreeDraw</a> for help')
