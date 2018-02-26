@@ -264,8 +264,6 @@ class Main(QMainWindow):
             self.graphicsView.centerOn(0, 0)
         self.graphicsView.viewport().update()
 
-        print('----- DONE ------')
-
     def printGraphRecursion(self, node, x, y, parent=None, fixedPositions=False):
         """
         Prints a node recursively with its child nodes
