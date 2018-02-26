@@ -257,7 +257,7 @@ class MetaEdit(QDialog):
         self.rootLabel = QtWidgets.QLabel(self)
         self.rootLabel.setMaximumSize(QtCore.QSize(80, 16777215))
         self.rootLayout.addWidget(self.rootLabel)
-        self.rootSelect = QtWidgets.QconjunctionChoose(self)
+        self.rootSelect = QtWidgets.QComboBox(self)
         self.rootLayout.addWidget(self.rootSelect)
         self.verticalLayout.addLayout(self.rootLayout)
 

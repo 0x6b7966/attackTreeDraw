@@ -299,7 +299,7 @@ class Tree:
                 self.extended = True
                 return True
         for node in self.nodeList.values():
-            if node.root is False and len(node.parents) == 0:
+            if node.isRoot is False and len(node.parents) == 0:
                 self.extended = True
                 return True
         for k, n in self.nodeList.items():

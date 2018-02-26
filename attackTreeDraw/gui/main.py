@@ -456,8 +456,7 @@ class Main(QMainWindow):
             h = TreeHandler()
             self.tree = h.buildFromXML(fileName[0])
         except ParserError as e:
-            MessageBox('Loading is not possible', 'The requested file is not compatible\n%s' % e, icon=QMessageBox.Critical).run()
-            print(traceback.format_exc())
+            MessageBox('Loading is not possible', 'The requested file is not compatible', icon=QMessageBox.Critical).run()
             return
         except XMLXSDError as e:
             MessageBox('Loading is not possible', '%s' % e, icon=QMessageBox.Critical).run()
@@ -932,7 +931,7 @@ class Main(QMainWindow):
         """
         if len(self.tree.nodeList) > 0 and self.saved is False:
             reply = MessageBox('The document has been modified', 'Do you want to save your changes?', QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning, QMessageBox.Save).run()
-            if reply == QMessageBox.Yes:
+            if reply == QMessageBox.Save:
                 if self.saveFile() is True:
                     event.accept()
                     super().closeEvent(event)
