@@ -213,7 +213,6 @@ class Tree:
     def addEdge(self, sourceId, destinationId):
         """
         Adds a edge to the tree
-        If conjunction is none, the conjunction from the other edges from source will be taken
 
         @param sourceId: Id of the source node
         @param destinationId: Id of the destination node
