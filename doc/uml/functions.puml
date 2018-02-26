@@ -1,0 +1,14 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+actor Analyst
+actor Client
+actor "2nd Software"
+rectangle attackTreeDraw {
+Analyst --> (Draw Tree)
+(Export) .> (Draw Tree) : extends
+(Export) --> (Client)
+(Save to XML) .> (Draw Tree) : extends
+(Save to XML) --> (2nd Software)
+}
+@enduml
