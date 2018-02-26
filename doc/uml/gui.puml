@@ -4,49 +4,77 @@ skinparam classAttributeIconSize 0
 scale 2
 
 namespace gui {
+  namespace helper {
+    class Configuration {
+      {static} +colors
+      {static} +font
+      +checkConfigFile(){static}
+      +loadConfigFile(){static}
+      +saveConfig(){static}
+    }
+
+  }
   namespace items {
     QGraphicsItemGroup <|-- Node
     class Node {
+      +typeOffset
       +node
-      +edit
-      +threatConjunction
-      +counterConjunction
+      +parent
+      +threatEdge
+      +counterEdge
+      +defaultEdge
+      +childEdges
+      +parentEdges
+      +headerGroup
       +attributes
-      +title
-      +typeRect
-      +titleRect
+      +footerGroup
+      +attributesHeight
       +headerHeight
-      -__init__(self, node)
-      +printAttributes(self)
+      -__init__(self, node, parent, background, border, text, x=0, y=0, offset=20)
+      +getTypeRecursiveDown(self)
+      +getTypeRecursiveUp(self)
+      +addEdge(self, dst)
+      +actualizeEdges(self)
+      +fixParentEdgeRec(self)
+      +getLeftRightChildren(self)
+      +printHeader(self, background, border, text)
+      +printAttributes(self, background, border, text)
+      +redrawOptions(self, background, border, text)
+      +redraw(self)
+      +printFooter(self, background, border, text)
+      +setPos(self, x, y)
       +paint(self, painter, options, widget=None)
+      +selectChildren(self)
+      +delete(self)
+      +edit(self)
       +mouseDoubleClickEvent(self, event)
+      +itemChange(self, change, value)
     }
 
     Node <|-- Threat
     class Threat {
-      +type
-      -__init__(self, node)
+      +threatBox
+      +counterBox
+      +threatBoxText
+      +counterBoxText
+      -__init__(self, node, parent, x=0, y=0)
+      +printFooter(self, background, border, text)
+      +redraw(self)
     }
 
     Node <|-- Countermeasure
     class Countermeasure {
-      +type
-      -__init__(self, node)
+      -__init__(self, node, parent, x=0, y=0)
+      +redraw(self)
     }
 
-    QGraphicsItemGroup <|-- Conjunction
+    Node <|-- Conjunction
     class Conjunction {
-      +parent
-      +parentArrow
-      +children
-      +arrows
-      +title
-      +conRect
-      -__init__(self, parent, conjType)
-      +addArrow(self, child)
-      +addParentArrow(self)
+      +conjunctionRect
+      -__init__(self, node, parent, x=0, y=0)
+      +redraw(self)
       +paint(self, painter, options, widget=None)
-      +repaint(self)
+      +edit(self)
     }
 
     QGraphicsRectItem <|-- ConjunctionRect
@@ -54,35 +82,74 @@ namespace gui {
       +paint(self, painter, options, widget=None)
     }
 
-    QGraphicsLineItem <|-- Arrow
-    class Arrow {
+    QGraphicsLineItem <|-- Edge
+    class Edge {
       +arrowHead
       +start
-      +end
-      -__init__(self, start, end)
+      +dst
+      +offset
+      -__init__(self, start, dst, offset, color=Qt.black)
       +boundingRect(self)
       +shape(self)
       +updatePosition(self)
       +paint(self, painter, options, widget=None)
+      +selectChildren(self)
+    }
+
+    QGraphicsScene <|-- AttackTreeScene
+    class AttackTreeScene {
+      +startCollisions
+      +dstCollisions
+      +conjunction
+      +insertLine
+      +mousePos
+      +menu
+      -__init__(self, parent=None)
+      +addAlternative(self)
+      +addComposition(self)
+      +addSequence(self)
+      +addThreshold(self)
+      +addEdge(self, type)
+      +reset(self)
+      +mousePressEvent(self, mouseEvent)
+      +contextMenuEvent(self, event)
+      +deleteEdge(self, edge)
+      +deleteSelected(self)
+      +selectNodesChildren(self)
+      +mouseMoveEvent(self, mouseEvent)
+      +mouseReleaseEvent(self, mouseEvent)
     }
 
   }
   namespace main {
     QMainWindow <|-- Main
     class Main {
+      {static} +threatBackground
+      {static} +threatBorder
+      {static} +threatFont
+      {static} +countermeasureBackground
+      {static} +countermeasureBorder
+      {static} +countermeasureFont
       +tree
       +saved
       +file
       +itemList
+      +modeAction
+      +defaultModeAction
+      +modeActions
+      +lastAction
+      +nextAction
+      +copyBuffer
+      +mode
       -__init__(self)
       +initUI(self)
-      +printGraph(self)
-      +printGraphRecursion(self, node, x, y, parent=None)
+      +printGraph(self, fixedPositions=False, doReorderTree=True)
+      +printGraphRecursion(self, node, x, y, parent=None, fixedPositions=False)
       +reorderTree(self, g)
-      +fixCollision(self, left, right)
+      +fixCollision(self, l, r)
+      +makeList(self, item, itemList)
       +checkCollRec(self, item, toCheckList)
       +moveRec(self, item, x, y)
-      +resizeEvent(self, QResizeEvent)
       +loadFile(self)
       +saveFile(self)
       +saveFileAs(self)
@@ -91,19 +158,93 @@ namespace gui {
       +print(self)
       +new(self)
       +redrawGraph(self)
+      +refreshGraph(self)
+      +redrawItems(self)
+      +mouse(self, action=None)
+      +newThreat(self, action)
+      +newCountermeasure(self, action)
+      +newConjunction(self, action)
+      +newEdge(self, action)
+      +delete(self, action)
+      +editMeta(self)
+      +options(self)
+      +undo(self)
+      +redo(self)
+      +addLastAction(self)
+      +copy(self)
+      +cut(self)
+      +paste(self, action=None)
+      +insertCopyBuffer(self, x, y)
+      +zoomIn(self)
+      +zoomOut(self)
+      +closeEvent(self, event)
+      +about(self)
+      +help(self)
     }
 
   }
   namespace windows {
-    QWidget <|-- NodeEdit
+    class MessageBox {
+      +msgBox
+      -__init__(self, title, text, buttons=QMessageBox.Ok, icon=QMessageBox.Information, default=QMessageBox.Ok)
+      +run(self)
+    }
+
+    QDialog <|-- NodeEdit
     class NodeEdit {
       +nodeItem
-      -__init__(self, node)
+      +parentWidget
+      -__init__(self, node, parent)
       +setupUi(self)
+      +rowCheck(self)
+      +submit(self)
+    }
+
+    QDialog <|-- MetaEdit
+    class MetaEdit {
+      +parentWidget
+      -__init__(self, parent)
+      +setupUi(self)
+      +submit(self)
+    }
+
+    QWidget <|-- Options
+    class Options {
+      +parentWidget
+      +rows
+      -__init__(self, parent)
+      +setupUi(self)
+      +submit(self)
+      +openColorPicker(self, parentType, childType)
+      +openFontPicker(self)
+    }
+
+    QDialog <|-- ColorPicker
+    class ColorPicker {
+      +parentWidget
+      +parentType
+      +childType
+      -__init__(self, parent, parentType, childType)
+      +setupUi(self)
+      +submit(self)
+    }
+
+    QLabel <|-- ColorLabel
+    class ColorLabel {
+      +color
+      -__init__(self, color, parent=None)
+      +mousePressEvent(self, QMouseEvent)
+    }
+
+    QDialog <|-- ConjunctionEdit
+    class ConjunctionEdit {
+      +parentWidget
+      +nodeItem
+      -__init__(self, node, parent)
+      +setupUi(self)
+      +submit(self)
     }
 
   }
-}
-namespace main {
 }
 @enduml

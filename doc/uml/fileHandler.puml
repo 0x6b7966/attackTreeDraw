@@ -4,8 +4,6 @@ skinparam classAttributeIconSize 0
 scale 2
 
 namespace fileHandler {
-  namespace __init__ {
-  }
   namespace xml {
     class Handler {
       +parser
@@ -23,14 +21,13 @@ namespace fileHandler {
       +generateTree(self, tree)
       +generateSimpleTree(self, tree)
       +generateExtendedTree(self, tree)
+      +addNode(self, root, element)
       +addSimpleNode(self, tree, root, element)
       +addExtendedNodes(self, tree)
       +addExtendedEdges(self, tree)
-      +addNode(self, root, element)
       +saveToFile(self, file)
     }
 
   }
 }
-
 @enduml

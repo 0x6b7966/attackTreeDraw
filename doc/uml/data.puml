@@ -9,48 +9,64 @@ namespace data {
     class ParserError {
     }
 
-  }
-  namespace handler {
-    class Handler {
-      +buildFromXML(self, file)
-      +saveToXML(self, tree, file)
+    Exception <|-- XMLXSDError
+    class XMLXSDError {
     }
 
   }
-  namespace parsers {
+  namespace handler {
+    class TreeHandler {
+      +buildFromXML(file){static}
+      +saveToXML(tree, file){static}
+    }
+
+    class Parsers {
+      +parseExtendedConnection(tree, edge){static}
+      +parseNode(node){static}
+      +parseExtendedNode(tree, node){static}
+      +parseSimpleConjunction(tree, node, parent=None){static}
+      +parseSimpleNode(tree, node, parent=None){static}
+    }
+
   }
   namespace types {
     class Node {
-      {static} +type
+      +type
       +isRoot
       +id
       +title
       +description
       +attributes
       +parents
-      +edges
+      +children
+      +view
+      +position
       +visited
       +finished
       -__init__(self)
-      +toString(self)
       +initDFS(self)
     }
 
     Node <|-- Threat
     class Threat {
-      {static} +type
     }
 
     Node <|-- Countermeasure
     class Countermeasure {
-      {static} +type
+    }
+
+    Node <|-- Conjunction
+    class Conjunction {
+      +id
+      +conjunctionType
+      +title
+      -__init__(self, id=None, conjunctionType=None)
     }
 
     class Edge {
       +source
       +destination
-      +conjunction
-      -__init__(self, source, destination, conjunction)
+      -__init__(self, source, destination)
       -__hash__(self)
     }
 
@@ -58,14 +74,26 @@ namespace data {
       +extended
       +nodeList
       +edgeList
+      +falseNodes
+      +cycleNode
       +root
       +meta
+      +lastError
       -__init__(self, extended)
+      +getTypeRecursiveDown(self, node)
+      +getTypeRecursiveUp(self, node)
+      +getFirstElementRecursiveDown(self, node)
+      +getFirstElementRecursiveUp(self, node)
       +addNode(self, node)
-      +addEdge(self, source, destination, conjunction)
+      +addEdge(self, sourceId, destinationId)
+      +checkMeta(self)
+      +checkNodes(self)
       +checkExtended(self)
       +checkCycle(self)
       +dfs(self, node)
+      +getNextID(self, keyList=None)
+      +removeNode(self, nodeId)
+      +removeEdge(self, edgeId)
     }
 
   }
