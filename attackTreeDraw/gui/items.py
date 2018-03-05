@@ -63,6 +63,8 @@ class Node(QGraphicsItemGroup):
         self.printAttributes(background, border, text)
         self.printFooter(background, border, text)
 
+        self.setAcceptDrops(True)
+
         self.setPos(x, y)
 
     def getTypeRecursiveDown(self):
@@ -396,17 +398,17 @@ class Node(QGraphicsItemGroup):
         """
         self.edit()
 
-    def itemChange(self, change, value):
+    def dropEvent(self, event):
         """
-        Sets the correct position to the data node
+        Sets the correct position to the data node if the item is drag & dropped
 
-        @param change: Changed event
-        @param value: Value of the event
+        @param event: Drop event
         @return: Changed Value
         """
-        if change == QGraphicsItem.ItemPositionChange:
-            self.node.position = (value.toPointF().x(), value.toPointF().y())
-        return super().itemChange(change, value)
+
+        print("ok")
+        self.node.position = (event.pos().x(), event.pos().y())
+        return super().dropEvent(self, event)
 
 
 class Threat(Node):
@@ -818,56 +820,51 @@ class AttackTreeScene(QGraphicsScene):
         @param mouseEvent: Mouse Event
         """
         if mouseEvent.button() == Qt.LeftButton:
-            try:
-                if self.parent().mode == 1:
-                    self.parent().addLastAction()
+            if self.parent().mode == 1:
+                self.parent().addLastAction()
 
-                    node = types.Threat()
-                    self.parent().tree.addNode(node)
-                    n = Threat(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
-                    self.addItem(n)
+                node = types.Threat()
+                self.parent().tree.addNode(node)
+                n = Threat(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
+                self.addItem(n)
 
-                    edit = NodeEdit(n, n.parent)
-                    edit.exec()
+                edit = NodeEdit(n, n.parent)
+                edit.exec()
 
-                    self.parent().saved = False
-                    self.reset()
-                    super().mousePressEvent(mouseEvent)
-                elif self.parent().mode == 2:
-                    self.parent().addLastAction()
+                self.parent().saved = False
+                self.reset()
+                super().mousePressEvent(mouseEvent)
+            elif self.parent().mode == 2:
+                self.parent().addLastAction()
 
-                    node = types.Countermeasure()
-                    self.parent().tree.addNode(node)
-                    n = Countermeasure(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
-                    self.addItem(n)
-                    self.parent().saved = False
+                node = types.Countermeasure()
+                self.parent().tree.addNode(node)
+                n = Countermeasure(node, self.parent(), mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
+                self.addItem(n)
+                self.parent().saved = False
 
-                    edit = NodeEdit(n, n.parent)
-                    edit.exec()
+                edit = NodeEdit(n, n.parent)
+                edit.exec()
 
-                    super().mousePressEvent(mouseEvent)
-                    self.reset()
-                elif self.parent().mode == 3:
-                    self.mousePos = mouseEvent.scenePos().x(), mouseEvent.scenePos().y()
-                    self.menu.popup(self.parent().mapToGlobal(self.parent().graphicsView.mapFromScene(mouseEvent.scenePos())), None)
-                    super().mousePressEvent(mouseEvent)
-                    self.reset()
-                elif self.parent().mode == 4:
-
-                    self.startCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
-                    self.insertLine = QGraphicsLineItem(QLineF(mouseEvent.scenePos(), mouseEvent.scenePos()))
-                    self.insertLine.setPen(QPen(Qt.black, 2))
-                    self.addItem(self.insertLine)
-
-                    self.parent().addLastAction()
-                elif self.parent().mode == 6:
-                    self.parent().insertCopyBuffer(mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
-                    self.reset()
-                else:
-                    super().mousePressEvent(mouseEvent)
-            except Exception:
-                print(traceback.format_exc())
+                super().mousePressEvent(mouseEvent)
+                self.reset()
+            elif self.parent().mode == 3:
+                self.mousePos = mouseEvent.scenePos().x(), mouseEvent.scenePos().y()
+                self.menu.popup(self.parent().mapToGlobal(self.parent().graphicsView.mapFromScene(mouseEvent.scenePos())), None)
+                super().mousePressEvent(mouseEvent)
+                self.reset()
+            elif self.parent().mode == 4:
+                self.startCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
+                self.insertLine = QGraphicsLineItem(QLineF(mouseEvent.scenePos(), mouseEvent.scenePos()))
+                self.insertLine.setPen(QPen(Qt.black, 2))
+                self.addItem(self.insertLine)
+            elif self.parent().mode == 6:
+                self.parent().insertCopyBuffer(mouseEvent.scenePos().x(), mouseEvent.scenePos().y())
+                self.reset()
+            else:
+                super().mousePressEvent(mouseEvent)
         elif mouseEvent != Qt.LeftButton:
+            """Fixes middle mouse button"""
             mouseEvent.accept()
 
     def contextMenuEvent(self, event):
@@ -932,17 +929,20 @@ class AttackTreeScene(QGraphicsScene):
         """
         Deletes an selection
         """
+        self.parent().addLastAction()
         deleted = []
         for i in self.selectedItems():
-            if isinstance(i, Node):
-                deleted.append(i)
-                i.delete()
-            elif isinstance(i, Edge):
-                deleted.append(i)
-                self.removeItem(i)
-                i.start.childEdges.remove(i)
-                i.dst.parentEdges.remove(i)
-                self.parent().tree.removeEdge(i.start.node.id + '-' + i.dst.node.id)
+            if i not in deleted:
+                if isinstance(i, Node):
+                    deleted.append(i)
+                    i.delete()
+                elif isinstance(i, Edge):
+                    deleted.append(i)
+                    if not (i.start in deleted or i.dst in deleted):
+                        self.removeItem(i)
+                        i.start.childEdges.remove(i)
+                        i.dst.parentEdges.remove(i)
+                        self.parent().tree.removeEdge(i.start.node.id + '-' + i.dst.node.id)
 
     def selectNodesChildren(self):
         """
@@ -972,69 +972,43 @@ class AttackTreeScene(QGraphicsScene):
         """
         if mouseEvent.button() == Qt.LeftButton:
             if self.parent().mode == 4:
-                try:
-                    self.parent().addLastAction()
-                    self.insertLine.setZValue(-1)
-                    self.dstCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
-                    if self.startCollisions is None or self.dstCollisions is None or self.startCollisions == self.dstCollisions:
-                        self.reset()
-                        super().mouseReleaseEvent(mouseEvent)
-                        return
-                    if isinstance(self.startCollisions.parentItem(), Node):
-                        self.startCollisions = self.startCollisions.parentItem()
-                    elif isinstance(self.startCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.startCollisions.parentItem().parentItem(), Node):
-                        self.startCollisions = self.startCollisions.parentItem().parentItem()
-                    else:
-                        self.reset()
-                        super().mouseReleaseEvent(mouseEvent)
-                        return
-                    if isinstance(self.dstCollisions.parentItem(), Node):
-                        self.dstCollisions = self.dstCollisions.parentItem()
-                    elif isinstance(self.dstCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.dstCollisions.parentItem().parentItem(), Node):
-                        self.dstCollisions = self.dstCollisions.parentItem().parentItem()
-                    else:
-                        self.reset()
-                        super().mouseReleaseEvent(mouseEvent)
-                        return
-
-                    if self.parent().tree.addEdge(self.startCollisions.node.id, self.dstCollisions.node.id) is True:
-                        self.startCollisions.addEdge(self.dstCollisions)
-                        if isinstance(self.startCollisions, Conjunction):
-                            self.startCollisions.fixParentEdgeRec()
-                            self.startCollisions.redraw()
-                        self.reset()
-                        self.parent().saved = False
-                    else:
-                        MessageBox('Adding Edge is not possible', 'The Edge is not supported', icon=QMessageBox.Critical).run()
-                        self.reset()
-                except Exception as e:
-                    print(traceback.format_exc())
-            elif self.parent().mode == 5:
                 self.parent().addLastAction()
-                deleted = []
-                try:
-                    for i in self.selectedItems():
-                        if isinstance(i, Node):
-                            if i not in deleted:
-                                for e in i.parentEdges:
-                                    deleted.append(e)
-                                    self.removeItem(e)
-                                for e in i.childEdges:
-                                    deleted.append(e)
-                                    self.removeItem(e)
-                                self.parent().tree.removeNode(i.node.id)
-                                deleted.append(i)
-                                self.removeItem(i)
-                        if isinstance(i, Edge):
-                            deleted.append(i)
-                            self.removeItem(i)
-                            i.start.childEdges.remove(i)
-                            i.dst.parentEdges.remove(i)
-                            self.parent().tree.removeEdge(i.start.node.id + '-' + i.dst.node.id)
+                self.insertLine.setZValue(-1)
+                self.dstCollisions = self.itemAt(mouseEvent.scenePos(), QTransform())
+                if self.startCollisions is None or self.dstCollisions is None or self.startCollisions == self.dstCollisions:
+                    self.reset()
+                    super().mouseReleaseEvent(mouseEvent)
+                    return
+                if isinstance(self.startCollisions.parentItem(), Node):
+                    self.startCollisions = self.startCollisions.parentItem()
+                elif isinstance(self.startCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.startCollisions.parentItem().parentItem(), Node):
+                    self.startCollisions = self.startCollisions.parentItem().parentItem()
+                else:
+                    self.reset()
+                    super().mouseReleaseEvent(mouseEvent)
+                    return
+                if isinstance(self.dstCollisions.parentItem(), Node):
+                    self.dstCollisions = self.dstCollisions.parentItem()
+                elif isinstance(self.dstCollisions.parentItem(), QGraphicsItemGroup) and isinstance(self.dstCollisions.parentItem().parentItem(), Node):
+                    self.dstCollisions = self.dstCollisions.parentItem().parentItem()
+                else:
+                    self.reset()
+                    super().mouseReleaseEvent(mouseEvent)
+                    return
+                if self.parent().tree.addEdge(self.startCollisions.node.id, self.dstCollisions.node.id) is True:
+                    self.startCollisions.addEdge(self.dstCollisions)
+                    if isinstance(self.startCollisions, Conjunction):
+                        self.startCollisions.fixParentEdgeRec()
+                        self.startCollisions.redraw()
                     self.reset()
                     self.parent().saved = False
-                except Exception as e:
-                    print(traceback.format_exc())
+                else:
+                    MessageBox('Adding Edge is not possible', 'The Edge is not supported', icon=QMessageBox.Critical).run()
+                    self.reset()
+            elif self.parent().mode == 5:
+                self.deleteSelected()
+                self.reset()
+                self.parent().saved = False
             else:
                 self.reset()
         super().mouseReleaseEvent(mouseEvent)

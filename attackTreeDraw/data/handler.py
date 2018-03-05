@@ -48,7 +48,6 @@ class TreeHandler:
                 raise ParserError('Root Element with ID %s not found in node list' % tree.root)
         else:
             return None
-
         return tree
 
     @staticmethod
@@ -113,11 +112,10 @@ class Parsers:
             n.description = node.find('description').text
         elif node.tag == 'alternative' or node.tag == 'composition' or node.tag == 'sequence' or node.tag == 'threshold':
             n = Conjunction(node.get('id'), node.tag)
-        elif  node.tag == 'conjunction':
+        elif node.tag == 'conjunction':
             n = Conjunction(node.get('id'), node.get('type'))
         else:
             raise ParserError('Parsing failed for element %s' % node.tag)
-
         return n
 
     @staticmethod

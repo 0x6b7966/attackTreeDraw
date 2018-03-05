@@ -26,13 +26,6 @@ class Main(QMainWindow):
     This Class is the main window for attackTreeDraw.
     It sets up the window and handles the GraphicsView for the Tree
     """
-    threatBackground = Qt.white
-    threatBorder = Qt.black
-    threatFont = Qt.black
-
-    countermeasureBackground = Qt.white
-    countermeasureBorder = Qt.black
-    countermeasureFont = Qt.black
 
     def __init__(self):
         """
@@ -78,7 +71,7 @@ class Main(QMainWindow):
                 'Op&tions': [QKeySequence.Preferences, 'Options', self.options],
                 'SEPARATOR03': [],
                 '&Print': [QKeySequence.Print, 'Print Tree', self.print],
-                '&Close': [QKeySequence.Close, 'Open File', self.new],
+                '&Close Tree': [QKeySequence.Close, 'Open File', self.new],
                 '&Exit': [QKeySequence.Quit, 'Print Tree', self.close],
 
             },
@@ -133,6 +126,8 @@ class Main(QMainWindow):
         if Configuration.font is None:
             if platform.system() == 'Windows':
                 Configuration.font = QFont('Roboto Mono', 10)
+            elif platform.system() == 'Linux':
+                Configuration.font = QFont('Roboto Mono', 8)
             else:
                 Configuration.font = QFont('Roboto Mono', 12)
         Configuration.loadConfigFile()
@@ -291,7 +286,6 @@ class Main(QMainWindow):
 
             node.view = n
             self.scene.addItem(n)
-
         else:
             n = node.view
             rec = True
@@ -301,9 +295,7 @@ class Main(QMainWindow):
             parent.addEdge(n)
 
         node.visited = True
-
         children = []
-
         it = 0
         for c in node.children:
             if rec is False:
@@ -312,10 +304,8 @@ class Main(QMainWindow):
             it += 1
 
         n.actualizeEdges()
-
         left = []
         right = []
-
         sortedChildren = n.getLeftRightChildren()
 
         for c in children:
@@ -351,18 +341,15 @@ class Main(QMainWindow):
 
         return r
 
-    def fixCollision(self, l, r):
+    def fixCollision(self, left, right):
         """
         Checks if there is a collision between l and r
         If there is one both parts will be moved to the left or right side
 
-        @param l: left part of the subtree
-        @param r: right part of the subtree
+        @param left: left part of the subtree
+        @param right: right part of the subtree
         @return: True if there was an collision
         """
-        left = l
-        right = r
-
         collisions = self.checkCollRec(left, right)
         collision = collisions
 
@@ -374,17 +361,6 @@ class Main(QMainWindow):
             collisions = self.checkCollRec(left, right)
 
         return collision
-
-    def makeList(self, item, itemList):
-        """
-        Makes a list of the items in the tuple of the drawn tree
-
-        @param item: Item to add to the list
-        @param itemList: List of the items
-        """
-        itemList.append(item[0])
-        for i in item[1]:
-            self.makeList(i, itemList)
 
     def checkCollRec(self, item, toCheckList):
         """
@@ -403,6 +379,8 @@ class Main(QMainWindow):
                 if self.checkCollRec(i[1][1], toCheckList) is True:
                     return True
         else:
+            if len(item.collidingItems()) == 0:
+                return False
             if isinstance(toCheckList, list):
                 for r in toCheckList:
                     if self.checkCollRec(item, r[0]) is True:
@@ -412,7 +390,7 @@ class Main(QMainWindow):
                     if self.checkCollRec(item, r[1][1]) is True:
                         return True
             else:
-                if toCheckList in item.collidingItems():  # and isinstance(toCheckList):
+                if toCheckList in item.collidingItems():
                     return True
         return False
 
@@ -519,6 +497,7 @@ class Main(QMainWindow):
         if save is not True:
             MessageBox('Error while saving file', 'There was an error saving the tree.\nError Message: %s' % save, icon=QMessageBox.Information).run()
             return False
+        self.saved = True
         return True
 
     def saveFileAs(self):
@@ -644,6 +623,9 @@ class Main(QMainWindow):
         """
         Refreshes the graph.
         """
+        for n in self.scene.items():
+            if isinstance(n, Node):
+                n.node.position = n.x(), n.y()
         self.scene.clear()
         self.printGraph(fixedPositions=True)
 
@@ -792,8 +774,7 @@ class Main(QMainWindow):
             self.nextAction.append(copy.deepcopy(self.tree))
             self.tree = copy.deepcopy(tree)
 
-            self.scene.clear()
-            self.printGraph(True)
+            self.refreshGraph()
 
     def redo(self):
         """
@@ -806,12 +787,11 @@ class Main(QMainWindow):
             self.lastAction.append(copy.deepcopy(self.tree))
             self.tree = copy.deepcopy(tree)
 
-            self.scene.clear()
-            self.printGraph(True)
+            self.refreshGraph()
 
     def addLastAction(self):
         """
-        adds the last undo action to the undo stack
+        Adds the last undo action to the undo stack
         """
         self.lastAction.append(copy.deepcopy(self.tree))
 
@@ -903,14 +883,12 @@ class Main(QMainWindow):
                     yStart = i.position[1]
                 i.position = (i.position[0] + x - xStart, i.position[1] + y - yStart)
                 for e in i.children:
-                    print(e)
                     self.tree.edgeList.append(types.Edge(i.id, e))
                 self.tree.nodeList[i.id] = copy.copy(i)
 
             self.copyBuffer = []
 
-            self.scene.clear()
-            self.printGraph(True)
+            self.refreshGraph()
 
     def zoomIn(self):
         """
@@ -943,6 +921,7 @@ class Main(QMainWindow):
             else:
                 event.ignore()
         else:
+            event.accept()
             super().closeEvent(event)
 
     def about(self):

@@ -7,6 +7,6 @@ class ParserError(Exception):
 
 class XMLXSDError(Exception):
     """
-    Exception for errors with the csd files
+    Exception for errors with the xsd files
     """
     pass

@@ -237,7 +237,7 @@ class Tree:
         if isinstance(source, Conjunction) and isinstance(destination, Conjunction) and self.getTypeRecursiveDown(source) is not Conjunction and self.getTypeRecursiveDown(destination) is not Conjunction and self.getTypeRecursiveDown(source) is not self.getTypeRecursiveDown(destination):
             return False
 
-        if not isinstance(source, Conjunction) and len(source.children) > 0 and self.getTypeRecursiveDown(source) is Countermeasure and self.getTypeRecursiveDown(destination) is Countermeasure:
+        if not isinstance(source, Conjunction) and len(source.children) > 0 and self.getTypeRecursiveDown(source) is Threat and self.getTypeRecursiveDown(destination) is Threat:
             return False
 
         if not isinstance(source, Conjunction) and len(source.children) > 0 and self.getTypeRecursiveDown(source) is Countermeasure and self.getTypeRecursiveDown(destination) is Countermeasure:
@@ -286,26 +286,14 @@ class Tree:
 
         @return: True if tree is extended else false
         """
-        test = []
-        for edge in self.edgeList:
-            if edge.destination not in test:
-                test.append(edge.destination)
-            else:
-                self.extended = True
-                return True
         for node in self.nodeList.values():
             if isinstance(node, Conjunction) and len(node.children) == 0:
                 self.extended = True
                 return True
-        for node in self.nodeList.values():
             if node.isRoot is False and len(node.parents) == 0:
                 self.extended = True
                 return True
-        for k, n in self.nodeList.items():
-            n.initDFS()
-        self.dfs(self.nodeList[self.root])
-        for k, n in self.nodeList.items():
-            if n.finished is False:
+            if len(node.parents) > 1:
                 self.extended = True
                 return True
         self.extended = False
@@ -371,6 +359,8 @@ class Tree:
             children = copy.copy(self.nodeList[nodeId].children)
             for i in children:
                 self.removeEdge(nodeId + '-' + i)
+            if self.nodeList[nodeId].isRoot:
+                self.root = None
             del self.nodeList[nodeId]
             return True
         else:

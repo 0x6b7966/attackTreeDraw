@@ -288,6 +288,10 @@ class MetaEdit(QDialog):
         self.rootLabel.setText('Root node:')
         self.descriptionLabel.setText('Description:')
 
+        self.authorEdit.setText(self.parentWidget.tree.meta['author'])
+        self.titleEdit.setText(self.parentWidget.tree.meta['title'])
+        self.descriptionEdit.setPlainText(self.parentWidget.tree.meta['description'])
+
         self.cancel.clicked.connect(self.close)
         self.ok.clicked.connect(self.submit)
 
