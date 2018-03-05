@@ -1,0 +1,21 @@
+@startuml
+
+partition GUI {
+  (*) --> "Select node to change"
+  --> "Open dialog to change values for node"
+  "Print error message" --> "Open dialog to change values for node"
+  "Redraw node" --> (*)
+}
+
+partition Data {
+    "Open dialog to change values for node" --> "Check if changes are valid"
+   if "Changes are valid" then
+     -->[yes] "Update internal node"
+   else
+     -->[no] "Print error message"
+   endif
+   "Update internal node" --> "Redraw node"
+
+}
+
+@enduml

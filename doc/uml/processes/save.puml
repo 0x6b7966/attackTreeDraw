@@ -1,0 +1,31 @@
+@startuml
+
+(*) -[hidden]-> (*)
+
+partition FileHandler {
+  "Generate XML-File" --> "Save to selected file"
+  --> (*)
+}
+
+partition GUI {
+  "Print error message" --> (*)
+}
+
+partition Data {
+    "Check tree for cycle" --> "Check format"
+    if "Valid tree" then
+     -->[yes] "Generate XML-File"
+   else
+     -->[no] "Print error message"
+   endif
+}
+
+partition GUI {
+  (*) --> "Select save location"
+  --> "Check tree for cycle"
+}
+
+
+
+
+@enduml

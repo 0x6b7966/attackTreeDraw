@@ -1,0 +1,13 @@
+@startuml
+
+
+  (*) --> "Select items to copy"
+   "Delete items from tree" --> (*)
+
+    "Select items to copy" --> "Get items"
+
+  "Get items" --> "Copy items to buffer"
+
+    "Copy items to buffer" --> "Delete items from tree"
+
+@enduml

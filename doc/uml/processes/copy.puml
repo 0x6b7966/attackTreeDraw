@@ -1,0 +1,16 @@
+@startuml
+
+
+  (*) --> "Select items to copy"
+   "Change id of copied nodes" --> (*)
+
+    "Select items to copy" --> "Get items"
+    "Get free node ids" --> "Change id of copied nodes"
+
+  "Get items" --> "Copy items to buffer"
+
+    "Copy items to buffer" --> "Get free node ids"
+
+
+
+@enduml

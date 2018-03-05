@@ -1,0 +1,73 @@
+@startuml
+skinparam monochrome true
+skinparam classAttributeIconSize 0
+scale 1
+
+namespace gui {
+  package helper {
+    class Configuration {
+      {static} +colors
+      {static} +font
+    }
+
+  }
+  package items {
+    QGraphicsItemGroup <|-- Node
+    class Node {
+    }
+
+    Node <|-- Threat
+    class Threat {
+    }
+
+    Node <|-- Countermeasure
+    class Countermeasure {
+    }
+
+    Node <|-- Conjunction
+    class Conjunction {
+    }
+
+    class Edge {
+    }
+
+    class AttackTreeScene {
+    }
+
+  }
+  package main {
+    QMainWindow <|-- Main
+    class Main {
+    }
+
+  }
+  package windows {
+    class MessageBox {
+    }
+
+    QDialog <|-- NodeEdit
+    class NodeEdit {
+    }
+
+    QDialog <|-- MetaEdit
+    class MetaEdit {
+    }
+
+    QWidget <|-- Options
+    class Options {
+    }
+
+    QDialog <|-- ConjunctionEdit
+    class ConjunctionEdit {
+    }
+
+  }
+}
+  main -[hidden]-> helper
+  main -[hidden]-> items
+  helper -[hidden]-> items
+
+
+
+
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+
+(*) -[hidden]-> (*)
+
+partition GUI {
+  "Print error message" --> (*)
+  "Print tree" --> (*)
+}
+
+partition Data {
+    "Parse tree" --> "Generate internal Tree"
+    --> "Print tree"
+}
+
+partition FileHandler {
+  "Load file" --> "Test against XSD-Files"
+      if "Accepted file" then
+     -->[yes] "Parse tree"
+   else
+     -->[no] "Print error message"
+   endif
+}
+
+partition GUI {
+  "Select XML File" --> "Load file"
+}
+
+(*) --> "Select XML File"
+
+@enduml

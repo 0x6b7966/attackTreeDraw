@@ -1,0 +1,48 @@
+@startuml
+skinparam monochrome true
+skinparam classAttributeIconSize 0
+scale 2
+
+namespace data {
+  namespace types {
+    class Node {
+      +type
+      +isRoot
+      +id
+      +title
+      +description
+      +attributes
+      +parents
+      +children
+    }
+
+    Node <|-- Threat
+    class Threat {
+    }
+
+    Node <|-- Countermeasure
+    class Countermeasure {
+    }
+
+    Node <|-- Conjunction
+    class Conjunction {
+      +conjunctionType
+    }
+
+    class Edge {
+      +source
+      +destination
+    }
+
+    class Tree {
+      +extended
+      +nodeList
+      +edgeList
+      +root
+      +meta
+    }
+
+  }
+}
+
+@enduml

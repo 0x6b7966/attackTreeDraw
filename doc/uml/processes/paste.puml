@@ -1,0 +1,10 @@
+@startuml
+
+  (*) --> "Enter paste mode"
+  --> "Click on desired location"
+  "Draw items at desired position" --> (*)
+  "Click on desired location" --> "Insert nodes and edges into tree"
+  --> "Draw items at desired position"
+
+
+@enduml

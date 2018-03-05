@@ -1,0 +1,17 @@
+@startuml
+
+
+  (*) --> "Split tree in two subtrees"
+  --> "Check collisions between these two trees"
+  if "Collisions found"
+    --> [YES] "Fix Collision"
+    --> ===SPLIT===
+  else
+    --> [NO]===SPLIT===
+    --> [Do for every subtree] if "Can split tree again"
+    --> [YES] "Split tree in two subtrees"
+  else
+    -->  [NO] Print tree
+    --> (*)
+
+@enduml

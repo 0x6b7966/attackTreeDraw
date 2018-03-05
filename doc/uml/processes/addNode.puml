@@ -1,0 +1,31 @@
+@startuml
+
+partition GUI {
+  (*) --> "Select Element to insert"
+   if "Insert edge" then
+     -->[yes] "Select start and end"
+   else
+     -->[no] "Click on desired position"
+   endif
+  "Click on desired position" --> "Open dialog to set values for node"
+  "Print error message" --> (*)
+  "Print node" --> (*)
+  "Print edge" --> (*)
+}
+
+partition Data {
+   "Open dialog to set values for node" --> "Check if Node can be inserted"
+   if "Node is ok" then
+     -->[yes] "Print node"
+   else
+     -->[no] "Print error message"
+   endif
+   "Select start and end" --> "Check if edge can be inserted"
+   if "Edge is ok" then
+     -->[yes] "Print edge"
+   else
+     -->[no] "Print error message"
+   endif
+}
+
+@enduml
