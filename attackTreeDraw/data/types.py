@@ -385,3 +385,29 @@ class Tree:
             return True
         else:
             return False
+
+    def makeSimple(self):
+        """
+        Generates an simple tree out of an extended one.
+
+        Copies every element with two or more parents.
+        """
+        nodeList = copy.copy(self.nodeList)
+        changed = False
+        for node in nodeList.values():
+            if len(node.parents) > 1:
+                newNode = copy.copy(node)
+                newNode.id = None
+                newNode.parents = []
+                newNode.children = []
+                self.addNode(newNode)
+                parent = node.parents[-1]
+                self.removeEdge(node.parents[-1] + '-' + node.id)
+                self.addEdge(parent, newNode.id)
+                newNode.children = copy.copy(node.children)
+                for c in newNode.children:
+                    self.edgeList.append(Edge(newNode.id, c))
+                    self.nodeList[c].parents.append(newNode.id)
+                changed = True
+        if changed is True:
+            self.makeSimple()
