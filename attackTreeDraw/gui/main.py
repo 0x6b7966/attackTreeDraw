@@ -958,7 +958,7 @@ class Main(QMainWindow):
         """
         Prints a simple about box
         """
-        QMessageBox.about(self, 'About attackTreeDraw', 'atackTreeDraw is a tool to draw attack trees<br>Author: Daniel Fischer <br><br>This is a part of his bachelor thesis')
+        QMessageBox.about(self, 'About attackTreeDraw', 'atackTreeDraw is a tool to draw attack trees<br><br>Author: Daniel Fischer <br>Supervisor: Prof. Dr. Christoph Karg<br><br>This is a part of his bachelor thesis<br><br><img src=' + os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets/images/hs-aalen-logo.png') + '>')
 
     def help(self):
         """
