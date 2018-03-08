@@ -92,6 +92,7 @@ class Main(QMainWindow):
                 # Name     shortcut   tip          action
                 '&Reload Tree': [QKeySequence.Refresh, 'Reload the Tree', self.refreshGraph],
                 '&Reformat Tree': ['Ctrl+Shift+R', 'Redraw and reorder Tree', self.redrawGraph],
+                '&Generate Simple Tree': ['', 'Generate Simple Tree', self.generateSimple],
                 '&Edit Meta Information': ['', 'Edit Meta Information', self.editMeta],
                 'SEPARATOR01': [],
                 'Zoom &In': [QKeySequence.ZoomIn, 'Zoom in', self.zoomIn],
@@ -232,6 +233,8 @@ class Main(QMainWindow):
             n.initDFS()
             n.view = None
 
+        self.graphicsView.setScene(None)
+
         if doReorderTree is True:
             self.progress = QProgressDialog("Reordering tree...", "Abort Reorder", 0, 2 ** 10, self)
             self.progress.setWindowModality(Qt.WindowModal)
@@ -266,6 +269,7 @@ class Main(QMainWindow):
             self.graphicsView.centerOn(0, 0)
         if doReorderTree is True:
             self.progress.setValue(2**10)
+        self.graphicsView.setScene(self.scene)
         self.graphicsView.viewport().update()
 
     def printGraphRecursion(self, node, x, y, parent=None, fixedPositions=False):
@@ -377,7 +381,7 @@ class Main(QMainWindow):
             for rightItem in right:
                 self.moveRec(rightItem, 125, 0)
             collisions = self.checkCollRec(left, right)
-
+            self.progress.setValue(self.progress.value() + 1)
         return collision
 
     def checkCollRec(self, item, toCheckList):
@@ -544,6 +548,7 @@ class Main(QMainWindow):
         fileName = dialog.getSaveFileName(self, 'Export as PNG', '', 'PNG (*.png)')
 
         if fileName != ('', ''):  # @TODO; Error handling
+            self.scene.clearSelection()
             self.scene.setSceneRect(self.scene.itemsBoundingRect())
             image = QImage(self.scene.sceneRect().size().toSize(), QImage.Format_ARGB32)
             image.fill(Qt.white)
@@ -565,8 +570,8 @@ class Main(QMainWindow):
         self.mouse()
         dialog = QFileDialog()
         fileName = dialog.getSaveFileName(self, 'Export as PDF', '', 'PDF (*.pdf)')
-
         if fileName != ('', ''):
+            self.scene.clearSelection()
             try:
                 printer = QPrinter(QPrinter.HighResolution)
                 printer.setOutputFormat(QPrinter.PdfFormat)
@@ -596,7 +601,7 @@ class Main(QMainWindow):
         printer = QPrinter(QPrinter.HighResolution)
         printer.setPageSize(QPrinter.A4)
         printer.setOrientation(QPrinter.Portrait)
-
+        self.scene.clearSelection()
         printDialog = QPrintDialog(printer, self)
         if printDialog.exec() == QDialog.Accepted:
             try:
@@ -815,6 +820,9 @@ class Main(QMainWindow):
         """
         Adds the last undo action to the undo stack
         """
+        for n in self.scene.items():
+            if isinstance(n, Node):
+                n.node.position = n.x(), n.y()
         self.lastAction.append(copy.deepcopy(self.tree))
 
     def copy(self):
@@ -957,3 +965,11 @@ class Main(QMainWindow):
         Prints a simple help box
         """
         QMessageBox.about(self, 'Help', 'Visit <a href="https://github.com/masteroflittle/attackTreeDraw">https://github.com/masteroflittle/attackTreeDraw</a> for help')
+
+    def generateSimple(self):
+        self.tree.makeSimple()
+        try:
+            self.redrawGraph()
+        except Exception:
+            import traceback
+            print(traceback.format_exc())

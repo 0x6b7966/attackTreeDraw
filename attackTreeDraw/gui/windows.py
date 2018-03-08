@@ -3,7 +3,7 @@ import os
 
 from PyQt5.QtCore import Qt, QDate
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QIcon, QFont, QColor
-from PyQt5.QtWidgets import QWidget, QMessageBox, QDialog, QLabel, QColorDialog, QFrame, QFontDialog
+from PyQt5.QtWidgets import QWidget, QMessageBox, QDialog, QLabel, QColorDialog, QFrame, QFontDialog, QMenu
 from PyQt5 import QtCore, QtWidgets
 
 from data.types import Threat
@@ -98,7 +98,7 @@ class NodeEdit(QDialog):
         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.verticalLayout.addWidget(self.line)
 
-        self.tableView = QtWidgets.QTableView(self)
+        self.tableView = AttributeTable(self)
         self.verticalLayout.addWidget(self.tableView)
 
         self.buttonLayout = QtWidgets.QHBoxLayout()
@@ -165,7 +165,7 @@ class NodeEdit(QDialog):
         self.model.removeRow(self.rows)
         self.rows -= 1
 
-        newEntires = {}
+        newEntries = {}
 
         if self.titleEdit.text() == '':
             MessageBox('Error in the title', 'The title can\'t be none!', icon=QMessageBox.Critical).run()
@@ -180,15 +180,15 @@ class NodeEdit(QDialog):
                 MessageBox('Error in value at row %s' % (i + 1), 'The value in row %s can\'t be none!' % (i + 1), icon=QMessageBox.Critical).run()
                 return
 
-            if self.model.item(self.rows, 0).text() in newEntires.keys():
+            if self.model.item(self.rows, 0).text() in newEntries.keys():
                 MessageBox('Error with the key at row %s' % (i + 1), 'The key in row %s already exists!' % (i + 1), icon=QMessageBox.Critical).run()
                 return
 
-            newEntires[self.model.item(i, 0).text()] = self.model.item(i, 1).text()
+            newEntries[self.model.item(i, 0).text()] = self.model.item(i, 1).text()
 
         self.parentWidget.addLastAction()
 
-        self.nodeItem.node.attributes = newEntires.copy()
+        self.nodeItem.node.attributes = newEntries.copy()
         self.nodeItem.node.title = self.titleEdit.text().replace('\n', ' ').replace('\r', '')
         self.nodeItem.node.description = self.descriptionEdit.toPlainText()
 
@@ -198,6 +198,20 @@ class NodeEdit(QDialog):
         viewport.update()
 
         self.close()
+
+
+class AttributeTable(QtWidgets.QTableView):
+    def contextMenuEvent(self, event):
+        if self.selectionModel().hasSelection():
+            menu = QMenu()
+            menu.addAction("Delete Row", self.deleteSelected)
+            menu.exec(event.globalPos(), None)
+
+    def deleteSelected(self):
+        for i in self.selectionModel().selectedIndexes():
+            if i.row() != self.parentWidget().rows:
+                self.model().removeRow(i.row())
+                self.parentWidget().rows -= 1
 
 
 class MetaEdit(QDialog):
