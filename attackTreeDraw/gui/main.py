@@ -1,14 +1,16 @@
 import copy
 import functools
 import platform
+import threading
 import traceback
 
 import os
+
 from PyQt5 import QtCore, QtWidgets
 
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
-from PyQt5.QtWidgets import QMainWindow, QAction, QToolBox, QFileDialog, QMessageBox, QDialog, QGraphicsView
+from PyQt5.QtWidgets import QMainWindow, QAction, QToolBox, QFileDialog, QMessageBox, QDialog, QGraphicsView, QProgressDialog
 from PyQt5.QtGui import QIcon, QImage, QPainter, QFontDatabase, QFont, QPageSize, QKeySequence
 
 from data.exceptions import ParserError, XMLXSDError
@@ -41,6 +43,7 @@ class Main(QMainWindow):
         self.modeAction = None
         self.defaultModeAction = None
         self.modeActions = {}
+        self.progress = None
 
         self.lastAction = []
         self.nextAction = []
@@ -229,9 +232,13 @@ class Main(QMainWindow):
             n.initDFS()
             n.view = None
 
+        if doReorderTree is True:
+            self.progress = QProgressDialog("Reordering tree...", "Abort Reorder", 0, 2 ** 10, self)
+            self.progress.setWindowModality(Qt.WindowModal)
+
         if self.tree.root is not None:
             g = self.printGraphRecursion(self.tree.nodeList[self.tree.root], 0, 10, fixedPositions=fixedPositions)
-            if doReorderTree is True:
+            if doReorderTree is True and self.progress.wasCanceled() is False:
                 i = 0
                 while fixedPositions is False and self.reorderTree(g) is not True and i < 20:
                     i += 1
@@ -239,7 +246,7 @@ class Main(QMainWindow):
         for k, n in self.tree.nodeList.items():
             if n.visited is False and len(n.parents) == 0:
                 g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50, fixedPositions=fixedPositions)
-                if doReorderTree is True:
+                if doReorderTree is True and self.progress.wasCanceled() is False:
                     i = 0
                     while fixedPositions is False and self.reorderTree(g) is not True and i < 20:
                         i += 1
@@ -247,7 +254,7 @@ class Main(QMainWindow):
         for k, n in self.tree.nodeList.items():
             if n.visited is False:
                 g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50, fixedPositions=fixedPositions)
-                if doReorderTree is True:
+                if doReorderTree is True and self.progress.wasCanceled() is False:
                     i = 0
                     while fixedPositions is False and self.reorderTree(g) is not True and i < 20:
                         i += 1
@@ -257,6 +264,8 @@ class Main(QMainWindow):
 
         if fixedPositions is not True:
             self.graphicsView.centerOn(0, 0)
+        if doReorderTree is True:
+            self.progress.setValue(2**10)
         self.graphicsView.viewport().update()
 
     def printGraphRecursion(self, node, x, y, parent=None, fixedPositions=False):
@@ -326,6 +335,10 @@ class Main(QMainWindow):
         """
         r = False
 
+        self.progress.setValue(self.progress.value() + 1)
+        if self.progress.wasCanceled():
+            return False
+
         for subG in g[1][0]:
             i = self.reorderTree(subG)
             if i is True:
@@ -338,6 +351,9 @@ class Main(QMainWindow):
         i = self.fixCollision(g[1][0], g[1][1])
         if i is True:
             r = True
+
+        if self.progress.wasCanceled():
+            return False
 
         return r
 
@@ -354,6 +370,8 @@ class Main(QMainWindow):
         collision = collisions
 
         while collisions is True:
+            if self.progress.wasCanceled():
+                return False
             for leftItem in left:
                 self.moveRec(leftItem, -125, 0)
             for rightItem in right:
@@ -370,6 +388,8 @@ class Main(QMainWindow):
         @param toCheckList: list to check the collision with item
         @return: True if there is a collision
         """
+        if self.progress.wasCanceled():
+            return False
         if isinstance(item, list):
             for i in item:
                 if self.checkCollRec(i[0], toCheckList) is True:
@@ -402,6 +422,8 @@ class Main(QMainWindow):
         @param x: x-offset to move
         @param y: y-offset to move
         """
+        if self.progress.wasCanceled():
+            return False
         if isinstance(item, list):
             for i in item:
                 self.moveRec(i, x, y)
