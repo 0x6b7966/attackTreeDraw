@@ -6,6 +6,7 @@ import traceback
 
 import os
 
+import sys
 from PyQt5 import QtCore, QtWidgets
 
 from PyQt5.QtCore import Qt, QRectF
@@ -50,7 +51,18 @@ class Main(QMainWindow):
 
         self.copyBuffer = []
 
-        self.mode = 0  # 0: default, 1: add threat, 2: add countermeasure, 3: add conjunction, 4: new edge, 5: delete item, 6: paste item
+        """
+        0: default
+        1: add threat
+        2: add countermeasure
+        3: add conjunction
+        4: new edge
+        5: delete item
+        6: paste item
+        """
+        self.mode = 0
+
+        sys.excepthook = self.exceptionHook
 
         self.initUI()
 
@@ -107,12 +119,18 @@ class Main(QMainWindow):
         }
         includePath = os.path.dirname(os.path.abspath(__file__))
         mainToolbarItems = {
-            'New': [os.path.join(includePath, 'assets/icons/new.png'), QKeySequence.New, 'New Tree', self.new],
-            'Open': [os.path.join(includePath, 'assets/icons/open.png'), QKeySequence.Open, 'Open Tree', self.loadFile],
-            'Save': [os.path.join(includePath, 'assets/icons/save.png'), QKeySequence.Save, 'Save Tree', self.saveFile],
-            'Print': [os.path.join(includePath, 'assets/icons/print.png'), QKeySequence.Print, 'Print File', self.print],
-            'Undo': [os.path.join(includePath, 'assets/icons/undo.png'), QKeySequence.Undo, 'Undo', self.undo],
-            'Redo': [os.path.join(includePath, 'assets/icons/redo.png'), QKeySequence.Redo, 'Redo', self.redo],
+            """
+            Here are no shortcuts set, because they are already in the menu declared.
+            If they would have been set there would be an conflict.
+            
+            Name     icon                                                  shortcut   tip           action
+            """
+            'New':   [os.path.join(includePath, 'assets/icons/new.png'),   '',        'New Tree',   self.new],
+            'Open':  [os.path.join(includePath, 'assets/icons/open.png'),  '',        'Open Tree',  self.loadFile],
+            'Save':  [os.path.join(includePath, 'assets/icons/save.png'),  '',        'Save Tree',  self.saveFile],
+            'Print': [os.path.join(includePath, 'assets/icons/print.png'), '',        'Print File', self.print],
+            'Undo':  [os.path.join(includePath, 'assets/icons/undo.png'),  '',        'Undo',       self.undo],
+            'Redo':  [os.path.join(includePath, 'assets/icons/redo.png'),  '',        'Redo',       self.redo],
         }
 
         editToolbarItems = {
@@ -973,3 +991,14 @@ class Main(QMainWindow):
         except Exception:
             import traceback
             print(traceback.format_exc())
+
+    def exceptionHook(self, exctype, value, tb):
+        """
+        Hook for exceptions to print a message instead of crashing the program
+
+        @param exctype: Type of the exception
+        @param value: Value of the exception
+        @param tb: Traceback
+        """
+        MessageBox('Something went wrong', 'Oops something went wrong:\nError Type: %s\nError Message: %s' %
+                   (exctype, value), icon=QMessageBox.Critical).run()
