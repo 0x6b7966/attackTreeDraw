@@ -206,8 +206,8 @@ class Node(QGraphicsItemGroup):
         self.typeRect.setPen(QPen(QColor(border), 2))
         self.titleRect.setPen(QPen(QColor(border), 2))
 
-        self.idText.setPos(x, y)
-        self.typeText.setPos(x + self.typeOffset, y)
+        self.idText.setPos(x, y - 2)
+        self.typeText.setPos(x + self.typeOffset, y - 2)
         self.titleText.setPos(x, y + 18)
 
         self.headerHeight = titleHeight + 20
@@ -264,8 +264,8 @@ class Node(QGraphicsItemGroup):
             keyRect.setPen(QPen(QColor(border), 2))
             valueRect.setPen(QPen(QColor(border), 2))
 
-            key.setPos(x, y)
-            value.setPos(x + 100, y)
+            key.setPos(x, y - 2)
+            value.setPos(x + 100, y - 2)
 
             self.attributes.addToGroup(keyRect)
             self.attributes.addToGroup(valueRect)
@@ -863,9 +863,9 @@ class AttackTreeScene(QGraphicsScene):
                 self.reset()
             else:
                 super().mousePressEvent(mouseEvent)
-        elif mouseEvent != Qt.LeftButton:
-            """Fixes middle mouse button"""
-            mouseEvent.accept()
+        elif mouseEvent != Qt.RightButton:
+            self.reset()
+            super().mousePressEvent(mouseEvent)
 
     def contextMenuEvent(self, event):
         """
