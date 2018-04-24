@@ -17,25 +17,40 @@ class Configuration:
     """
     colors = {
         'threat': {
-            'node': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()},
-            'composition': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()},
-            'alternative': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()},
-            'sequence': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()},
-            'threshold': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()}
+            'node': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                     'font': QColor(Qt.black).name()},
+            'composition': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                            'font': QColor(Qt.black).name()},
+            'alternative': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                            'font': QColor(Qt.black).name()},
+            'sequence': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                         'font': QColor(Qt.black).name()},
+            'threshold': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                          'font': QColor(Qt.black).name()}
         },
         'countermeasure': {
-            'node': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()},
-            'composition': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()},
-            'alternative': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()},
-            'sequence': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()},
-            'threshold': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()}
+            'node': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                     'font': QColor(Qt.black).name()},
+            'composition': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                            'font': QColor(Qt.black).name()},
+            'alternative': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                            'font': QColor(Qt.black).name()},
+            'sequence': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                         'font': QColor(Qt.black).name()},
+            'threshold': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                          'font': QColor(Qt.black).name()}
         },
         'default': {
-            'node': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()},
-            'composition': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()},
-            'alternative': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()},
-            'sequence': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()},
-            'threshold': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(), 'font': QColor(Qt.black).name()}
+            'node': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                     'font': QColor(Qt.black).name()},
+            'composition': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                            'font': QColor(Qt.black).name()},
+            'alternative': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                            'font': QColor(Qt.black).name()},
+            'sequence': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                         'font': QColor(Qt.black).name()},
+            'threshold': {'background': QColor(Qt.white).name(), 'border': QColor(Qt.black).name(),
+                          'font': QColor(Qt.black).name()}
         },
     }
     font = None
@@ -72,4 +87,3 @@ class Configuration:
         data = {'colors': Configuration.colors, 'font': Configuration.font.toString()}
         with open(os.path.join(pathlib.Path.home(), '.attackTreeDraw/config.json'), 'w') as fp:
             json.dump(data, fp)
-

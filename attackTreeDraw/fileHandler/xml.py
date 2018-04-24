@@ -79,43 +79,24 @@ class Handler:
 
     def generateTemplate(self, extended):
         """
-        Generates frame for the xml-file
+        Generates the frame for the xml-file
+
+        The frame contains the main structure and the location for the XSD files
 
         @param extended: The format which needs to be generated
         @return: True
         """
         self.extended = extended
-        # @TODO: change namespace location?
         if extended is False:
-            root = etree.XML('''
-                        <attackTree
-                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns=""
-                                xsi:noNamespaceSchemaLocation="https://masteroflittle.github.io/attackTreeDraw/attackTreeSimple.xsd">
-                            <meta>
-                            </meta>
-                            <tree>
-                            </tree>
-                        </attackTree>
-                        ''')
+            root = etree.XML('<attackTree xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                             'xmlns="" xsi:noNamespaceSchemaLocation="https://masteroflittle.github.io/attackTreeDraw/'
+                             'attackTreeSimple.xsd"><meta></meta><tree></tree></attackTree>')
         else:
-            root = etree.XML('''
-                        <attackTree
-                                xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns=""
-                                xsi:noNamespaceSchemaLocation="https://masteroflittle.github.io/attackTreeDraw/attackTreeExtended.xsd">
-                            <meta>
-                            </meta>
-                            <threats>
-                            </threats>
-                            <countermeasures>
-                            </countermeasures>
-                            <conjunctions>
-                            </conjunctions>
-                            <connections>
-                            </connections>
-                        </attackTree>
-                        ''')
+            root = etree.XML('<attackTree xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" '
+                             'xmlns="" xsi:noNamespaceSchemaLocation="https://masteroflittle.github.io/attackTreeDraw/'
+                             'attackTreeExtended.xsd"><meta></meta><threats></threats><countermeasures>'
+                             '</countermeasures><conjunctions></conjunctions><connections></connections></attackTree>')
         self.xml = etree.ElementTree(root)
-        # @TODO: Error handling?
         return True
 
     def generateMetaElements(self, elements):
@@ -227,7 +208,11 @@ class Handler:
                         self.addSimpleNode(tree, counter, tree.nodeList[dst])
                     else:
                         if subGenerated is False:
-                            subTree = etree.SubElement(e, 'subtree')
+                            if counterGenerated is True:
+                                subTree = etree.Element('subtree')
+                                counter.addprevious(subTree)
+                            else:
+                                subTree = etree.SubElement(e, 'subtree')
                             subGenerated = True
                         self.addSimpleNode(tree, subTree, tree.nodeList[dst])
         return e

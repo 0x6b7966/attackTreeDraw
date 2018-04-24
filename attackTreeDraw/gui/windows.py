@@ -173,15 +173,18 @@ class NodeEdit(QDialog):
 
         for i in range(self.rows + 1):
             if self.model.item(i, 0) is None or self.model.item(i, 0).text() == '':
-                MessageBox('Error in key at row %s' % (i + 1), '"The key in row %s can\'t be none!' % (i + 1), icon=QMessageBox.Critical).run()
+                MessageBox('Error in key at row %s' % (i + 1), '"The key in row %s can\'t be none!' % (i + 1),
+                           icon=QMessageBox.Critical).run()
                 return
 
             if self.model.item(i, 1) is None or self.model.item(i, 1).text() == '':
-                MessageBox('Error in value at row %s' % (i + 1), 'The value in row %s can\'t be none!' % (i + 1), icon=QMessageBox.Critical).run()
+                MessageBox('Error in value at row %s' % (i + 1), 'The value in row %s can\'t be none!' % (i + 1),
+                           icon=QMessageBox.Critical).run()
                 return
 
             if self.model.item(self.rows, 0).text() in newEntries.keys():
-                MessageBox('Error with the key at row %s' % (i + 1), 'The key in row %s already exists!' % (i + 1), icon=QMessageBox.Critical).run()
+                MessageBox('Error with the key at row %s' % (i + 1), 'The key in row %s already exists!' % (i + 1),
+                           icon=QMessageBox.Critical).run()
                 return
 
             newEntries[self.model.item(i, 0).text()] = self.model.item(i, 1).text()
@@ -202,12 +205,20 @@ class NodeEdit(QDialog):
 
 class AttributeTable(QtWidgets.QTableView):
     def contextMenuEvent(self, event):
+        """
+        Adds am context menu to the attributes table
+
+        @param event:
+        """
         if self.selectionModel().hasSelection():
             menu = QMenu()
             menu.addAction("Delete Row", self.deleteSelected)
             menu.exec(event.globalPos(), None)
 
     def deleteSelected(self):
+        """
+        Delets the selected row
+        """
         for i in self.selectionModel().selectedIndexes():
             if i.row() != self.parentWidget().rows:
                 self.model().removeRow(i.row())
@@ -408,6 +419,9 @@ class Options(QWidget):
         self.threatColorTabTitle.setText('Threat Colors')
         self.threatColorTabLayout.addWidget(self.threatColorTabTitle)
 
+        """
+        Prints the color options for threats
+        """
         for k, r in self.rows['threat'].items():
             layout = QtWidgets.QHBoxLayout()
             spacer1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
@@ -442,6 +456,9 @@ class Options(QWidget):
         self.countermeasureColorTabTitle.setText('Countermeasure Colors')
         self.countermeasureColorTabLayout.addWidget(self.countermeasureColorTabTitle)
 
+        """
+        Prints the color options for countermeasures
+        """
         for k, r in self.rows['countermeasure'].items():
             layout = QtWidgets.QHBoxLayout()
             spacer1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Minimum)
@@ -622,7 +639,8 @@ class ColorPicker(QDialog):
 
         After that the window will be closed
         """
-        helper.Configuration.colors[self.parentType][self.childType]['background'] = QColor(self.backgroundPicker.color).name()
+        helper.Configuration.colors[self.parentType][self.childType]['background'] = QColor(
+            self.backgroundPicker.color).name()
         helper.Configuration.colors[self.parentType][self.childType]['border'] = QColor(self.borderPicker.color).name()
         helper.Configuration.colors[self.parentType][self.childType]['font'] = QColor(self.fontPicker.color).name()
 
@@ -663,7 +681,7 @@ class ColorLabel(QLabel):
         palette.setColor(self.backgroundRole(), QColor(self.color))
         self.setAutoFillBackground(True)
         self.setPalette(palette)
-        
+
 
 class ConjunctionEdit(QDialog):
 

@@ -1,7 +1,6 @@
 import copy
 import functools
 import platform
-import threading
 import traceback
 
 import os
@@ -11,7 +10,8 @@ from PyQt5 import QtCore, QtWidgets
 
 from PyQt5.QtCore import Qt, QRectF
 from PyQt5.QtPrintSupport import QPrinter, QPrintDialog
-from PyQt5.QtWidgets import QMainWindow, QAction, QToolBox, QFileDialog, QMessageBox, QDialog, QGraphicsView, QProgressDialog
+from PyQt5.QtWidgets import QMainWindow, QAction, QToolBox, QFileDialog, QMessageBox, QDialog, QGraphicsView, \
+    QProgressDialog
 from PyQt5.QtGui import QIcon, QImage, QPainter, QFontDatabase, QFont, QPageSize, QKeySequence
 
 from data.exceptions import ParserError, XMLXSDError
@@ -61,7 +61,9 @@ class Main(QMainWindow):
         6: paste item
         """
         self.mode = 0
-
+        """
+        Sets the hook to print unhandled exceptions in the GUI
+        """
         sys.excepthook = self.exceptionHook
 
         self.initUI()
@@ -125,22 +127,29 @@ class Main(QMainWindow):
             
             Name     icon                                                  shortcut   tip           action
             """
-            'New':   [os.path.join(includePath, 'assets/icons/new.png'),   '',        'New Tree',   self.new],
-            'Open':  [os.path.join(includePath, 'assets/icons/open.png'),  '',        'Open Tree',  self.loadFile],
-            'Save':  [os.path.join(includePath, 'assets/icons/save.png'),  '',        'Save Tree',  self.saveFile],
-            'Print': [os.path.join(includePath, 'assets/icons/print.png'), '',        'Print File', self.print],
-            'Undo':  [os.path.join(includePath, 'assets/icons/undo.png'),  '',        'Undo',       self.undo],
-            'Redo':  [os.path.join(includePath, 'assets/icons/redo.png'),  '',        'Redo',       self.redo],
+            'New': [os.path.join(includePath, 'assets/icons/new.png'), '', 'New Tree', self.new],
+            'Open': [os.path.join(includePath, 'assets/icons/open.png'), '', 'Open Tree', self.loadFile],
+            'Save': [os.path.join(includePath, 'assets/icons/save.png'), '', 'Save Tree', self.saveFile],
+            'Print': [os.path.join(includePath, 'assets/icons/print.png'), '', 'Print File', self.print],
+            'Undo': [os.path.join(includePath, 'assets/icons/undo.png'), '', 'Undo', self.undo],
+            'Redo': [os.path.join(includePath, 'assets/icons/redo.png'), '', 'Redo', self.redo],
         }
 
         editToolbarItems = {
-            'Mouse': [os.path.join(includePath, 'assets/icons/mouse.png'), 'M', 'Use Mouse (M)', self.mouse, True, None],
-            'New Threat': [os.path.join(includePath, 'assets/icons/threat.png'), 'T', 'New Threat (T)', self.newThreat, False, None],
-            'New Counter': [os.path.join(includePath, 'assets/icons/counter.png'), 'C', 'New Countermeasure (C)', self.newCountermeasure, False, None],
-            'New Conjunction': [os.path.join(includePath, 'assets/icons/conjunction.png'), 'J', 'New Conjunction (J)', self.newConjunction, False, None],
-            'New Edge': [os.path.join(includePath, 'assets/icons/arrow.png'), 'E', 'New Edge (E)', self.newEdge, False, None],
-            'Delete Item': [os.path.join(includePath, 'assets/icons/trash.png'), 'D', 'Delete selected Items (D)', self.delete, False, None],
-            'Paste Items': [os.path.join(includePath, 'assets/icons/paste.png'), '', 'Paste Items', self.paste, False, 'pasteAction'],
+            'Mouse': [os.path.join(includePath, 'assets/icons/mouse.png'), 'M', 'Use Mouse (M)', self.mouse, True,
+                      None],
+            'New Threat': [os.path.join(includePath, 'assets/icons/threat.png'), 'T', 'New Threat (T)', self.newThreat,
+                           False, None],
+            'New Counter': [os.path.join(includePath, 'assets/icons/counter.png'), 'C', 'New Countermeasure (C)',
+                            self.newCountermeasure, False, None],
+            'New Conjunction': [os.path.join(includePath, 'assets/icons/conjunction.png'), 'J', 'New Conjunction (J)',
+                                self.newConjunction, False, None],
+            'New Edge': [os.path.join(includePath, 'assets/icons/arrow.png'), 'E', 'New Edge (E)', self.newEdge, False,
+                         None],
+            'Delete Item': [os.path.join(includePath, 'assets/icons/trash.png'), 'D', 'Delete selected Items (D)',
+                            self.delete, False, None],
+            'Paste Items': [os.path.join(includePath, 'assets/icons/paste.png'), '', 'Paste Items', self.paste, False,
+                            'pasteAction'],
 
         }
 
@@ -192,6 +201,9 @@ class Main(QMainWindow):
 
         mainToolBar = QtWidgets.QToolBar(self)
         self.addToolBar(QtCore.Qt.TopToolBarArea, mainToolBar)
+        """
+        Generate toolbar from list
+        """
         for k, v in mainToolbarItems.items():
             action = QAction(QIcon(v[0]), k, self)
             action.setShortcut(v[1])
@@ -206,11 +218,20 @@ class Main(QMainWindow):
 
         self.graphicsView.setAlignment(Qt.AlignTop)
 
+        """
+        These are options for smother rendering
+        """
         self.graphicsView.setViewportUpdateMode(QGraphicsView.BoundingRectViewportUpdate)
         self.graphicsView.setRenderHint(QPainter.Antialiasing)
         self.graphicsView.setRenderHint(QPainter.SmoothPixmapTransform)
         self.graphicsView.setCacheMode(QGraphicsView.CacheBackground)
+        """
+        This option allows the drag and drop of the nodes
+        """
         self.graphicsView.setDragMode(QGraphicsView.RubberBandDrag)
+        """
+        Display always the scroll bars
+        """
         self.graphicsView.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
         self.graphicsView.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOn)
 
@@ -219,6 +240,9 @@ class Main(QMainWindow):
         workToolbar.setOrientation(Qt.Vertical)
         self.addToolBar(Qt.LeftToolBarArea, workToolbar)
 
+        """
+        Generate toolbar from list
+        """
         for k, v in editToolbarItems.items():
             action = QAction(QIcon(v[0]), k, self)
             action.setShortcut(v[1])
@@ -227,6 +251,9 @@ class Main(QMainWindow):
 
             action.setCheckable(True)
 
+            """
+            Set the default action for the modes
+            """
             if v[4] is True:
                 self.defaultModeAction = action
                 self.modeAction = action
@@ -253,28 +280,40 @@ class Main(QMainWindow):
 
         self.graphicsView.setScene(None)
 
+        """
+        Prints the reorder dialog
+        """
         if doReorderTree is True:
             self.progress = QProgressDialog("Reordering tree...", "Abort Reorder", 0, 2 ** 10, self)
             self.progress.setWindowModality(Qt.WindowModal)
 
+        """
+        Prints all nodes connected to the root node
+        """
         if self.tree.root is not None:
             g = self.printGraphRecursion(self.tree.nodeList[self.tree.root], 0, 10, fixedPositions=fixedPositions)
             if doReorderTree is True and self.progress.wasCanceled() is False:
                 i = 0
                 while fixedPositions is False and self.reorderTree(g) is not True and i < 20:
                     i += 1
-
+        """
+        Prints all nodes w/o a parent node
+        """
         for k, n in self.tree.nodeList.items():
             if n.visited is False and len(n.parents) == 0:
-                g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50, fixedPositions=fixedPositions)
+                g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50,
+                                             fixedPositions=fixedPositions)
                 if doReorderTree is True and self.progress.wasCanceled() is False:
                     i = 0
                     while fixedPositions is False and self.reorderTree(g) is not True and i < 20:
                         i += 1
-
+        """
+        Prints the rest
+        """
         for k, n in self.tree.nodeList.items():
             if n.visited is False:
-                g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50, fixedPositions=fixedPositions)
+                g = self.printGraphRecursion(n, 0, self.scene.itemsBoundingRect().height() + 50,
+                                             fixedPositions=fixedPositions)
                 if doReorderTree is True and self.progress.wasCanceled() is False:
                     i = 0
                     while fixedPositions is False and self.reorderTree(g) is not True and i < 20:
@@ -286,7 +325,7 @@ class Main(QMainWindow):
         if fixedPositions is not True:
             self.graphicsView.centerOn(0, 0)
         if doReorderTree is True:
-            self.progress.setValue(2**10)
+            self.progress.setValue(2 ** 10)
         self.graphicsView.setScene(self.scene)
         self.graphicsView.viewport().update()
 
@@ -305,6 +344,9 @@ class Main(QMainWindow):
         rec = False
 
         if node.view is None:
+            """
+            Generates a graphical object for the node
+            """
             if fixedPositions is True and node.position is not None:
                 x = node.position[0]
                 y = node.position[1]
@@ -330,7 +372,12 @@ class Main(QMainWindow):
         it = 0
         for c in node.children:
             if rec is False:
-                subG = self.printGraphRecursion(self.tree.nodeList[c], startX + (it * 250), n.y() + n.boundingRect().height() + 100, n, fixedPositions=fixedPositions)
+                """
+                Calls the children recursively if they are not already drawn
+                """
+                subG = self.printGraphRecursion(self.tree.nodeList[c], startX + (it * 250),
+                                                n.y() + n.boundingRect().height() + 100, n,
+                                                fixedPositions=fixedPositions)
                 children.append(subG)
             it += 1
 
@@ -462,7 +509,9 @@ class Main(QMainWindow):
         self.mouse()
         if len(self.tree.nodeList) > 0 and self.saved is False:
 
-            reply = MessageBox('The document has been modified', 'Do you want to save your changes?', QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning, QMessageBox.Save).run()
+            reply = MessageBox('The document has been modified', 'Do you want to save your changes?',
+                               QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning,
+                               QMessageBox.Save).run()
 
             if reply == QMessageBox.Yes:
                 self.saveFile()
@@ -478,7 +527,8 @@ class Main(QMainWindow):
             h = TreeHandler()
             self.tree = h.buildFromXML(fileName[0])
         except ParserError as e:
-            MessageBox('Loading is not possible', 'The requested file is not compatible', icon=QMessageBox.Critical).run()
+            MessageBox('Loading is not possible', 'The requested file is not compatible',
+                       icon=QMessageBox.Critical).run()
             return
         except XMLXSDError as e:
             MessageBox('Loading is not possible', '%s' % e, icon=QMessageBox.Critical).run()
@@ -490,7 +540,11 @@ class Main(QMainWindow):
         try:
             self.file = fileName
             self.scene.clear()
+            self.scene.setSceneRect(self.scene.itemsBoundingRect())
             self.printGraph(doReorderTree=False)
+            self.scene.setSceneRect(self.scene.itemsBoundingRect())
+            self.graphicsView.setScene(self.scene)
+            self.graphicsView.update()
         except Exception:
             print(traceback.format_exc())
 
@@ -513,15 +567,19 @@ class Main(QMainWindow):
                 return False
 
         if self.tree.checkCycle() is False:
-            MessageBox('Saving is not possible', 'There is a cycle in the graph at node ID: %s\nTitle: %s' % (self.tree.cycleNode.id, self.tree.cycleNode.title), icon=QMessageBox.Critical).run()
+            MessageBox('Saving is not possible', 'There is a cycle in the graph at node ID: %s\nTitle: %s' % (
+                self.tree.cycleNode.id, self.tree.cycleNode.title), icon=QMessageBox.Critical).run()
             return False
 
         if self.tree.checkNodes() is False:
-            MessageBox('Saving is not possible', 'The title is missing at node ID:\n %s' % ', '.join(self.tree.falseNodes), icon=QMessageBox.Critical).run()
+            MessageBox('Saving is not possible',
+                       'The title is missing at node ID:\n %s' % ', '.join(self.tree.falseNodes),
+                       icon=QMessageBox.Critical).run()
             return False
 
         if self.tree.checkExtended():
-            MessageBox('Simple Mode not available', 'There is only the extended mode available.', icon=QMessageBox.Information).run()
+            MessageBox('Simple Mode not available', 'There is only the extended mode available.',
+                       icon=QMessageBox.Information).run()
             fileExt = 'Extended Attack Tree File (*.xml)'
         else:
             fileExt = 'Simple Attack Tree File (*.xml);;Extended Attack Tree File (*.xml)'
@@ -539,7 +597,8 @@ class Main(QMainWindow):
 
         save = handler.saveToXML(self.tree, self.file[0])
         if save is not True:
-            MessageBox('Error while saving file', 'There was an error saving the tree.\nError Message: %s' % save, icon=QMessageBox.Information).run()
+            MessageBox('Error while saving file', 'There was an error saving the tree.\nError Message: %s' % save,
+                       icon=QMessageBox.Information).run()
             return False
         self.saved = True
         return True
@@ -565,9 +624,11 @@ class Main(QMainWindow):
         dialog = QFileDialog()
         fileName = dialog.getSaveFileName(self, 'Export as PNG', '', 'PNG (*.png)')
 
-        if fileName != ('', ''):  # @TODO; Error handling
+        if fileName != ('', ''):
             self.scene.clearSelection()
             self.scene.setSceneRect(self.scene.itemsBoundingRect())
+            self.graphicsView.setScene(self.scene)
+            self.graphicsView.update()
             image = QImage(self.scene.sceneRect().size().toSize(), QImage.Format_ARGB32)
             image.fill(Qt.white)
             painter = QPainter(image)
@@ -601,7 +662,9 @@ class Main(QMainWindow):
                 if p.begin(printer) is False:
                     raise Exception('Error starting painter')
 
-                self.scene.setSceneRect(QRectF())
+                self.scene.setSceneRect(self.scene.itemsBoundingRect())
+                self.graphicsView.setScene(self.scene)
+                self.graphicsView.update()
 
                 self.scene.render(p)
                 p.end()
@@ -639,7 +702,9 @@ class Main(QMainWindow):
         """
         self.mouse()
         if len(self.tree.nodeList) > 0 and self.saved is False:
-            reply = MessageBox('The document has been modified', 'Do you want to save your changes?', QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning, QMessageBox.Save).run()
+            reply = MessageBox('The document has been modified', 'Do you want to save your changes?',
+                               QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning,
+                               QMessageBox.Save).run()
             if reply == QMessageBox.Yes:
                 self.saveFile()
             elif reply == QMessageBox.Cancel:
@@ -647,7 +712,9 @@ class Main(QMainWindow):
         self.tree = types.Tree(False)
         self.scene.clear()
         self.graphicsView.centerOn(0, 0)
-        self.graphicsView.setSceneRect(self.scene.itemsBoundingRect())
+        self.scene.setSceneRect(self.scene.itemsBoundingRect())
+        self.graphicsView.setScene(self.scene)
+        self.graphicsView.update()
         self.graphicsView.viewport().update()
 
     def redrawGraph(self):
@@ -848,6 +915,7 @@ class Main(QMainWindow):
         Saves the selected elements in the copyBuffer
         """
         self.copyBuffer = []
+        self.tree.reservedList = []
 
         for i in self.scene.selectedItems():
             if isinstance(i, Node):
@@ -857,11 +925,17 @@ class Main(QMainWindow):
 
         idMapper = {}
 
+        """
+        Generates an array to map the old IDs to new one
+        """
         for n in self.copyBuffer:
             id = n.id
             n.id = self.tree.getNextID(idMapper.values())
             idMapper[id] = n.id
 
+        """
+        Changes the IDs of the nodes in the copy buffer
+        """
         for n in self.copyBuffer:
             parents = copy.copy(n.parents)
             n.parents = []
@@ -873,6 +947,7 @@ class Main(QMainWindow):
             for c in children:
                 if c in idMapper.keys():
                     n.children.append(idMapper[c])
+        self.tree.reservedList = copy.copy(list(idMapper.values()))
 
     def cut(self):
         """
@@ -882,10 +957,12 @@ class Main(QMainWindow):
         self.saved = False
         self.addLastAction()
         self.copyBuffer = []
+        self.tree.reservedList = []
 
         for i in self.scene.selectedItems():
             if isinstance(i, Node):
                 self.copyBuffer.append(copy.copy(i.node))
+                self.tree.reservedList.append(i.node.id)
         self.scene.deleteSelected()
         self.scene.clearSelection()
 
@@ -935,6 +1012,7 @@ class Main(QMainWindow):
                 self.tree.nodeList[i.id] = copy.copy(i)
 
             self.copyBuffer = []
+            self.tree.reservedList = []
 
             self.refreshGraph()
 
@@ -956,7 +1034,9 @@ class Main(QMainWindow):
         @param event: The close event
         """
         if len(self.tree.nodeList) > 0 and self.saved is False:
-            reply = MessageBox('The document has been modified', 'Do you want to save your changes?', QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning, QMessageBox.Save).run()
+            reply = MessageBox('The document has been modified', 'Do you want to save your changes?',
+                               QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Warning,
+                               QMessageBox.Save).run()
             if reply == QMessageBox.Save:
                 if self.saveFile() is True:
                     event.accept()
@@ -976,13 +1056,18 @@ class Main(QMainWindow):
         """
         Prints a simple about box
         """
-        QMessageBox.about(self, 'About attackTreeDraw', 'atackTreeDraw is a tool to draw attack trees<br><br>Author: Daniel Fischer <br>Supervisor: Prof. Dr. Christoph Karg<br><br>This is a part of his bachelor thesis<br><br><img src=' + os.path.join(os.path.dirname(os.path.abspath(__file__)), 'assets/images/hs-aalen-logo.png') + '>')
+        QMessageBox.about(self, 'About attackTreeDraw',
+                          'atackTreeDraw is a tool to draw attack trees<br><br>Author: Daniel Fischer <br>'
+                          'Supervisor: Prof. Dr. Christoph Karg<br><br>This is a part of his bachelor thesis<br><br>'
+                          '<img src=' + os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                                     'assets/images/hs-aalen-logo.png') + '>')
 
     def help(self):
         """
         Prints a simple help box
         """
-        QMessageBox.about(self, 'Help', 'Visit <a href="https://github.com/masteroflittle/attackTreeDraw">https://github.com/masteroflittle/attackTreeDraw</a> for help')
+        QMessageBox.about(self, 'Help', 'Visit <a href="https://github.com/masteroflittle/attackTreeDraw">'
+                                        'https://github.com/masteroflittle/attackTreeDraw</a> for help')
 
     def generateSimple(self):
         self.tree.makeSimple()

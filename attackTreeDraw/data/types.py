@@ -113,6 +113,10 @@ class Tree:
         self.cycleNode = None
         self.root = None
         self.meta = {'title': '', 'author': '', 'date': '', 'description': '', 'root': ''}
+        """
+        List for reserved nodeIDs while copy/paste is active
+        """
+        self.reservedList = []
 
         self.lastError = ''
 
@@ -231,24 +235,35 @@ class Tree:
             if edge.__hash__() == c.__hash__():
                 return False
 
+        if destinationId == sourceId:
+            return False
+
         if self.getTypeRecursiveUp(source) is Countermeasure and self.getTypeRecursiveDown(destination) is Threat:
             return False
 
-        if isinstance(source, Conjunction) and isinstance(destination, Conjunction) and self.getTypeRecursiveDown(source) is not Conjunction and self.getTypeRecursiveDown(destination) is not Conjunction and self.getTypeRecursiveDown(source) is not self.getTypeRecursiveDown(destination):
+        if isinstance(source, Conjunction) and isinstance(destination, Conjunction) \
+                and self.getTypeRecursiveDown(source) is not Conjunction \
+                and self.getTypeRecursiveDown(destination) is not Conjunction \
+                and self.getTypeRecursiveDown(source) is not self.getTypeRecursiveDown(destination):
             return False
 
-        if not isinstance(source, Conjunction) and len(source.children) > 0 and self.getTypeRecursiveDown(source) is Threat and self.getTypeRecursiveDown(destination) is Threat:
+        if not isinstance(source, Conjunction) and len(source.children) > 0 \
+                and self.getTypeRecursiveDown(source) is Threat and self.getTypeRecursiveDown(destination) is Threat:
             return False
 
-        if not isinstance(source, Conjunction) and len(source.children) > 0 and self.getTypeRecursiveDown(source) is Countermeasure and self.getTypeRecursiveDown(destination) is Countermeasure:
+        if not isinstance(source, Conjunction) and len(source.children) > 0 \
+                and self.getTypeRecursiveDown(source) is Countermeasure \
+                and self.getTypeRecursiveDown(destination) is Countermeasure:
             return False
 
-        if not isinstance(source, Conjunction) and len(source.children) > 0 and self.getTypeRecursiveDown(source) is Countermeasure and isinstance(destination, Conjunction):
+        if not isinstance(source, Conjunction) and len(source.children) > 0 \
+                and self.getTypeRecursiveDown(source) is Countermeasure and isinstance(destination, Conjunction):
             return False
 
         if self.getTypeRecursiveUp(source) is not Conjunction and self.getTypeRecursiveDown(destination) is Conjunction:
             for c in self.getFirstElementRecursiveUp(source).children:
-                if self.getTypeRecursiveDown(destination) is not Conjunction and self.getTypeRecursiveDown(self.nodeList[c]) is self.getTypeRecursiveDown(destination):
+                if self.getTypeRecursiveDown(destination) is not Conjunction \
+                        and self.getTypeRecursiveDown(self.nodeList[c]) is self.getTypeRecursiveDown(destination):
                     return False
 
         self.edgeList.append(edge)
@@ -263,7 +278,8 @@ class Tree:
 
         @return: True if meta information are correct else false
         """
-        if 'author' not in self.meta or self.meta['author'] == '' or 'title' not in self.meta or self.meta['title'] == '' or self.root is None:
+        if 'author' not in self.meta or self.meta['author'] == '' \
+                or 'title' not in self.meta or self.meta['title'] == '' or self.root is None:
             return False
         else:
             return True
@@ -342,7 +358,8 @@ class Tree:
         if keyList is None:
             keyList = []
         for i in range(10000):
-            if 'N' + str(i).zfill(4) not in self.nodeList.keys() and 'N' + str(i).zfill(4) not in keyList:
+            if 'N' + str(i).zfill(4) not in self.nodeList.keys() and 'N' + str(i).zfill(4) not in keyList \
+                    and 'N' + str(i).zfill(4) not in self.reservedList:
                 return 'N' + str(i).zfill(4)
         return None
 

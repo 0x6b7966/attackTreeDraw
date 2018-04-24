@@ -5,8 +5,14 @@ from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication
 from gui.main import Main
 
+"""
+Main entry point for attackTreeDraw
+"""
 if __name__ == "__main__":
     debug = True
+    """
+    Debug suppresses all console output
+    """
     if debug is False:
         sys.stdout = os.devnull
         sys.stderr = os.devnull
