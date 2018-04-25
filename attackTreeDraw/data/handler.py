@@ -59,7 +59,6 @@ class TreeHandler:
         @param file: File to save to
         @return: True if saving was successfully else returns exception
         """
-        # @TODO implement checks
         xmlHandler = XmlHandler()
         xmlHandler.generateTree(tree)
         return xmlHandler.saveToFile(file)
@@ -110,7 +109,8 @@ class Parsers:
                 n.attributes[a.get('key')] = a.text
             n.title = node.find('title').text
             n.description = node.find('description').text
-        elif node.tag == 'alternative' or node.tag == 'composition' or node.tag == 'sequence' or node.tag == 'threshold':
+        elif node.tag == 'alternative' or node.tag == 'composition' or node.tag == 'sequence' \
+                or node.tag == 'threshold':
             n = Conjunction(node.get('id'), node.tag)
         elif node.tag == 'conjunction':
             n = Conjunction(node.get('id'), node.get('type'))
@@ -154,7 +154,8 @@ class Parsers:
         check = tree.addNode(n)
 
         for subTreeNode in node.iterchildren():
-            if subTreeNode.tag == 'alternative' or subTreeNode.tag == 'composition' or subTreeNode.tag == 'sequence' or subTreeNode.tag == 'threshold':
+            if subTreeNode.tag == 'alternative' or subTreeNode.tag == 'composition' \
+                    or subTreeNode.tag == 'sequence' or subTreeNode.tag == 'threshold':
                 conjunction = Parsers.parseSimpleConjunction(tree, subTreeNode, n.id)
                 tree.addEdge(n.id, conjunction.id)
             else:
@@ -188,7 +189,8 @@ class Parsers:
 
         if node.find('subtree') is not None:
             for subTreeNode in node.find('subtree'):
-                if subTreeNode.tag == 'alternative' or subTreeNode.tag == 'composition' or subTreeNode.tag == 'sequence' or subTreeNode.tag == 'threshold':
+                if subTreeNode.tag == 'alternative' or subTreeNode.tag == 'composition' \
+                        or subTreeNode.tag == 'sequence' or subTreeNode.tag == 'threshold':
                     conjunction = Parsers.parseSimpleConjunction(tree, subTreeNode, n.id)
                     tree.addEdge(n.id, conjunction.id)
                 else:
@@ -198,7 +200,8 @@ class Parsers:
 
         if node.find('countermeasures') is not None:
             for subTreeNode in node.find('countermeasures'):
-                if subTreeNode.tag == 'alternative' or subTreeNode.tag == 'composition' or subTreeNode.tag == 'sequence' or subTreeNode.tag == 'threshold':
+                if subTreeNode.tag == 'alternative' or subTreeNode.tag == 'composition' \
+                        or subTreeNode.tag == 'sequence' or subTreeNode.tag == 'threshold':
                     conjunction = Parsers.parseSimpleConjunction(tree, subTreeNode, n.id)
                     tree.addEdge(n.id, conjunction.id)
                 else:

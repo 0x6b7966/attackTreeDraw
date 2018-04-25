@@ -1070,12 +1070,11 @@ class Main(QMainWindow):
                                         'https://github.com/masteroflittle/attackTreeDraw</a> for help')
 
     def generateSimple(self):
+        """
+        Generates an simple tree and redraws the tree
+        """
         self.tree.makeSimple()
-        try:
-            self.redrawGraph()
-        except Exception:
-            import traceback
-            print(traceback.format_exc())
+        self.redrawGraph()
 
     def exceptionHook(self, exctype, value, tb):
         """

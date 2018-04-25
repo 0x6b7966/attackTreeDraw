@@ -14,7 +14,7 @@ class Node:
         self.type = 'Node'
 
         self.isRoot = False
-        self.id = None  # @TODO: move ID to constructor
+        self.id = None
         self.title = ''
         self.description = ''
         self.attributes = {}
@@ -240,26 +240,21 @@ class Tree:
 
         if self.getTypeRecursiveUp(source) is Countermeasure and self.getTypeRecursiveDown(destination) is Threat:
             return False
-
         if isinstance(source, Conjunction) and isinstance(destination, Conjunction) \
                 and self.getTypeRecursiveDown(source) is not Conjunction \
                 and self.getTypeRecursiveDown(destination) is not Conjunction \
                 and self.getTypeRecursiveDown(source) is not self.getTypeRecursiveDown(destination):
             return False
-
         if not isinstance(source, Conjunction) and len(source.children) > 0 \
                 and self.getTypeRecursiveDown(source) is Threat and self.getTypeRecursiveDown(destination) is Threat:
             return False
-
         if not isinstance(source, Conjunction) and len(source.children) > 0 \
                 and self.getTypeRecursiveDown(source) is Countermeasure \
                 and self.getTypeRecursiveDown(destination) is Countermeasure:
             return False
-
         if not isinstance(source, Conjunction) and len(source.children) > 0 \
                 and self.getTypeRecursiveDown(source) is Countermeasure and isinstance(destination, Conjunction):
             return False
-
         if self.getTypeRecursiveUp(source) is not Conjunction and self.getTypeRecursiveDown(destination) is Conjunction:
             for c in self.getFirstElementRecursiveUp(source).children:
                 if self.getTypeRecursiveDown(destination) is not Conjunction \

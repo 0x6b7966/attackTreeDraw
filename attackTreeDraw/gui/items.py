@@ -613,7 +613,7 @@ class Conjunction(Node):
         """
         Opens the edit dialog for conjunction to change the conjunction type
         """
-        ConjunctionEdit(self, self.parent).exec()  # @TODO: Change dialof
+        ConjunctionEdit(self, self.parent).exec()
 
 
 class ConjunctionRect(QGraphicsRectItem):
@@ -1045,18 +1045,30 @@ class AttackTreeScene(QGraphicsScene):
                     super().mouseReleaseEvent(mouseEvent)
                     return
                 if isinstance(self.startCollisions.parentItem(), Node):
+                    """
+                    Gets the start node view object
+                    """
                     self.startCollisions = self.startCollisions.parentItem()
                 elif isinstance(self.startCollisions.parentItem(), QGraphicsItemGroup) \
                         and isinstance(self.startCollisions.parentItem().parentItem(), Node):
+                    """
+                    Gets the start node view object if the user clicks on the text in the item
+                    """
                     self.startCollisions = self.startCollisions.parentItem().parentItem()
                 else:
                     self.reset()
                     super().mouseReleaseEvent(mouseEvent)
                     return
                 if isinstance(self.dstCollisions.parentItem(), Node):
+                    """
+                    Gets the destination node view object
+                    """
                     self.dstCollisions = self.dstCollisions.parentItem()
                 elif isinstance(self.dstCollisions.parentItem(), QGraphicsItemGroup) \
                         and isinstance(self.dstCollisions.parentItem().parentItem(), Node):
+                    """
+                    Gets the destination node view object if the user clicks on the text in the item
+                    """
                     self.dstCollisions = self.dstCollisions.parentItem().parentItem()
                 else:
                     self.reset()
