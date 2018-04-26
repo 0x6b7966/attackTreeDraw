@@ -13,9 +13,9 @@ class TreeHandler:
         """
         Generates a Class which represents the tree in the given xml file
 
-        @param file: File to load the tree from
-        @return: data.Tree or None if format is not correct
-        @raise ParserError if loading fails
+        :param file: File to load the tree from
+        :return: data.Tree or None if format is not correct
+        :raises ParserError: if loading fails
         """
         xmlHandler = XmlHandler()
         if xmlHandler.loadFile(file) is False:
@@ -55,9 +55,9 @@ class TreeHandler:
         """
         Saves a given tree to a file
 
-        @param tree: Tree to save to file
-        @param file: File to save to
-        @return: True if saving was successfully else returns exception
+        :param tree: Tree to save to file
+        :param file: File to save to
+        :return: True if saving was successfully else returns exception
         """
         xmlHandler = XmlHandler()
         xmlHandler.generateTree(tree)
@@ -74,9 +74,9 @@ class Parsers:
         """
         Parses a edge from a xml file
 
-        @param tree: Tree to save generated files in
-        @param edge: Edge to parse
-        @raise ParserError: if edge can't be parsed
+        :param tree: Tree to save generated files in
+        :param edge: Edge to parse
+        :raises ParserError: if edge can't be parsed
         """
         if edge.get('source') in tree.nodeList.keys():
             if edge.get('destination') in tree.nodeList.keys():
@@ -91,8 +91,8 @@ class Parsers:
         """
         Parses a node and returns it
 
-        @param node: Node to parse
-        @return: Parsed node
+        :param node: Node to parse
+        :return: Parsed node
         """
         if node.tag == 'threat':
             n = Threat()
@@ -123,9 +123,9 @@ class Parsers:
         """
         Parses a extended node and adds it to a tree
 
-        @param tree: Tree to add the node to
-        @param node: Node to parse
-        @return: Parsed node
+        :param tree: Tree to add the node to
+        :param node: Node to parse
+        :return: Parsed node
         """
         n = Parsers.parseNode(node)
 
@@ -141,10 +141,10 @@ class Parsers:
         """
         Parses a simple conjunction and adds it to a tree
 
-        @param tree: Tree to add the node to
-        @param node: Node to parse
-        @param parent: paren from node
-        @return: Parsed node
+        :param tree: Tree to add the node to
+        :param node: Node to parse
+        :param parent: paren from node
+        :return: Parsed node
         """
         n = Parsers.parseNode(node)
 
@@ -175,10 +175,10 @@ class Parsers:
         """
         Parses a simple node and adds it to a tree
 
-        @param tree: Tree to add the node to
-        @param node: Node to parse
-        @param parent: paren from node
-        @return: Parsed node
+        :param tree: Tree to add the node to
+        :param node: Node to parse
+        :param parent: paren from node
+        :return: Parsed node
         """
         n = Parsers.parseNode(node)
 

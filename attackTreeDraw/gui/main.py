@@ -271,8 +271,8 @@ class Main(QMainWindow):
         """
         Prints the attack tree onto the graphics view
         after the full graph was printed it will be reordered to have a nice graph
-        @param fixedPositions: prints the node at a fixed position
-        @param doReorderTree:
+        :param fixedPositions: prints the node at a fixed position
+        :param doReorderTree:
         """
         for k, n in self.tree.nodeList.items():
             n.initDFS()
@@ -333,13 +333,13 @@ class Main(QMainWindow):
         """
         Prints a node recursively with its child nodes
         returns a tuple in the style of:
-                (node, ([left_half_of_children], [right_half_of_children])
+        (node, ([left_half_of_children], [right_half_of_children])
 
-        @param fixedPositions: prints the node at a fixed position
-        @param node: data node to print
-        @param x: x position of the node
-        @param y: y position of the mode
-        @param parent: parent node
+        :param fixedPositions: prints the node at a fixed position
+        :param node: data node to print
+        :param x: x position of the node
+        :param y: y position of the mode
+        :param parent: parent node
         """
         rec = False
 
@@ -399,8 +399,8 @@ class Main(QMainWindow):
         Reoders the tree recursively.
         The function splits the tree into two parts when it's possible
 
-        @param g: Part of the graph
-        @return: True if no collisions where found
+        :param g: Part of the graph
+        :return: True if no collisions where found
         """
         r = False
 
@@ -431,9 +431,9 @@ class Main(QMainWindow):
         Checks if there is a collision between l and r
         If there is one both parts will be moved to the left or right side
 
-        @param left: left part of the subtree
-        @param right: right part of the subtree
-        @return: True if there was an collision
+        :param left: left part of the subtree
+        :param right: right part of the subtree
+        :return: True if there was an collision
         """
         collisions = self.checkCollRec(left, right)
         collision = collisions
@@ -453,9 +453,9 @@ class Main(QMainWindow):
         """
         Checks recursively if there is a collision between an item or a list of times and a list of times
 
-        @param item: item or list to check for collisions
-        @param toCheckList: list to check the collision with item
-        @return: True if there is a collision
+        :param item: item or list to check for collisions
+        :param toCheckList: list to check the collision with item
+        :return: True if there is a collision
         """
         if self.progress.wasCanceled():
             return False
@@ -487,9 +487,9 @@ class Main(QMainWindow):
         """
         Moves an item or a list of items by (x,y)
 
-        @param item: item or list of item in graphicsScene
-        @param x: x-offset to move
-        @param y: y-offset to move
+        :param item: item or list of item in graphicsScene
+        :param x: x-offset to move
+        :param y: y-offset to move
         """
         if self.progress.wasCanceled():
             return False
@@ -553,7 +553,7 @@ class Main(QMainWindow):
         Opens a dialog to save the tree.
         It checks if all information are correct
         and does a check for an cycle
-        @return: True if saving was successful
+        :return: True if saving was successful
         """
         self.mouse()
         if len(self.tree.nodeList) == 0:
@@ -618,7 +618,7 @@ class Main(QMainWindow):
         Opens a dialog to export the tree as png.
         Saves the tree to the declared location
 
-        @return: True if saving was successful
+        :return: True if saving was successful
         """
         self.mouse()
         dialog = QFileDialog()
@@ -644,7 +644,7 @@ class Main(QMainWindow):
         Opens a dialog to export the tree as pdf.
         Saves the tree to the declared location
 
-        @return: True if saving was successful
+        :return: True if saving was successful
         """
         self.mouse()
         dialog = QFileDialog()
@@ -753,7 +753,7 @@ class Main(QMainWindow):
         """
          Sets the edit mode to normal mouse mode
 
-        @param action: Button for the edit mode
+        :param action: Button for the edit mode
         """
         if self.modeAction is not None:
             self.modeAction.setChecked(False)
@@ -768,7 +768,7 @@ class Main(QMainWindow):
         """
         Sets the edit mode to threat insertion
 
-         @param action: Button for the edit mode
+         :param action: Button for the edit mode
          """
         if self.modeAction is not None:
             self.modeAction.setChecked(False)
@@ -788,7 +788,7 @@ class Main(QMainWindow):
         """
          Sets the edit mode to countermeasure insertion
 
-         @param action: Button for the edit mode
+         :param action: Button for the edit mode
          """
         if self.modeAction is not None:
             self.modeAction.setChecked(False)
@@ -807,7 +807,7 @@ class Main(QMainWindow):
         """
         Sets the edit mode to composition insertion
 
-         @param action: Button for the edit mode
+         :param action: Button for the edit mode
          """
         if self.modeAction is not None:
             self.modeAction.setChecked(False)
@@ -827,7 +827,7 @@ class Main(QMainWindow):
         """
         Sets the edit mode to composition insertion
 
-         @param action: Button for the edit mode
+         :param action: Button for the edit mode
          """
         if self.modeAction is not None:
             self.modeAction.setChecked(False)
@@ -847,7 +847,7 @@ class Main(QMainWindow):
         """
         Sets the edit mode to delete items
 
-         @param action: Button for the edit mode
+         :param action: Button for the edit mode
          """
         if self.modeAction is not None:
             self.modeAction.setChecked(False)
@@ -970,7 +970,7 @@ class Main(QMainWindow):
         """
         Sets the edit mode to insert the  items from the copy buffer
 
-        @param action: Button for the edit mode
+        :param action: Button for the edit mode
         """
         if action is None or action is False:
             action = self.modeActions['pasteAction']
@@ -993,8 +993,8 @@ class Main(QMainWindow):
     def insertCopyBuffer(self, x, y):
         """
         Inserts the copied elements at the position (x,y)
-        @param x: X part of the position
-        @param y: Y part of the position
+        :param x: X part of the position
+        :param y: Y part of the position
         """
         self.addLastAction()
         self.saved = False
@@ -1031,7 +1031,7 @@ class Main(QMainWindow):
     def closeEvent(self, event):
         """
         Reimplemented the close event to ask if the user wants to save the changes
-        @param event: The close event
+        :param event: The close event
         """
         if len(self.tree.nodeList) > 0 and self.saved is False:
             reply = MessageBox('The document has been modified', 'Do you want to save your changes?',
@@ -1080,9 +1080,9 @@ class Main(QMainWindow):
         """
         Hook for exceptions to print a message instead of crashing the program
 
-        @param exctype: Type of the exception
-        @param value: Value of the exception
-        @param tb: Traceback
+        :param exctype: Type of the exception
+        :param value: Value of the exception
+        :param tb: Traceback
         """
         MessageBox('Something went wrong', 'Oops something went wrong:\nError Type: %s\nError Message: %s' %
                    (exctype, value), icon=QMessageBox.Critical).run()

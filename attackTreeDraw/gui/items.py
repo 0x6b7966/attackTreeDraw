@@ -26,14 +26,14 @@ class Node(QGraphicsItemGroup):
         Constructor for the node class.
         It generates all necessary variables and calls the draw function
 
-        @param node: data node which it gets the data from
-        @param parent: parent widget
-        @param background: background color of the node
-        @param border: border color for the node
-        @param text: text color for the node
-        @param x: x-position of the node
-        @param y: y-position of the node
-        @param offset: offset for the type to center it
+        :param node: data node which it gets the data from
+        :param parent: parent widget
+        :param background: background color of the node
+        :param border: border color for the node
+        :param text: text color for the node
+        :param x: x-position of the node
+        :param y: y-position of the node
+        :param offset: offset for the type to center it
         """
         super().__init__()
 
@@ -72,7 +72,7 @@ class Node(QGraphicsItemGroup):
         """
         Searches the children of a node to get a node with type != Conjunction
         If there is no other node with type != Conjunction, Conjunction will be returned
-        @return: type of first child node with type != Conjunction or Conjunction
+        :return: type of first child node with type != Conjunction or Conjunction
         """
         if isinstance(self, Conjunction):
             for c in self.childEdges:
@@ -88,7 +88,7 @@ class Node(QGraphicsItemGroup):
         """
         Searches the parents of a node to get a node with type != Conjunction
         If there is no other node with type != Conjunction, Conjunction will be returned
-        @return: type of first parent node with type != Conjunction or Conjunction
+        :return: type of first parent node with type != Conjunction or Conjunction
         """
         if isinstance(self, Conjunction):
             for c in self.childEdges:
@@ -103,7 +103,7 @@ class Node(QGraphicsItemGroup):
     def addEdge(self, dst):
         """
         Adds an child edge to this node an places the start of the arrow in the right place
-        @param dst: destination node for the edge
+        :param dst: destination node for the edge
         """
         if isinstance(self, Threat) and dst.getTypeRecursiveDown() is Threat:
             edge = Edge(self, dst, -50)
@@ -140,7 +140,7 @@ class Node(QGraphicsItemGroup):
     def getLeftRightChildren(self):
         """
         Splits the children in to arrays with the same size
-        @return: Tuple (left, right) with child elements split in to arrays
+        :return: Tuple (left, right) with child elements split in to arrays
         """
         left = []
         right = []
@@ -164,9 +164,9 @@ class Node(QGraphicsItemGroup):
         Prints the the header of the node.
         It contains the Node id, title and type
 
-        @param background: background color of the node
-        @param border: border color for the node
-        @param text: text color for the node
+        :param background: background color of the node
+        :param border: border color for the node
+        :param text: text color for the node
         """
         x = self.x()
         y = self.y()
@@ -228,9 +228,9 @@ class Node(QGraphicsItemGroup):
         Prints the attributes of the node
         The attributes are a key, value pair
 
-        @param background: background color of the node
-        @param border: border color for the node
-        @param text: text color for the node
+        :param background: background color of the node
+        :param border: border color for the node
+        :param text: text color for the node
         """
         y = self.y() + self.headerHeight
         x = self.x()
@@ -282,9 +282,9 @@ class Node(QGraphicsItemGroup):
         """
         Redraws the node with option for the background, border and text color
 
-        @param background: background color of the node
-        @param border: border color for the node
-        @param text: text color for the node
+        :param background: background color of the node
+        :param border: border color for the node
+        :param text: text color for the node
         """
         y = self.y()
         x = self.x()
@@ -329,9 +329,9 @@ class Node(QGraphicsItemGroup):
         Prototype function for the footer.
         Implemented in the child classes
 
-        @param background: background color of the node
-        @param border: border color for the node
-        @param text: text color for the node
+        :param background: background color of the node
+        :param border: border color for the node
+        :param text: text color for the node
         """
         pass
 
@@ -339,8 +339,8 @@ class Node(QGraphicsItemGroup):
         """
         Overloads setPos to set the position of the visible node in the data node
 
-        @param x: X part of the position
-        @param y: Y part of the position
+        :param x: X part of the position
+        :param y: Y part of the position
         """
         self.node.position = (x, y)
         super().setPos(x, y)
@@ -350,9 +350,9 @@ class Node(QGraphicsItemGroup):
         Reimplementation for the paint function of the QGraphicsItemGroup.
         The Reimplementation is needed to print a proper border when the item is selected
 
-        @param painter: The painter, which draws the node
-        @param options: options for the paint job
-        @param widget: widget of the Item
+        :param painter: The painter, which draws the node
+        :param options: options for the paint job
+        :param widget: widget of the Item
         """
         myOption = QStyleOptionGraphicsItem(options)
         myOption.state &= ~QStyle.State_Selected
@@ -397,7 +397,7 @@ class Node(QGraphicsItemGroup):
         Handles a double click on the node.
         The double click opens the edit window for this node
 
-        @param event: click event
+        :param event: click event
         """
         self.edit()
 
@@ -405,8 +405,8 @@ class Node(QGraphicsItemGroup):
         """
         Sets the correct position to the data node if the item is drag & dropped
 
-        @param event: Drop event
-        @return: Changed Value
+        :param event: Drop event
+        :return: Changed Value
         """
 
         print("ok")
@@ -424,10 +424,10 @@ class Threat(Node):
         Constructor for the threat node.
         It generates all necessary variables and calls the draw function
 
-        @param node: data node which it gets the data from
-        @param parent: parent widget
-        @param x: x-position of the node
-        @param y: y-position of the node
+        :param node: data node which it gets the data from
+        :param parent: parent widget
+        :param x: x-position of the node
+        :param y: y-position of the node
         """
         self.threatBox = None
         self.counterBox = None
@@ -444,9 +444,9 @@ class Threat(Node):
         Prints the footer for the threat node
         The footer contains two columns where the conjunction will start from
 
-        @param background: background color of the node
-        @param border: border color for the node
-        @param text: text color for the node
+        :param background: background color of the node
+        :param border: border color for the node
+        :param text: text color for the node
         """
         self.threatBoxText = QGraphicsTextItem()
         self.threatBoxText.setFont(Configuration.font)
@@ -503,10 +503,10 @@ class Countermeasure(Node):
         Constructor for the countermeasure node.
         It generates all necessary variables and calls the draw function
 
-        @param node: data node which it gets the data from
-        @param parent: parent widget
-        @param x: x-position of the node
-        @param y: y-position of the node
+        :param node: data node which it gets the data from
+        :param parent: parent widget
+        :param x: x-position of the node
+        :param y: y-position of the node
         """
         super().__init__(node, parent, Configuration.colors['countermeasure']['node']['background'],
                          Configuration.colors['countermeasure']['node']['border'],
@@ -531,10 +531,10 @@ class Conjunction(Node):
         Constructor for the countermeasure node.
         It generates all necessary variables and calls the draw function
 
-        @param node: data node which it gets the data from
-        @param parent: parent widget
-        @param x: x-position of the node
-        @param y: y-position of the node
+        :param node: data node which it gets the data from
+        :param parent: parent widget
+        :param x: x-position of the node
+        :param y: y-position of the node
         """
         if len(node.children) > 0:
             if parent.tree.getTypeRecursiveDown(parent.tree.nodeList[node.children[0]]) is types.Countermeasure:
@@ -593,9 +593,9 @@ class Conjunction(Node):
         Reimplementation for the paint function of the QGraphicsItemGroup.
         The Reimplementation is needed to print a proper border when the item is selected
 
-        @param painter: The painter, which draws the node
-        @param options: options for the paint job
-        @param widget: widget of the Item
+        :param painter: The painter, which draws the node
+        :param options: options for the paint job
+        :param widget: widget of the Item
         """
         myOption = QStyleOptionGraphicsItem(options)
         myOption.state &= ~QStyle.State_Selected
@@ -623,9 +623,9 @@ class ConjunctionRect(QGraphicsRectItem):
         This is needed to draw a rounded rectangle
         The Reimplementation is also needed to print a proper border when the item is selected
 
-        @param painter: The painter, which draws the node
-        @param options: options for the paint job
-        @param widget: widget of the Item
+        :param painter: The painter, which draws the node
+        :param options: options for the paint job
+        :param widget: widget of the Item
         """
         painter.setRenderHint(QPainter.Antialiasing)
         painter.setRenderHint(QPainter.SmoothPixmapTransform)
@@ -647,10 +647,10 @@ class Edge(QGraphicsLineItem):
         It generates all necessary variables and calls the draw function
         It adds also the parent arrow from the source to the conjunction rectangle
 
-        @param start: Starting object of the arrow
-        @param dst: End object of the arrow
-        @param offset: left/right offset for the starting arrow
-        @param color: Color of the arrow
+        :param start: Starting object of the arrow
+        :param dst: End object of the arrow
+        :param offset: left/right offset for the starting arrow
+        :param color: Color of the arrow
         """
         super().__init__()
 
@@ -671,7 +671,7 @@ class Edge(QGraphicsLineItem):
         """
         New calculation of the bounding rect, because the arrow is not only a line
 
-        @return: new bounding rectangle
+        :return: new bounding rectangle
         """
         extra = (self.pen().width() + 20) / 2.0
         return QRectF(self.line().p1(), QSizeF(self.line().p2().x() - self.line().p1().x(),
@@ -682,7 +682,7 @@ class Edge(QGraphicsLineItem):
         """
         Calculation of the shape of the arrow
 
-        @return: shape of the arrow
+        :return: shape of the arrow
         """
         path = QGraphicsLineItem.shape(self)
         path.addPolygon(self.arrowHead)
@@ -700,9 +700,9 @@ class Edge(QGraphicsLineItem):
         Painter implementation for the arrow.
         First it draws the line and then the triangle on the end
 
-        @param painter: The painter, which draws the node
-        @param options: options for the paint job
-        @param widget: widget of the Item
+        :param painter: The painter, which draws the node
+        :param options: options for the paint job
+        :param widget: widget of the Item
         """
 
         if self.start.collidesWithItem(self.dst):
@@ -777,7 +777,7 @@ class AttackTreeScene(QGraphicsScene):
         Constructor for the AttackTreeScene.
         Sets the needed class variables and initializes the context menu
 
-        @param parent: Parent widget for the AttackTreeScene
+        :param parent: Parent widget for the AttackTreeScene
         """
         super().__init__(parent)
         self.startCollisions = None
@@ -821,7 +821,7 @@ class AttackTreeScene(QGraphicsScene):
     def addEdge(self, type):
         """
         Adds an edge to the graph with the specific type
-        @param type: Type of the edge (alternative|alternative|sequence|threshold)
+        :param type: Type of the edge (alternative|alternative|sequence|threshold)
         """
 
         node = types.Conjunction(conjunctionType=type)
@@ -856,7 +856,7 @@ class AttackTreeScene(QGraphicsScene):
         Handles the press event for the mouse
         On click it will insert a node or set the start position for a conjunction
 
-        @param mouseEvent: Mouse Event
+        :param mouseEvent: Mouse Event
         """
         if mouseEvent.button() == Qt.LeftButton:
             if self.parent().mode == 1:
@@ -930,7 +930,7 @@ class AttackTreeScene(QGraphicsScene):
         Handles the event to open a context menu on a node
         The event will open a context menu to edit the node
 
-        @param event: context menu Event
+        :param event: context menu Event
         """
         try:
             if len(self.selectedItems()) > 0:
@@ -978,7 +978,7 @@ class AttackTreeScene(QGraphicsScene):
     def deleteEdge(self, edge):
         """
         Deletes an edge
-        @param edge: Edge to delete
+        :param edge: Edge to delete
         """
         self.removeItem(edge)
         edge.start.childEdges.remove(edge)
@@ -1016,7 +1016,7 @@ class AttackTreeScene(QGraphicsScene):
         Handler for the move event of the mouse.
         If the mode is to draw a line (3) it will update the feedback line
 
-        @param mouseEvent: Mouse Event
+        :param mouseEvent: Mouse Event
         """
         if self.insertLine is not None:
             newLine = QLineF(self.insertLine.line().p1(), mouseEvent.scenePos())
@@ -1028,7 +1028,7 @@ class AttackTreeScene(QGraphicsScene):
         Handles the mouse release event.
         In this event the edge will be completed or the item to delete are certain
 
-        @param mouseEvent: Mouse Event
+        :param mouseEvent: Mouse Event
         """
         if mouseEvent.button() == Qt.LeftButton:
             if self.parent().mode == 4:

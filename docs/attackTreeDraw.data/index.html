@@ -1,0 +1,565 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>data package &#8212;  1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="fileHandler package" href="../attackTreeDraw.fileHandler/" />
+    <link rel="prev" title="attackTreeDraw package" href="../attackTreeDraw/" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="data-package">
+<h1>data package<a class="headerlink" href="#data-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-data.exceptions">
+<span id="data-exceptions-module"></span><h2>data.exceptions module<a class="headerlink" href="#module-data.exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="exception">
+<dt id="data.exceptions.ParserError">
+<em class="property">exception </em><code class="descclassname">data.exceptions.</code><code class="descname">ParserError</code><a class="reference internal" href="../_modules/data/exceptions/#ParserError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.exceptions.ParserError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception for parser errors</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="data.exceptions.XMLXSDError">
+<em class="property">exception </em><code class="descclassname">data.exceptions.</code><code class="descname">XMLXSDError</code><a class="reference internal" href="../_modules/data/exceptions/#XMLXSDError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.exceptions.XMLXSDError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception for errors with the xsd files</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-data.handler">
+<span id="data-handler-module"></span><h2>data.handler module<a class="headerlink" href="#module-data.handler" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="data.handler.Parsers">
+<em class="property">class </em><code class="descclassname">data.handler.</code><code class="descname">Parsers</code><a class="reference internal" href="../_modules/data/handler/#Parsers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.handler.Parsers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This Class contains parsers for the xml items</p>
+<dl class="staticmethod">
+<dt id="data.handler.Parsers.parseExtendedConnection">
+<em class="property">static </em><code class="descname">parseExtendedConnection</code><span class="sig-paren">(</span><em>tree</em>, <em>edge</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/handler/#Parsers.parseExtendedConnection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.handler.Parsers.parseExtendedConnection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a edge from a xml file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> – Tree to save generated files in</li>
+<li><strong>edge</strong> – Edge to parse</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raises:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#data.exceptions.ParserError" title="data.exceptions.ParserError"><strong>ParserError</strong></a> – if edge can’t be parsed</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="data.handler.Parsers.parseExtendedNode">
+<em class="property">static </em><code class="descname">parseExtendedNode</code><span class="sig-paren">(</span><em>tree</em>, <em>node</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/handler/#Parsers.parseExtendedNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.handler.Parsers.parseExtendedNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a extended node and adds it to a tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> – Tree to add the node to</li>
+<li><strong>node</strong> – Node to parse</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Parsed node</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="data.handler.Parsers.parseNode">
+<em class="property">static </em><code class="descname">parseNode</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/handler/#Parsers.parseNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.handler.Parsers.parseNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a node and returns it</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> – Node to parse</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Parsed node</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="data.handler.Parsers.parseSimpleConjunction">
+<em class="property">static </em><code class="descname">parseSimpleConjunction</code><span class="sig-paren">(</span><em>tree</em>, <em>node</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/handler/#Parsers.parseSimpleConjunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.handler.Parsers.parseSimpleConjunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a simple conjunction and adds it to a tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> – Tree to add the node to</li>
+<li><strong>node</strong> – Node to parse</li>
+<li><strong>parent</strong> – paren from node</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Parsed node</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="data.handler.Parsers.parseSimpleNode">
+<em class="property">static </em><code class="descname">parseSimpleNode</code><span class="sig-paren">(</span><em>tree</em>, <em>node</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/handler/#Parsers.parseSimpleNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.handler.Parsers.parseSimpleNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses a simple node and adds it to a tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> – Tree to add the node to</li>
+<li><strong>node</strong> – Node to parse</li>
+<li><strong>parent</strong> – paren from node</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Parsed node</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="data.handler.TreeHandler">
+<em class="property">class </em><code class="descclassname">data.handler.</code><code class="descname">TreeHandler</code><a class="reference internal" href="../_modules/data/handler/#TreeHandler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.handler.TreeHandler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This Class handles loading and saving for the tree</p>
+<dl class="staticmethod">
+<dt id="data.handler.TreeHandler.buildFromXML">
+<em class="property">static </em><code class="descname">buildFromXML</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/handler/#TreeHandler.buildFromXML"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.handler.TreeHandler.buildFromXML" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a Class which represents the tree in the given xml file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file</strong> – File to load the tree from</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">data.Tree or None if format is not correct</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raises:</th><td class="field-body"><a class="reference internal" href="#data.exceptions.ParserError" title="data.exceptions.ParserError"><strong>ParserError</strong></a> – if loading fails</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="data.handler.TreeHandler.saveToXML">
+<em class="property">static </em><code class="descname">saveToXML</code><span class="sig-paren">(</span><em>tree</em>, <em>file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/handler/#TreeHandler.saveToXML"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.handler.TreeHandler.saveToXML" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves a given tree to a file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>tree</strong> – Tree to save to file</li>
+<li><strong>file</strong> – File to save to</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if saving was successfully else returns exception</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-data.types">
+<span id="data-types-module"></span><h2>data.types module<a class="headerlink" href="#module-data.types" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="data.types.Conjunction">
+<em class="property">class </em><code class="descclassname">data.types.</code><code class="descname">Conjunction</code><span class="sig-paren">(</span><em>id=None</em>, <em>conjunctionType=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Conjunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Conjunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#data.types.Node" title="data.types.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">data.types.Node</span></code></a></p>
+<p>Class for conjunction nodes</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="data.types.Countermeasure">
+<em class="property">class </em><code class="descclassname">data.types.</code><code class="descname">Countermeasure</code><a class="reference internal" href="../_modules/data/types/#Countermeasure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Countermeasure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#data.types.Node" title="data.types.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">data.types.Node</span></code></a></p>
+<p>Class for countermeasure nodes</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="data.types.Edge">
+<em class="property">class </em><code class="descclassname">data.types.</code><code class="descname">Edge</code><span class="sig-paren">(</span><em>source</em>, <em>destination</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class for edges</p>
+<p>The Class contains the source, destination and the conjunction for the edge</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="data.types.Node">
+<em class="property">class </em><code class="descclassname">data.types.</code><code class="descname">Node</code><a class="reference internal" href="../_modules/data/types/#Node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Parent class for all nodes</p>
+<dl class="method">
+<dt id="data.types.Node.initDFS">
+<code class="descname">initDFS</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Node.initDFS"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Node.initDFS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialises both variables for the dfs</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="data.types.Threat">
+<em class="property">class </em><code class="descclassname">data.types.</code><code class="descname">Threat</code><a class="reference internal" href="../_modules/data/types/#Threat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Threat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#data.types.Node" title="data.types.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">data.types.Node</span></code></a></p>
+<p>Class for threat nodes</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="data.types.Tree">
+<em class="property">class </em><code class="descclassname">data.types.</code><code class="descname">Tree</code><span class="sig-paren">(</span><em>extended</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class which moulds the tree</p>
+<dl class="method">
+<dt id="data.types.Tree.addEdge">
+<code class="descname">addEdge</code><span class="sig-paren">(</span><em>sourceId</em>, <em>destinationId</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.addEdge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.addEdge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a edge to the tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>sourceId</strong> – Id of the source node</li>
+<li><strong>destinationId</strong> – Id of the destination node</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if add was successful else false</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.addNode">
+<code class="descname">addNode</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.addNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.addNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a node to the tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> – node to add to the tree</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if succeed else false</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.checkCycle">
+<code class="descname">checkCycle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.checkCycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.checkCycle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the tree has a cycle with the dfs
+:return: True if the tree has no cycle else false</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.checkExtended">
+<code class="descname">checkExtended</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.checkExtended"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.checkExtended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the Tree is an extended or an simple tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if tree is extended else false</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.checkMeta">
+<code class="descname">checkMeta</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.checkMeta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.checkMeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the needed meta information are there</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if meta information are correct else false</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.checkNodes">
+<code class="descname">checkNodes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.checkNodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.checkNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if all nodes have needed parameters and saves them into falseNodes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">False if len(falseNodes) &gt; 0 else True</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.dfs">
+<code class="descname">dfs</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.dfs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.dfs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Depth-first search to check the tree for a cycle</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> – Node to check</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if node is finished false if a cycle is detected</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.getFirstElementRecursiveDown">
+<code class="descname">getFirstElementRecursiveDown</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.getFirstElementRecursiveDown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.getFirstElementRecursiveDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the first node which is not a Conjunction.
+The function searches downwards.
+If there was no other element it will return the Conjunction</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> – Node to start the search from</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">node</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.getFirstElementRecursiveUp">
+<code class="descname">getFirstElementRecursiveUp</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.getFirstElementRecursiveUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.getFirstElementRecursiveUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the first node which is not a Conjunction.
+The function searches upwards.
+If there was no other element it will return the Conjunction</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> – Node to start the search from</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">node</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.getNextID">
+<code class="descname">getNextID</code><span class="sig-paren">(</span><em>keyList=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.getNextID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.getNextID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets the next free id for a node in the format N[0-9]{4}</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Param:</th><td class="field-body">keyList list of keys already used</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">next free node id</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.getTypeRecursiveDown">
+<code class="descname">getTypeRecursiveDown</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.getTypeRecursiveDown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.getTypeRecursiveDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the first type of a node which is not a Conjunction.
+The function searches downwards.
+If there was no other element it will return Conjunction</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> – Node to start the search from</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Type of node</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.getTypeRecursiveUp">
+<code class="descname">getTypeRecursiveUp</code><span class="sig-paren">(</span><em>node</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.getTypeRecursiveUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.getTypeRecursiveUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the first type of a node which is not a Conjunction.
+The function searches upwards.
+If there was no other element it will return Conjunction</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>node</strong> – Node to start the search from</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Type of node</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.makeSimple">
+<code class="descname">makeSimple</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.makeSimple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.makeSimple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an simple tree out of an extended one.</p>
+<p>Copies every element with two or more parents.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="data.types.Tree.meta">
+<code class="descname">meta</code><em class="property"> = None</em><a class="headerlink" href="#data.types.Tree.meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>List for reserved nodeIDs while copy/paste is active</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.removeEdge">
+<code class="descname">removeEdge</code><span class="sig-paren">(</span><em>edgeId</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.removeEdge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.removeEdge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes an edge</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>edgeId</strong> – Id of the edge (hash)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if successful else false</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="data.types.Tree.removeNode">
+<code class="descname">removeNode</code><span class="sig-paren">(</span><em>nodeId</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/data/types/#Tree.removeNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#data.types.Tree.removeNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes a node and all edges to an from this node
+:param nodeId: Id of the node which need to deleted
+:return: True if it was successful else false</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-data">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-data" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">data package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-data.exceptions">data.exceptions module</a></li>
+<li><a class="reference internal" href="#module-data.handler">data.handler module</a></li>
+<li><a class="reference internal" href="#module-data.types">data.types module</a></li>
+<li><a class="reference internal" href="#module-data">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../">Documentation overview</a><ul>
+  <li><a href="../attackTreeDraw/">attackTreeDraw package</a><ul>
+      <li>Previous: <a href="../attackTreeDraw/" title="previous chapter">attackTreeDraw package</a></li>
+      <li>Next: <a href="../attackTreeDraw.fileHandler/" title="next chapter">fileHandler package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/attackTreeDraw.data.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Daniel Fischer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/attackTreeDraw.data.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

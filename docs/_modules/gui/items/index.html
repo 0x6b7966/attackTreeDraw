@@ -1,0 +1,1175 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>gui.items &#8212;  1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex/" />
+    <link rel="search" title="Search" href="../../../search/" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for gui.items</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">math</span>
+<span class="kn">import</span> <span class="nn">traceback</span>
+
+<span class="kn">from</span> <span class="nn">PyQt5.QtCore</span> <span class="k">import</span> <span class="n">Qt</span><span class="p">,</span> <span class="n">QRectF</span><span class="p">,</span> <span class="n">QSizeF</span><span class="p">,</span> <span class="n">QLineF</span><span class="p">,</span> <span class="n">QPointF</span><span class="p">,</span> <span class="n">QRect</span><span class="p">,</span> <span class="n">QPoint</span>
+
+<span class="kn">from</span> <span class="nn">PyQt5.QtGui</span> <span class="k">import</span> <span class="n">QBrush</span><span class="p">,</span> <span class="n">QFont</span><span class="p">,</span> <span class="n">QPen</span><span class="p">,</span> <span class="n">QPolygonF</span><span class="p">,</span> <span class="n">QTransform</span><span class="p">,</span> <span class="n">QPainter</span><span class="p">,</span> <span class="n">QColor</span>
+<span class="kn">from</span> <span class="nn">PyQt5.QtWidgets</span> <span class="k">import</span> <span class="n">QGraphicsItemGroup</span><span class="p">,</span> <span class="n">QGraphicsItem</span><span class="p">,</span> <span class="n">QGraphicsTextItem</span><span class="p">,</span> <span class="n">QGraphicsRectItem</span><span class="p">,</span> <span class="n">QGraphicsLineItem</span><span class="p">,</span> \
+    <span class="n">QStyleOptionGraphicsItem</span><span class="p">,</span> <span class="n">QStyle</span><span class="p">,</span> <span class="n">QGraphicsScene</span><span class="p">,</span> <span class="n">QMenu</span><span class="p">,</span> <span class="n">QGraphicsView</span><span class="p">,</span> <span class="n">QMessageBox</span>
+
+<span class="kn">from</span> <span class="nn">.windows</span> <span class="k">import</span> <span class="n">NodeEdit</span><span class="p">,</span> <span class="n">MessageBox</span><span class="p">,</span> <span class="n">ConjunctionEdit</span>
+
+<span class="kn">from</span> <span class="nn">data</span> <span class="k">import</span> <span class="n">types</span>
+<span class="kn">from</span> <span class="nn">.helper</span> <span class="k">import</span> <span class="n">Configuration</span>
+
+
+<div class="viewcode-block" id="Node"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node">[docs]</a><span class="k">class</span> <span class="nc">Node</span><span class="p">(</span><span class="n">QGraphicsItemGroup</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Parent class for all types of nodes.</span>
+
+<span class="sd">    It contains all necessary functions to print a node in the GUI</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">20</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the node class.</span>
+<span class="sd">        It generates all necessary variables and calls the draw function</span>
+
+<span class="sd">        :param node: data node which it gets the data from</span>
+<span class="sd">        :param parent: parent widget</span>
+<span class="sd">        :param background: background color of the node</span>
+<span class="sd">        :param border: border color for the node</span>
+<span class="sd">        :param text: text color for the node</span>
+<span class="sd">        :param x: x-position of the node</span>
+<span class="sd">        :param y: y-position of the node</span>
+<span class="sd">        :param offset: offset for the type to center it</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">typeOffset</span> <span class="o">=</span> <span class="n">offset</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span> <span class="o">=</span> <span class="n">node</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span> <span class="o">=</span> <span class="n">parent</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">threatEdge</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counterEdge</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">defaultEdge</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">childEdges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parentEdges</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">headerGroup</span> <span class="o">=</span> <span class="n">QGraphicsItemGroup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span> <span class="o">=</span> <span class="n">QGraphicsItemGroup</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">footerGroup</span> <span class="o">=</span> <span class="n">QGraphicsItemGroup</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsMovable</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsSelectable</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">attributesHeight</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headerHeight</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">printHeader</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">printAttributes</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">printFooter</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setAcceptDrops</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Node.getTypeRecursiveDown"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.getTypeRecursiveDown">[docs]</a>    <span class="k">def</span> <span class="nf">getTypeRecursiveDown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Searches the children of a node to get a node with type != Conjunction</span>
+<span class="sd">        If there is no other node with type != Conjunction, Conjunction will be returned</span>
+<span class="sd">        :return: type of first child node with type != Conjunction or Conjunction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Conjunction</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childEdges</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">dst</span><span class="p">,</span> <span class="n">Conjunction</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">getTypeRecursiveDown</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">dst</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.getTypeRecursiveUp"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.getTypeRecursiveUp">[docs]</a>    <span class="k">def</span> <span class="nf">getTypeRecursiveUp</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Searches the parents of a node to get a node with type != Conjunction</span>
+<span class="sd">        If there is no other node with type != Conjunction, Conjunction will be returned</span>
+<span class="sd">        :return: type of first parent node with type != Conjunction or Conjunction</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Conjunction</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childEdges</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">dst</span><span class="p">,</span> <span class="n">Conjunction</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">c</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">getTypeRecursiveUp</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">dst</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.addEdge"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.addEdge">[docs]</a>    <span class="k">def</span> <span class="nf">addEdge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds an child edge to this node an places the start of the arrow in the right place</span>
+<span class="sd">        :param dst: destination node for the edge</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Threat</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dst</span><span class="o">.</span><span class="n">getTypeRecursiveDown</span><span class="p">()</span> <span class="ow">is</span> <span class="n">Threat</span><span class="p">:</span>
+            <span class="n">edge</span> <span class="o">=</span> <span class="n">Edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Threat</span><span class="p">)</span> <span class="ow">and</span> <span class="n">dst</span><span class="o">.</span><span class="n">getTypeRecursiveDown</span><span class="p">()</span> <span class="ow">is</span> <span class="n">Countermeasure</span><span class="p">:</span>
+            <span class="n">edge</span> <span class="o">=</span> <span class="n">Edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">edge</span> <span class="o">=</span> <span class="n">Edge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">childEdges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="n">dst</span><span class="o">.</span><span class="n">parentEdges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">childEdges</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Node.actualizeEdges"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.actualizeEdges">[docs]</a>    <span class="k">def</span> <span class="nf">actualizeEdges</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Actualizes all child edges of this node so they start at the right position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childEdges</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Threat</span><span class="p">)</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">getTypeRecursiveDown</span><span class="p">()</span> <span class="ow">is</span> <span class="n">Threat</span><span class="p">:</span>
+                <span class="n">e</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="o">-</span><span class="mi">50</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Threat</span><span class="p">)</span> <span class="ow">and</span> <span class="n">e</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">getTypeRecursiveDown</span><span class="p">()</span> <span class="ow">is</span> <span class="n">Countermeasure</span><span class="p">:</span>
+                <span class="n">e</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">50</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">e</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="Node.fixParentEdgeRec"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.fixParentEdgeRec">[docs]</a>    <span class="k">def</span> <span class="nf">fixParentEdgeRec</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fixes all starts of the parent edges so they start at the right position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parentEdges</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">Conjunction</span><span class="p">):</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">fixParentEdgeRec</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">p</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">actualizeEdges</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Node.getLeftRightChildren"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.getLeftRightChildren">[docs]</a>    <span class="k">def</span> <span class="nf">getLeftRightChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Splits the children in to arrays with the same size</span>
+<span class="sd">        :return: Tuple (left, right) with child elements split in to arrays</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">left</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">right</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">neutralLeft</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childEdges</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">e</span><span class="o">.</span><span class="n">offset</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">left</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">dst</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">e</span><span class="o">.</span><span class="n">offset</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">right</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">dst</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">neutralLeft</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                    <span class="n">left</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">dst</span><span class="p">)</span>
+                    <span class="n">neutralLeft</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">right</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">dst</span><span class="p">)</span>
+                    <span class="n">neutralLeft</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span></div>
+
+<div class="viewcode-block" id="Node.printHeader"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.printHeader">[docs]</a>    <span class="k">def</span> <span class="nf">printHeader</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints the the header of the node.</span>
+<span class="sd">        It contains the Node id, title and type</span>
+
+<span class="sd">        :param background: background color of the node</span>
+<span class="sd">        :param border: border color for the node</span>
+<span class="sd">        :param text: text color for the node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">idText</span> <span class="o">=</span> <span class="n">QGraphicsTextItem</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">typeText</span> <span class="o">=</span> <span class="n">QGraphicsTextItem</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">titleText</span> <span class="o">=</span> <span class="n">QGraphicsTextItem</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">idRect</span> <span class="o">=</span> <span class="n">QGraphicsRectItem</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">typeRect</span> <span class="o">=</span> <span class="n">QGraphicsRectItem</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">titleRect</span> <span class="o">=</span> <span class="n">QGraphicsRectItem</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">typeText</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">font</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">titleText</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">font</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idText</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">font</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">typeText</span><span class="o">.</span><span class="n">setDefaultTextColor</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">titleText</span><span class="o">.</span><span class="n">setDefaultTextColor</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">idText</span><span class="o">.</span><span class="n">setDefaultTextColor</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">titleText</span><span class="o">.</span><span class="n">setTextWidth</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">idText</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">typeText</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">titleText</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+
+        <span class="n">titleHeight</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">titleText</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">20</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="mi">20</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">idRect</span><span class="o">.</span><span class="n">setRect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">typeRect</span><span class="o">.</span><span class="n">setRect</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">50</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">150</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">titleRect</span><span class="o">.</span><span class="n">setRect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">200</span><span class="p">,</span> <span class="n">titleHeight</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">idRect</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">background</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">typeRect</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">background</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">titleRect</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">background</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">idRect</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">border</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">typeRect</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">border</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">titleRect</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">border</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">idText</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">typeText</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">typeOffset</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">titleText</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">18</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">headerHeight</span> <span class="o">=</span> <span class="n">titleHeight</span> <span class="o">+</span> <span class="mi">20</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setToolTip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">headerGroup</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idRect</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headerGroup</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typeRect</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headerGroup</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">titleRect</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headerGroup</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">idText</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headerGroup</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">typeText</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">headerGroup</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">titleText</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">headerGroup</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.printAttributes"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.printAttributes">[docs]</a>    <span class="k">def</span> <span class="nf">printAttributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints the attributes of the node</span>
+<span class="sd">        The attributes are a key, value pair</span>
+
+<span class="sd">        :param background: background color of the node</span>
+<span class="sd">        :param border: border color for the node</span>
+<span class="sd">        :param text: text color for the node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">headerHeight</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">attributesHeight</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">QGraphicsTextItem</span><span class="p">()</span>
+            <span class="n">key</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">font</span><span class="p">)</span>
+            <span class="n">key</span><span class="o">.</span><span class="n">setDefaultTextColor</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+            <span class="n">key</span><span class="o">.</span><span class="n">setTextWidth</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">key</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+            <span class="n">keyHeight</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">20</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="mi">20</span>
+
+            <span class="n">value</span> <span class="o">=</span> <span class="n">QGraphicsTextItem</span><span class="p">()</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">font</span><span class="p">)</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">setDefaultTextColor</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">setTextWidth</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="n">valueHeight</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">height</span><span class="p">()</span> <span class="o">/</span> <span class="mi">20</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span> <span class="o">*</span> <span class="mi">20</span>
+
+            <span class="n">height</span> <span class="o">=</span> <span class="n">valueHeight</span> <span class="k">if</span> <span class="n">valueHeight</span> <span class="o">&gt;</span> <span class="n">keyHeight</span> <span class="k">else</span> <span class="n">keyHeight</span>
+
+            <span class="n">keyRect</span> <span class="o">=</span> <span class="n">QGraphicsRectItem</span><span class="p">()</span>
+            <span class="n">keyRect</span><span class="o">.</span><span class="n">setRect</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+            <span class="n">valueRect</span> <span class="o">=</span> <span class="n">QGraphicsRectItem</span><span class="p">()</span>
+            <span class="n">valueRect</span><span class="o">.</span><span class="n">setRect</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">100</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+
+            <span class="n">keyRect</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">background</span><span class="p">)))</span>
+            <span class="n">valueRect</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">background</span><span class="p">)))</span>
+
+            <span class="n">keyRect</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">border</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+            <span class="n">valueRect</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">border</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+
+            <span class="n">key</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">x</span> <span class="o">+</span> <span class="mi">100</span><span class="p">,</span> <span class="n">y</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="n">keyRect</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="n">valueRect</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">height</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attributesHeight</span> <span class="o">+=</span> <span class="n">height</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.redrawOptions"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.redrawOptions">[docs]</a>    <span class="k">def</span> <span class="nf">redrawOptions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Redraws the node with option for the background, border and text color</span>
+
+<span class="sd">        :param background: background color of the node</span>
+<span class="sd">        :param border: border color for the node</span>
+<span class="sd">        :param text: text color for the node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">()</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">prepareGeometryChange</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">childItems</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">removeFromGroup</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">headerGroup</span><span class="o">.</span><span class="n">childItems</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">headerGroup</span><span class="o">.</span><span class="n">removeFromGroup</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">footerGroup</span><span class="o">.</span><span class="n">childItems</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">footerGroup</span><span class="o">.</span><span class="n">removeFromGroup</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">removeFromGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attributes</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removeFromGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">footerGroup</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removeFromGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">headerGroup</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">printHeader</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">printAttributes</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">printFooter</span><span class="p">(</span><span class="n">background</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.redraw"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Redraws the node with standard colors</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">redrawOptions</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">white</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">black</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">black</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.printFooter"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.printFooter">[docs]</a>    <span class="k">def</span> <span class="nf">printFooter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prototype function for the footer.</span>
+<span class="sd">        Implemented in the child classes</span>
+
+<span class="sd">        :param background: background color of the node</span>
+<span class="sd">        :param border: border color for the node</span>
+<span class="sd">        :param text: text color for the node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="Node.setPos"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.setPos">[docs]</a>    <span class="k">def</span> <span class="nf">setPos</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Overloads setPos to set the position of the visible node in the data node</span>
+
+<span class="sd">        :param x: X part of the position</span>
+<span class="sd">        :param y: Y part of the position</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.paint"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reimplementation for the paint function of the QGraphicsItemGroup.</span>
+<span class="sd">        The Reimplementation is needed to print a proper border when the item is selected</span>
+
+<span class="sd">        :param painter: The painter, which draws the node</span>
+<span class="sd">        :param options: options for the paint job</span>
+<span class="sd">        :param widget: widget of the Item</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">myOption</span> <span class="o">=</span> <span class="n">QStyleOptionGraphicsItem</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="n">myOption</span><span class="o">.</span><span class="n">state</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">QStyle</span><span class="o">.</span><span class="n">State_Selected</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">paint</span><span class="p">(</span><span class="n">painter</span><span class="p">,</span> <span class="n">myOption</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">state</span> <span class="o">&amp;</span> <span class="n">QStyle</span><span class="o">.</span><span class="n">State_Selected</span><span class="p">:</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">black</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">DotLine</span><span class="p">))</span>
+            <span class="n">rect</span> <span class="o">=</span> <span class="n">QRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">-</span> <span class="mf">1.5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">-</span> <span class="mf">1.5</span><span class="p">,</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">+</span> <span class="mi">3</span><span class="p">,</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">height</span><span class="p">()</span> <span class="o">+</span> <span class="mf">0.5</span><span class="p">)</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">drawRect</span><span class="p">(</span><span class="n">rect</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.selectChildren"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.selectChildren">[docs]</a>    <span class="k">def</span> <span class="nf">selectChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select all children</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childEdges</span><span class="p">:</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">selectChildren</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Node.delete"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deletes this node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parentEdges</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">childEdges</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">removeNode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Node.edit"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.edit">[docs]</a>    <span class="k">def</span> <span class="nf">edit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Opens the edit dialog</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">NodeEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Node.mouseDoubleClickEvent"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.mouseDoubleClickEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseDoubleClickEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles a double click on the node.</span>
+<span class="sd">        The double click opens the edit window for this node</span>
+
+<span class="sd">        :param event: click event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">edit</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Node.dropEvent"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Node.dropEvent">[docs]</a>    <span class="k">def</span> <span class="nf">dropEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sets the correct position to the data node if the item is drag &amp; dropped</span>
+
+<span class="sd">        :param event: Drop event</span>
+<span class="sd">        :return: Changed Value</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ok&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">event</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">dropEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Threat"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Threat">[docs]</a><span class="k">class</span> <span class="nc">Threat</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class handles the gui for a threat node</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the threat node.</span>
+<span class="sd">        It generates all necessary variables and calls the draw function</span>
+
+<span class="sd">        :param node: data node which it gets the data from</span>
+<span class="sd">        :param parent: parent widget</span>
+<span class="sd">        :param x: x-position of the node</span>
+<span class="sd">        :param y: y-position of the node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threatBox</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counterBox</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">threatBoxText</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counterBoxText</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="s1">&#39;threat&#39;</span><span class="p">][</span><span class="s1">&#39;node&#39;</span><span class="p">][</span><span class="s1">&#39;background&#39;</span><span class="p">],</span>
+                         <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="s1">&#39;threat&#39;</span><span class="p">][</span><span class="s1">&#39;node&#39;</span><span class="p">][</span><span class="s1">&#39;border&#39;</span><span class="p">],</span>
+                         <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="s1">&#39;threat&#39;</span><span class="p">][</span><span class="s1">&#39;node&#39;</span><span class="p">][</span><span class="s1">&#39;font&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">91</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Threat.printFooter"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Threat.printFooter">[docs]</a>    <span class="k">def</span> <span class="nf">printFooter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">background</span><span class="p">,</span> <span class="n">border</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints the footer for the threat node</span>
+<span class="sd">        The footer contains two columns where the conjunction will start from</span>
+
+<span class="sd">        :param background: background color of the node</span>
+<span class="sd">        :param border: border color for the node</span>
+<span class="sd">        :param text: text color for the node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threatBoxText</span> <span class="o">=</span> <span class="n">QGraphicsTextItem</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threatBoxText</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">font</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threatBoxText</span><span class="o">.</span><span class="n">setDefaultTextColor</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">threatBoxText</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">counterBoxText</span> <span class="o">=</span> <span class="n">QGraphicsTextItem</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counterBoxText</span><span class="o">.</span><span class="n">setFont</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">font</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counterBoxText</span><span class="o">.</span><span class="n">setDefaultTextColor</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">text</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counterBoxText</span><span class="o">.</span><span class="n">setPlainText</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">threatBox</span> <span class="o">=</span> <span class="n">QGraphicsRectItem</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counterBox</span> <span class="o">=</span> <span class="n">QGraphicsRectItem</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">threatBox</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">background</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counterBox</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">background</span><span class="p">)))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">threatBox</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">border</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counterBox</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">border</span><span class="p">),</span> <span class="mi">2</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">footerGroup</span> <span class="o">=</span> <span class="n">QGraphicsItemGroup</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">footerGroup</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">threatBox</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">footerGroup</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">counterBox</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">footerGroup</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">threatBoxText</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">footerGroup</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">counterBoxText</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">threatBox</span><span class="o">.</span><span class="n">setRect</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counterBox</span><span class="o">.</span><span class="n">setRect</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">threatBoxText</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">counterBoxText</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="mi">140</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">footerGroup</span><span class="o">.</span><span class="n">setPos</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">headerHeight</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">attributesHeight</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">footerGroup</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Threat.redraw"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Threat.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Redraws the node with the colors set in the options menu</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">redrawOptions</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="s1">&#39;threat&#39;</span><span class="p">][</span><span class="s1">&#39;node&#39;</span><span class="p">][</span><span class="s1">&#39;background&#39;</span><span class="p">],</span>
+                              <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="s1">&#39;threat&#39;</span><span class="p">][</span><span class="s1">&#39;node&#39;</span><span class="p">][</span><span class="s1">&#39;border&#39;</span><span class="p">],</span>
+                              <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="s1">&#39;threat&#39;</span><span class="p">][</span><span class="s1">&#39;node&#39;</span><span class="p">][</span><span class="s1">&#39;font&#39;</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="Countermeasure"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Countermeasure">[docs]</a><span class="k">class</span> <span class="nc">Countermeasure</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class handles the gui for a countermeasure node</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the countermeasure node.</span>
+<span class="sd">        It generates all necessary variables and calls the draw function</span>
+
+<span class="sd">        :param node: data node which it gets the data from</span>
+<span class="sd">        :param parent: parent widget</span>
+<span class="sd">        :param x: x-position of the node</span>
+<span class="sd">        :param y: y-position of the node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="s1">&#39;countermeasure&#39;</span><span class="p">][</span><span class="s1">&#39;node&#39;</span><span class="p">][</span><span class="s1">&#39;background&#39;</span><span class="p">],</span>
+                         <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="s1">&#39;countermeasure&#39;</span><span class="p">][</span><span class="s1">&#39;node&#39;</span><span class="p">][</span><span class="s1">&#39;border&#39;</span><span class="p">],</span>
+                         <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="s1">&#39;countermeasure&#39;</span><span class="p">][</span><span class="s1">&#39;node&#39;</span><span class="p">][</span><span class="s1">&#39;font&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">63</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Countermeasure.redraw"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Countermeasure.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Redraws the node with the colors set in the options menu</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">redrawOptions</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="s1">&#39;countermeasure&#39;</span><span class="p">][</span><span class="s1">&#39;node&#39;</span><span class="p">][</span><span class="s1">&#39;background&#39;</span><span class="p">],</span>
+                              <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="s1">&#39;countermeasure&#39;</span><span class="p">][</span><span class="s1">&#39;node&#39;</span><span class="p">][</span><span class="s1">&#39;border&#39;</span><span class="p">],</span>
+                              <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="s1">&#39;countermeasure&#39;</span><span class="p">][</span><span class="s1">&#39;node&#39;</span><span class="p">][</span><span class="s1">&#39;font&#39;</span><span class="p">])</span></div></div>
+
+
+<div class="viewcode-block" id="Conjunction"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Conjunction">[docs]</a><span class="k">class</span> <span class="nc">Conjunction</span><span class="p">(</span><span class="n">Node</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class handles the gui for a countermeasure node</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the countermeasure node.</span>
+<span class="sd">        It generates all necessary variables and calls the draw function</span>
+
+<span class="sd">        :param node: data node which it gets the data from</span>
+<span class="sd">        :param parent: parent widget</span>
+<span class="sd">        :param x: x-position of the node</span>
+<span class="sd">        :param y: y-position of the node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">parent</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">getTypeRecursiveDown</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="ow">is</span> <span class="n">types</span><span class="o">.</span><span class="n">Countermeasure</span><span class="p">:</span>
+                <span class="n">parentType</span> <span class="o">=</span> <span class="s1">&#39;countermeasure&#39;</span>
+            <span class="k">elif</span> <span class="n">parent</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">getTypeRecursiveDown</span><span class="p">(</span><span class="n">parent</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="p">[</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="ow">is</span> <span class="n">types</span><span class="o">.</span><span class="n">Threat</span><span class="p">:</span>
+                <span class="n">parentType</span> <span class="o">=</span> <span class="s1">&#39;threat&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parentType</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parentType</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">parent</span><span class="p">,</span> <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">parentType</span><span class="p">][</span><span class="n">node</span><span class="o">.</span><span class="n">conjunctionType</span><span class="p">][</span><span class="s1">&#39;background&#39;</span><span class="p">],</span>
+                         <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">parentType</span><span class="p">][</span><span class="n">node</span><span class="o">.</span><span class="n">conjunctionType</span><span class="p">][</span><span class="s1">&#39;border&#39;</span><span class="p">],</span>
+                         <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">parentType</span><span class="p">][</span><span class="n">node</span><span class="o">.</span><span class="n">conjunctionType</span><span class="p">][</span><span class="s1">&#39;font&#39;</span><span class="p">],</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span> <span class="o">=</span> <span class="n">ConjunctionRect</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">parentType</span><span class="p">][</span><span class="n">node</span><span class="o">.</span><span class="n">conjunctionType</span><span class="p">][</span><span class="s1">&#39;border&#39;</span><span class="p">]),</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span>
+            <span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">parentType</span><span class="p">][</span><span class="n">node</span><span class="o">.</span><span class="n">conjunctionType</span><span class="p">][</span><span class="s1">&#39;background&#39;</span><span class="p">])))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span><span class="o">.</span><span class="n">setRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">-</span> <span class="mi">20</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">240</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">headerHeight</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span><span class="o">.</span><span class="n">setZValue</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Conjunction.redraw"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Conjunction.redraw">[docs]</a>    <span class="k">def</span> <span class="nf">redraw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Redraws the node with the colors set in the options menu</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">getTypeRecursiveDown</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="ow">is</span> <span class="n">types</span><span class="o">.</span><span class="n">Countermeasure</span><span class="p">:</span>
+                <span class="n">parentType</span> <span class="o">=</span> <span class="s1">&#39;countermeasure&#39;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">getTypeRecursiveDown</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">children</span><span class="p">[</span><span class="mi">0</span><span class="p">]])</span> <span class="ow">is</span> <span class="n">types</span><span class="o">.</span><span class="n">Threat</span><span class="p">:</span>
+                <span class="n">parentType</span> <span class="o">=</span> <span class="s1">&#39;threat&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">parentType</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">parentType</span> <span class="o">=</span> <span class="s1">&#39;default&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removeFromGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">scene</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">redrawOptions</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">parentType</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">conjunctionType</span><span class="p">][</span><span class="s1">&#39;background&#39;</span><span class="p">],</span>
+                              <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">parentType</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">conjunctionType</span><span class="p">][</span><span class="s1">&#39;border&#39;</span><span class="p">],</span>
+                              <span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">parentType</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">conjunctionType</span><span class="p">][</span><span class="s1">&#39;font&#39;</span><span class="p">])</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Prints the rounded corners around the node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span> <span class="o">=</span> <span class="n">ConjunctionRect</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span>
+            <span class="n">QPen</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">parentType</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">conjunctionType</span><span class="p">][</span><span class="s1">&#39;border&#39;</span><span class="p">]),</span> <span class="mi">2</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span>
+            <span class="n">QBrush</span><span class="p">(</span><span class="n">QColor</span><span class="p">(</span><span class="n">Configuration</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">parentType</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">conjunctionType</span><span class="p">][</span><span class="s1">&#39;background&#39;</span><span class="p">])))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span><span class="o">.</span><span class="n">setRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">-</span> <span class="mi">20</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">240</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">headerHeight</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span><span class="o">.</span><span class="n">setZValue</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addToGroup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">conjunctionRect</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Conjunction.paint"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Conjunction.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reimplementation for the paint function of the QGraphicsItemGroup.</span>
+<span class="sd">        The Reimplementation is needed to print a proper border when the item is selected</span>
+
+<span class="sd">        :param painter: The painter, which draws the node</span>
+<span class="sd">        :param options: options for the paint job</span>
+<span class="sd">        :param widget: widget of the Item</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">myOption</span> <span class="o">=</span> <span class="n">QStyleOptionGraphicsItem</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+        <span class="n">myOption</span><span class="o">.</span><span class="n">state</span> <span class="o">&amp;=</span> <span class="o">~</span><span class="n">QStyle</span><span class="o">.</span><span class="n">State_Selected</span>
+
+        <span class="k">if</span> <span class="n">options</span><span class="o">.</span><span class="n">state</span> <span class="o">&amp;</span> <span class="n">QStyle</span><span class="o">.</span><span class="n">State_Selected</span><span class="p">:</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">black</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">DotLine</span><span class="p">))</span>
+            <span class="n">rect</span> <span class="o">=</span> <span class="n">QRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">-</span> <span class="mf">1.5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">-</span> <span class="mf">1.5</span><span class="p">,</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">+</span> <span class="mf">23.5</span><span class="p">,</span>
+                         <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">height</span><span class="p">()</span> <span class="o">+</span> <span class="mf">3.5</span><span class="p">)</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">drawRect</span><span class="p">(</span><span class="n">rect</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">paint</span><span class="p">(</span><span class="n">painter</span><span class="p">,</span> <span class="n">myOption</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Conjunction.edit"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Conjunction.edit">[docs]</a>    <span class="k">def</span> <span class="nf">edit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Opens the edit dialog for conjunction to change the conjunction type</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ConjunctionEdit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="ConjunctionRect"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.ConjunctionRect">[docs]</a><span class="k">class</span> <span class="nc">ConjunctionRect</span><span class="p">(</span><span class="n">QGraphicsRectItem</span><span class="p">):</span>
+<div class="viewcode-block" id="ConjunctionRect.paint"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.ConjunctionRect.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reimplementation for the paint function of the QGraphicsItem.</span>
+<span class="sd">        This is needed to draw a rounded rectangle</span>
+<span class="sd">        The Reimplementation is also needed to print a proper border when the item is selected</span>
+
+<span class="sd">        :param painter: The painter, which draws the node</span>
+<span class="sd">        :param options: options for the paint job</span>
+<span class="sd">        :param widget: widget of the Item</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setRenderHint</span><span class="p">(</span><span class="n">QPainter</span><span class="o">.</span><span class="n">Antialiasing</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setRenderHint</span><span class="p">(</span><span class="n">QPainter</span><span class="o">.</span><span class="n">SmoothPixmapTransform</span><span class="p">)</span>
+
+        <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pen</span><span class="p">())</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">brush</span><span class="p">())</span>
+
+        <span class="n">painter</span><span class="o">.</span><span class="n">drawRoundedRect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">(),</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Edge"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Edge">[docs]</a><span class="k">class</span> <span class="nc">Edge</span><span class="p">(</span><span class="n">QGraphicsLineItem</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Implements an Edge to two nodes</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">dst</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">Qt</span><span class="o">.</span><span class="n">black</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for a conjunction.</span>
+<span class="sd">        It generates all necessary variables and calls the draw function</span>
+<span class="sd">        It adds also the parent arrow from the source to the conjunction rectangle</span>
+
+<span class="sd">        :param start: Starting object of the arrow</span>
+<span class="sd">        :param dst: End object of the arrow</span>
+<span class="sd">        :param offset: left/right offset for the starting arrow</span>
+<span class="sd">        :param color: Color of the arrow</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrowHead</span> <span class="o">=</span> <span class="n">QPolygonF</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span> <span class="o">=</span> <span class="n">dst</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="n">offset</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setFlag</span><span class="p">(</span><span class="n">QGraphicsItem</span><span class="o">.</span><span class="n">ItemIsSelectable</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">SolidLine</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">RoundCap</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">RoundJoin</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">updatePosition</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Edge.boundingRect"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Edge.boundingRect">[docs]</a>    <span class="k">def</span> <span class="nf">boundingRect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        New calculation of the bounding rect, because the arrow is not only a line</span>
+
+<span class="sd">        :return: new bounding rectangle</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pen</span><span class="p">()</span><span class="o">.</span><span class="n">width</span><span class="p">()</span> <span class="o">+</span> <span class="mi">20</span><span class="p">)</span> <span class="o">/</span> <span class="mf">2.0</span>
+        <span class="k">return</span> <span class="n">QRectF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">()</span><span class="o">.</span><span class="n">p1</span><span class="p">(),</span> <span class="n">QSizeF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">()</span><span class="o">.</span><span class="n">p2</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">()</span><span class="o">.</span><span class="n">p1</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span>
+                                               <span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">()</span><span class="o">.</span><span class="n">p2</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">()</span><span class="o">.</span><span class="n">p1</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">()))</span><span class="o">.</span><span class="n">normalized</span><span class="p">()</span><span class="o">.</span><span class="n">adjusted</span><span class="p">(</span>
+            <span class="o">-</span><span class="n">extra</span><span class="p">,</span> <span class="o">-</span><span class="n">extra</span><span class="p">,</span> <span class="n">extra</span><span class="p">,</span> <span class="n">extra</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Edge.shape"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Edge.shape">[docs]</a>    <span class="k">def</span> <span class="nf">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculation of the shape of the arrow</span>
+
+<span class="sd">        :return: shape of the arrow</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">QGraphicsLineItem</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">addPolygon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arrowHead</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span></div>
+
+<div class="viewcode-block" id="Edge.updatePosition"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Edge.updatePosition">[docs]</a>    <span class="k">def</span> <span class="nf">updatePosition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Updates the position of the arrow</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="n">QLineF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mapFromItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapFromItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLine</span><span class="p">(</span><span class="n">line</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Edge.paint"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Edge.paint">[docs]</a>    <span class="k">def</span> <span class="nf">paint</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">painter</span><span class="p">,</span> <span class="n">options</span><span class="p">,</span> <span class="n">widget</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Painter implementation for the arrow.</span>
+<span class="sd">        First it draws the line and then the triangle on the end</span>
+
+<span class="sd">        :param painter: The painter, which draws the node</span>
+<span class="sd">        :param options: options for the paint job</span>
+<span class="sd">        :param widget: widget of the Item</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">collidesWithItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="p">):</span>
+            <span class="k">return</span>
+
+        <span class="n">myPen</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pen</span><span class="p">()</span>
+        <span class="n">arrowSize</span> <span class="o">=</span> <span class="mi">10</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">myPen</span><span class="p">)</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">setBrush</span><span class="p">(</span><span class="n">myPen</span><span class="o">.</span><span class="n">color</span><span class="p">())</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculation for the line</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">centerLine</span> <span class="o">=</span> <span class="n">QLineF</span><span class="p">(</span><span class="n">QPointF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">center</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">bottom</span><span class="p">()),</span>
+                            <span class="n">QPointF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">center</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">y</span><span class="p">()))</span>
+        <span class="n">endPolygon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">mapFromItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">())</span>
+        <span class="n">p1</span> <span class="o">=</span> <span class="n">endPolygon</span><span class="o">.</span><span class="n">first</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span>
+        <span class="n">p2</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">intersectPoint</span> <span class="o">=</span> <span class="n">QPointF</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">endPolygon</span><span class="p">:</span>
+            <span class="n">p2</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">pos</span><span class="p">()</span>
+
+            <span class="n">polyLine</span> <span class="o">=</span> <span class="n">QLineF</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span>
+
+            <span class="n">intersectType</span> <span class="o">=</span> <span class="n">polyLine</span><span class="o">.</span><span class="n">intersect</span><span class="p">(</span><span class="n">centerLine</span><span class="p">,</span> <span class="n">intersectPoint</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">intersectType</span> <span class="o">==</span> <span class="n">QLineF</span><span class="o">.</span><span class="n">BoundedIntersection</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">p1</span> <span class="o">=</span> <span class="n">p2</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">setLine</span><span class="p">(</span><span class="n">QLineF</span><span class="p">(</span><span class="n">intersectPoint</span><span class="p">,</span>
+                            <span class="n">QPointF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">center</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">y</span><span class="p">()</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">boundingRect</span><span class="p">()</span><span class="o">.</span><span class="n">bottom</span><span class="p">())))</span>
+
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculation for the arrow</span>
+<span class="sd">        It calculates an left and an right part of the arrow</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">angle</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">()</span><span class="o">.</span><span class="n">dy</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">()</span><span class="o">.</span><span class="n">dx</span><span class="p">())</span>
+        <span class="n">arrowP1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">()</span><span class="o">.</span><span class="n">p1</span><span class="p">()</span> <span class="o">+</span> <span class="n">QPointF</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">arrowSize</span><span class="p">,</span>
+                                             <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">arrowSize</span><span class="p">)</span>
+        <span class="n">arrowP2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">()</span><span class="o">.</span><span class="n">p1</span><span class="p">()</span> <span class="o">+</span> <span class="n">QPointF</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">arrowSize</span><span class="p">,</span>
+                                             <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">-</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span> <span class="o">*</span> <span class="n">arrowSize</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrowHead</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">arrowHead</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">()</span><span class="o">.</span><span class="n">p1</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">arrowP1</span> <span class="o">&lt;&lt;</span> <span class="n">arrowP2</span>
+
+        <span class="n">painter</span><span class="o">.</span><span class="n">drawLine</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">())</span>
+        <span class="n">painter</span><span class="o">.</span><span class="n">drawPolygon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">arrowHead</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isSelected</span><span class="p">():</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">black</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Qt</span><span class="o">.</span><span class="n">DashLine</span><span class="p">))</span>
+            <span class="n">myLine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">line</span><span class="p">()</span>
+            <span class="n">myLine</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">4.0</span><span class="p">)</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">drawLine</span><span class="p">(</span><span class="n">myLine</span><span class="p">)</span>
+            <span class="n">myLine</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">8.0</span><span class="p">)</span>
+            <span class="n">painter</span><span class="o">.</span><span class="n">drawLine</span><span class="p">(</span><span class="n">myLine</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Edge.selectChildren"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.Edge.selectChildren">[docs]</a>    <span class="k">def</span> <span class="nf">selectChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Select all children of the destination</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">selectChildren</span><span class="p">()</span></div></div>
+
+
+<div class="viewcode-block" id="AttackTreeScene"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene">[docs]</a><span class="k">class</span> <span class="nc">AttackTreeScene</span><span class="p">(</span><span class="n">QGraphicsScene</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This Class Implements the click actions for the graphics scene</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for the AttackTreeScene.</span>
+<span class="sd">        Sets the needed class variables and initializes the context menu</span>
+
+<span class="sd">        :param parent: Parent widget for the AttackTreeScene</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conjunction</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">insertLine</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">mousePos</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">menu</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">(</span><span class="n">parent</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Alternative&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addAlternative</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Composition&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addComposition</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Sequence&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addSequence</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Threshold&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">addThreshold</span><span class="p">)</span>
+
+<div class="viewcode-block" id="AttackTreeScene.addAlternative"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene.addAlternative">[docs]</a>    <span class="k">def</span> <span class="nf">addAlternative</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds an alternative as edge</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="s1">&#39;alternative&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttackTreeScene.addComposition"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene.addComposition">[docs]</a>    <span class="k">def</span> <span class="nf">addComposition</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds an composition as edge</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="s1">&#39;composition&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttackTreeScene.addSequence"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene.addSequence">[docs]</a>    <span class="k">def</span> <span class="nf">addSequence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds an sequence as edge</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="s1">&#39;sequence&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttackTreeScene.addThreshold"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene.addThreshold">[docs]</a>    <span class="k">def</span> <span class="nf">addThreshold</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds an threshold as edge</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="s1">&#39;threshold&#39;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttackTreeScene.addEdge"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene.addEdge">[docs]</a>    <span class="k">def</span> <span class="nf">addEdge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds an edge to the graph with the specific type</span>
+<span class="sd">        :param type: Type of the edge (alternative|alternative|sequence|threshold)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">node</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">Conjunction</span><span class="p">(</span><span class="n">conjunctionType</span><span class="o">=</span><span class="nb">type</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">addNode</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="n">n</span> <span class="o">=</span> <span class="n">Conjunction</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">(),</span> <span class="n">x</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mousePos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mousePos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">saved</span> <span class="o">=</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="AttackTreeScene.reset"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene.reset">[docs]</a>    <span class="k">def</span> <span class="nf">reset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Resets all actions if a mode was selected.</span>
+<span class="sd">        Also deletes the Line for inserting a edge</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conjunction</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">mode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">modeAction</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">modeAction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">defaultModeAction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">modeAction</span><span class="o">.</span><span class="n">setChecked</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">insertLine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">insertLine</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">insertLine</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">setCursor</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">ArrowCursor</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">setDragMode</span><span class="p">(</span><span class="n">QGraphicsView</span><span class="o">.</span><span class="n">RubberBandDrag</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttackTreeScene.mousePressEvent"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene.mousePressEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mousePressEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mouseEvent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the press event for the mouse</span>
+<span class="sd">        On click it will insert a node or set the start position for a conjunction</span>
+
+<span class="sd">        :param mouseEvent: Mouse Event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mouseEvent</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">LeftButton</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                Mode 1: Insert threat node</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">addLastAction</span><span class="p">()</span>
+
+                <span class="n">node</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">Threat</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">addNode</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">Threat</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">(),</span> <span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+                <span class="n">edit</span> <span class="o">=</span> <span class="n">NodeEdit</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+                <span class="n">edit</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">saved</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="n">mouseEvent</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                Mode 2: Insert countermeasure node</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">addLastAction</span><span class="p">()</span>
+
+                <span class="n">node</span> <span class="o">=</span> <span class="n">types</span><span class="o">.</span><span class="n">Countermeasure</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">addNode</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+                <span class="n">n</span> <span class="o">=</span> <span class="n">Countermeasure</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">(),</span> <span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">saved</span> <span class="o">=</span> <span class="kc">False</span>
+
+                <span class="n">edit</span> <span class="o">=</span> <span class="n">NodeEdit</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">parent</span><span class="p">)</span>
+                <span class="n">edit</span><span class="o">.</span><span class="n">exec</span><span class="p">()</span>
+
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="n">mouseEvent</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                Mode 3: Insert conjunction node</span>
+<span class="sd">                Displays an popup menu</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">mousePos</span> <span class="o">=</span> <span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">menu</span><span class="o">.</span><span class="n">popup</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">mapToGlobal</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">graphicsView</span><span class="o">.</span><span class="n">mapFromScene</span><span class="p">(</span><span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">())),</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="n">mouseEvent</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                Mode 4: Insert line</span>
+<span class="sd">                Start node of the line is set here</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">(),</span> <span class="n">QTransform</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">insertLine</span> <span class="o">=</span> <span class="n">QGraphicsLineItem</span><span class="p">(</span><span class="n">QLineF</span><span class="p">(</span><span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">(),</span> <span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">()))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">insertLine</span><span class="o">.</span><span class="n">setPen</span><span class="p">(</span><span class="n">QPen</span><span class="p">(</span><span class="n">Qt</span><span class="o">.</span><span class="n">black</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">addItem</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">insertLine</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="mi">6</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                Mode 6: Insert copy buffer</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">insertCopyBuffer</span><span class="p">(</span><span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span> <span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">())</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="n">mouseEvent</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">mouseEvent</span> <span class="o">!=</span> <span class="n">Qt</span><span class="o">.</span><span class="n">RightButton</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">mousePressEvent</span><span class="p">(</span><span class="n">mouseEvent</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttackTreeScene.contextMenuEvent"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene.contextMenuEvent">[docs]</a>    <span class="k">def</span> <span class="nf">contextMenuEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the event to open a context menu on a node</span>
+<span class="sd">        The event will open a context menu to edit the node</span>
+
+<span class="sd">        :param event: context menu Event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">selectedItems</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">menu</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">())</span>
+                <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Delete&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">deleteSelected</span><span class="p">)</span>
+                <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Select Children&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectNodesChildren</span><span class="p">)</span>
+                <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Copy&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">)</span>
+                <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Cut&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">cut</span><span class="p">)</span>
+
+                <span class="n">menu</span><span class="o">.</span><span class="n">popup</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">screenPos</span><span class="p">(),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">scenePos</span><span class="p">(),</span> <span class="n">QTransform</span><span class="p">())</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">scenePos</span><span class="p">(),</span> <span class="n">QTransform</span><span class="p">())</span>
+                <span class="n">item</span><span class="o">.</span><span class="n">setSelected</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">menu</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">())</span>
+
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">parentItem</span><span class="p">(),</span> <span class="n">Node</span><span class="p">):</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span>
+                    <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Edit&#39;</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">edit</span><span class="p">)</span>
+                    <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Delete&#39;</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">delete</span><span class="p">)</span>
+                    <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Select Children&#39;</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">selectChildren</span><span class="p">)</span>
+                    <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Copy&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">)</span>
+                    <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Cut&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">cut</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">parentItem</span><span class="p">(),</span> <span class="n">QGraphicsItemGroup</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span><span class="o">.</span><span class="n">parentItem</span><span class="p">(),</span>
+                                                                                      <span class="n">Node</span><span class="p">):</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span>
+                    <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Edit&#39;</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">edit</span><span class="p">)</span>
+                    <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Delete&#39;</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">delete</span><span class="p">)</span>
+                    <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Select Children&#39;</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">selectChildren</span><span class="p">)</span>
+                    <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Copy&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">)</span>
+                    <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Cut&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">cut</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
+                    <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Delete&#39;</span><span class="p">,</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deleteEdge</span><span class="p">,</span> <span class="n">item</span><span class="p">))</span>
+                    <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Select Children&#39;</span><span class="p">,</span> <span class="n">item</span><span class="o">.</span><span class="n">selectChildren</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">menu</span><span class="o">.</span><span class="n">popup</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">screenPos</span><span class="p">(),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">menu</span> <span class="o">=</span> <span class="n">QMenu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">())</span>
+                <span class="n">menu</span><span class="o">.</span><span class="n">addAction</span><span class="p">(</span><span class="s1">&#39;Paste&#39;</span><span class="p">,</span> <span class="n">functools</span><span class="o">.</span><span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">insertCopyBuffer</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">scenePos</span><span class="p">()</span><span class="o">.</span><span class="n">x</span><span class="p">(),</span>
+                                                          <span class="n">event</span><span class="o">.</span><span class="n">scenePos</span><span class="p">()</span><span class="o">.</span><span class="n">y</span><span class="p">()))</span>
+                <span class="n">menu</span><span class="o">.</span><span class="n">popup</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">screenPos</span><span class="p">(),</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="AttackTreeScene.deleteEdge"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene.deleteEdge">[docs]</a>    <span class="k">def</span> <span class="nf">deleteEdge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">edge</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deletes an edge</span>
+<span class="sd">        :param edge: Edge to delete</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="n">edge</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">childEdges</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="n">edge</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">parentEdges</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">edge</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">removeEdge</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">edge</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttackTreeScene.deleteSelected"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene.deleteSelected">[docs]</a>    <span class="k">def</span> <span class="nf">deleteSelected</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Deletes an selection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">addLastAction</span><span class="p">()</span>
+        <span class="n">deleted</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectedItems</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">deleted</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">Node</span><span class="p">):</span>
+                    <span class="n">deleted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="n">i</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">Edge</span><span class="p">):</span>
+                    <span class="n">deleted</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">start</span> <span class="ow">in</span> <span class="n">deleted</span> <span class="ow">or</span> <span class="n">i</span><span class="o">.</span><span class="n">dst</span> <span class="ow">in</span> <span class="n">deleted</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">removeItem</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                        <span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">childEdges</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                        <span class="n">i</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">parentEdges</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">removeEdge</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">start</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span> <span class="o">+</span> <span class="s1">&#39;-&#39;</span> <span class="o">+</span> <span class="n">i</span><span class="o">.</span><span class="n">dst</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttackTreeScene.selectNodesChildren"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene.selectNodesChildren">[docs]</a>    <span class="k">def</span> <span class="nf">selectNodesChildren</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Selects all children of the selection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">selectedItems</span><span class="p">():</span>
+            <span class="n">i</span><span class="o">.</span><span class="n">selectChildren</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AttackTreeScene.mouseMoveEvent"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene.mouseMoveEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseMoveEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mouseEvent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handler for the move event of the mouse.</span>
+<span class="sd">        If the mode is to draw a line (3) it will update the feedback line</span>
+
+<span class="sd">        :param mouseEvent: Mouse Event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">insertLine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">newLine</span> <span class="o">=</span> <span class="n">QLineF</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">insertLine</span><span class="o">.</span><span class="n">line</span><span class="p">()</span><span class="o">.</span><span class="n">p1</span><span class="p">(),</span> <span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">insertLine</span><span class="o">.</span><span class="n">setLine</span><span class="p">(</span><span class="n">newLine</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">mouseMoveEvent</span><span class="p">(</span><span class="n">mouseEvent</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AttackTreeScene.mouseReleaseEvent"><a class="viewcode-back" href="../../../attackTreeDraw.gui/#gui.items.AttackTreeScene.mouseReleaseEvent">[docs]</a>    <span class="k">def</span> <span class="nf">mouseReleaseEvent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mouseEvent</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Handles the mouse release event.</span>
+<span class="sd">        In this event the edge will be completed or the item to delete are certain</span>
+
+<span class="sd">        :param mouseEvent: Mouse Event</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mouseEvent</span><span class="o">.</span><span class="n">button</span><span class="p">()</span> <span class="o">==</span> <span class="n">Qt</span><span class="o">.</span><span class="n">LeftButton</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                Mode 4: Insert edge</span>
+<span class="sd">                Inserts the edge</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">addLastAction</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">insertLine</span><span class="o">.</span><span class="n">setZValue</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">itemAt</span><span class="p">(</span><span class="n">mouseEvent</span><span class="o">.</span><span class="n">scenePos</span><span class="p">(),</span> <span class="n">QTransform</span><span class="p">())</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span> <span class="ow">is</span> <span class="kc">None</span> \
+                        <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+                    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">mouseReleaseEvent</span><span class="p">(</span><span class="n">mouseEvent</span><span class="p">)</span>
+                    <span class="k">return</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span><span class="o">.</span><span class="n">parentItem</span><span class="p">(),</span> <span class="n">Node</span><span class="p">):</span>
+                    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                    Gets the start node view object</span>
+<span class="sd">                    &quot;&quot;&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span><span class="o">.</span><span class="n">parentItem</span><span class="p">(),</span> <span class="n">QGraphicsItemGroup</span><span class="p">)</span> \
+                        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span><span class="o">.</span><span class="n">parentItem</span><span class="p">(),</span> <span class="n">Node</span><span class="p">):</span>
+                    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                    Gets the start node view object if the user clicks on the text in the item</span>
+<span class="sd">                    &quot;&quot;&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+                    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">mouseReleaseEvent</span><span class="p">(</span><span class="n">mouseEvent</span><span class="p">)</span>
+                    <span class="k">return</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span><span class="o">.</span><span class="n">parentItem</span><span class="p">(),</span> <span class="n">Node</span><span class="p">):</span>
+                    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                    Gets the destination node view object</span>
+<span class="sd">                    &quot;&quot;&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span>
+                <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span><span class="o">.</span><span class="n">parentItem</span><span class="p">(),</span> <span class="n">QGraphicsItemGroup</span><span class="p">)</span> \
+                        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span><span class="o">.</span><span class="n">parentItem</span><span class="p">(),</span> <span class="n">Node</span><span class="p">):</span>
+                    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                    Gets the destination node view object if the user clicks on the text in the item</span>
+<span class="sd">                    &quot;&quot;&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span><span class="o">.</span><span class="n">parentItem</span><span class="p">()</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+                    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">mouseReleaseEvent</span><span class="p">(</span><span class="n">mouseEvent</span><span class="p">)</span>
+                    <span class="k">return</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dstCollisions</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span><span class="p">,</span> <span class="n">Conjunction</span><span class="p">):</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span><span class="o">.</span><span class="n">fixParentEdgeRec</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">startCollisions</span><span class="o">.</span><span class="n">redraw</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">saved</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">MessageBox</span><span class="p">(</span><span class="s1">&#39;Adding Edge is not possible&#39;</span><span class="p">,</span> <span class="s1">&#39;The Edge is not supported&#39;</span><span class="p">,</span>
+                               <span class="n">icon</span><span class="o">=</span><span class="n">QMessageBox</span><span class="o">.</span><span class="n">Critical</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">                Mode 4: Deletes selected items</span>
+<span class="sd">                Deletes all selected items plus edges from on to the selection</span>
+<span class="sd">                &quot;&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">deleteSelected</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">parent</span><span class="p">()</span><span class="o">.</span><span class="n">saved</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">mouseReleaseEvent</span><span class="p">(</span><span class="n">mouseEvent</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../">Documentation overview</a><ul>
+  <li><a href="../../">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Daniel Fischer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

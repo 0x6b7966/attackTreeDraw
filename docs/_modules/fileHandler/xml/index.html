@@ -1,0 +1,338 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>fileHandler.xml &#8212;  1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex/" />
+    <link rel="search" title="Search" href="../../../search/" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for fileHandler.xml</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">lxml</span> <span class="k">import</span> <span class="n">etree</span>
+
+<span class="kn">from</span> <span class="nn">data.exceptions</span> <span class="k">import</span> <span class="n">XMLXSDError</span>
+<span class="kn">from</span> <span class="nn">data.types</span> <span class="k">import</span> <span class="n">Countermeasure</span><span class="p">,</span> <span class="n">Conjunction</span><span class="p">,</span> <span class="n">Threat</span>
+
+
+<div class="viewcode-block" id="Handler"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler">[docs]</a><span class="k">class</span> <span class="nc">Handler</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class Handles all needed actions to save and load xml files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Constructor for Handler</span>
+
+<span class="sd">        The Constructor initialises the xml parser and xsd files</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parser</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">XMLParser</span><span class="p">(</span><span class="n">dtd_validation</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xml</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extended</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="n">includePath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">simpleXSD</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">XMLSchema</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">includePath</span><span class="p">,</span> <span class="s1">&#39;assets/attackTreeSimple.xsd&#39;</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">XMLXSDError</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t load attackTreeSimple.xsd, check installation&#39;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extendedXSD</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">XMLSchema</span><span class="p">(</span><span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">includePath</span><span class="p">,</span> <span class="s1">&#39;assets/attackTreeExtended.xsd&#39;</span><span class="p">)))</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">XMLXSDError</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t load attackTreeExtended.xsd, check installation&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Handler.loadFile"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.loadFile">[docs]</a>    <span class="k">def</span> <span class="nf">loadFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Loads a given file and validates it against the xsd files</span>
+
+<span class="sd">        :param file: a file to load from</span>
+<span class="sd">        :return: True if file is valid, else False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xml</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Handler.validate"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.validate">[docs]</a>    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Checks if the given xml-file is in simple or extended format</span>
+<span class="sd">        If the format is extended self.extended is True</span>
+
+<span class="sd">        :return: True if validation was successful else false</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validateSimple</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extended</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">validateExtended</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">extended</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="Handler.validateSimple"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.validateSimple">[docs]</a>    <span class="k">def</span> <span class="nf">validateSimple</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates xml-file against the simple format</span>
+
+<span class="sd">        :return: True if the xml-file is in simple format. else false</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">simpleXSD</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xml</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Handler.validateExtended"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.validateExtended">[docs]</a>    <span class="k">def</span> <span class="nf">validateExtended</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validates xml-file against the extended format</span>
+
+<span class="sd">        :return: True if the xml-file is in extended format. else false</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">extendedXSD</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xml</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Handler.generateTemplate"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.generateTemplate">[docs]</a>    <span class="k">def</span> <span class="nf">generateTemplate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">extended</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the frame for the xml-file</span>
+
+<span class="sd">        The frame contains the main structure and the location for the XSD files</span>
+
+<span class="sd">        :param extended: The format which needs to be generated</span>
+<span class="sd">        :return: True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extended</span> <span class="o">=</span> <span class="n">extended</span>
+        <span class="k">if</span> <span class="n">extended</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">XML</span><span class="p">(</span><span class="s1">&#39;&lt;attackTree xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; &#39;</span>
+                             <span class="s1">&#39;xmlns=&quot;&quot; xsi:noNamespaceSchemaLocation=&quot;https://masteroflittle.github.io/attackTreeDraw/&#39;</span>
+                             <span class="s1">&#39;attackTreeSimple.xsd&quot;&gt;&lt;meta&gt;&lt;/meta&gt;&lt;tree&gt;&lt;/tree&gt;&lt;/attackTree&gt;&#39;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">XML</span><span class="p">(</span><span class="s1">&#39;&lt;attackTree xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; &#39;</span>
+                             <span class="s1">&#39;xmlns=&quot;&quot; xsi:noNamespaceSchemaLocation=&quot;https://masteroflittle.github.io/attackTreeDraw/&#39;</span>
+                             <span class="s1">&#39;attackTreeExtended.xsd&quot;&gt;&lt;meta&gt;&lt;/meta&gt;&lt;threats&gt;&lt;/threats&gt;&lt;countermeasures&gt;&#39;</span>
+                             <span class="s1">&#39;&lt;/countermeasures&gt;&lt;conjunctions&gt;&lt;/conjunctions&gt;&lt;connections&gt;&lt;/connections&gt;&lt;/attackTree&gt;&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xml</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">ElementTree</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Handler.generateMetaElements"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.generateMetaElements">[docs]</a>    <span class="k">def</span> <span class="nf">generateMetaElements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">elements</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the elements in the &#39;meta&#39;-block of the xml file</span>
+
+<span class="sd">        :param elements: The elements which will be in the meta block</span>
+<span class="sd">        :return: True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;meta&#39;</span><span class="p">)</span>
+        <span class="n">meta</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">elements</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">el</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="n">el</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">v</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Handler.generateTree"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.generateTree">[docs]</a>    <span class="k">def</span> <span class="nf">generateTree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the tree as a xml file.</span>
+<span class="sd">        Before the generation it checks if it is a simple or extended tree</span>
+
+<span class="sd">        :param tree: Tree to generate the xml from</span>
+<span class="sd">        :return: True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">tree</span><span class="o">.</span><span class="n">extended</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">tree</span><span class="o">.</span><span class="n">checkExtended</span><span class="p">()</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">generateSimpleTree</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generateExtendedTree</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="Handler.generateSimpleTree"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.generateSimpleTree">[docs]</a>    <span class="k">def</span> <span class="nf">generateSimpleTree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the tree in the simple format.</span>
+
+<span class="sd">        :param tree: Tree to generate the xml from</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generateTemplate</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extended</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">xmlTree</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;tree&#39;</span><span class="p">)</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;root&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">root</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generateMetaElements</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addSimpleNode</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">xmlTree</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="p">[</span><span class="n">tree</span><span class="o">.</span><span class="n">root</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Handler.generateExtendedTree"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.generateExtendedTree">[docs]</a>    <span class="k">def</span> <span class="nf">generateExtendedTree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates the tree in the extended format.</span>
+
+<span class="sd">        :param tree: Tree to generate the xml from</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generateTemplate</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">extended</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">tree</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;root&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">root</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">generateMetaElements</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">meta</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addExtendedNodes</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">addExtendedEdges</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Handler.addNode"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.addNode">[docs]</a>    <span class="k">def</span> <span class="nf">addNode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a node and inserts it as sub element of root</span>
+
+<span class="sd">        :param root: Parent element for edge</span>
+<span class="sd">        :param element: Element to insert</span>
+<span class="sd">        :return: Generated XML Element</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">Conjunction</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">extended</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s1">&#39;conjunction&#39;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">conjunctionType</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">e</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">element</span><span class="o">.</span><span class="n">conjunctionType</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">e</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">element</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="nb">id</span><span class="o">=</span><span class="n">element</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">)</span>
+            <span class="n">title</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">title</span>
+
+            <span class="n">description</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">)</span>
+            <span class="n">description</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">element</span><span class="o">.</span><span class="n">description</span>
+
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="ow">in</span> <span class="n">element</span><span class="o">.</span><span class="n">attributes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">el</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;attribute&#39;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">k</span><span class="p">)</span>
+                <span class="n">el</span><span class="o">.</span><span class="n">text</span> <span class="o">=</span> <span class="n">v</span>
+
+        <span class="k">return</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="Handler.addSimpleNode"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.addSimpleNode">[docs]</a>    <span class="k">def</span> <span class="nf">addSimpleNode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">element</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds nodes to the xml file in the simple format</span>
+
+<span class="sd">        :param tree: Tree from which are the nodes</span>
+<span class="sd">        :param root: Root element of the tree</span>
+<span class="sd">        :param element: parent element</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">e</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">addNode</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">element</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">element</span><span class="o">.</span><span class="n">children</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">Conjunction</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">dst</span> <span class="ow">in</span> <span class="n">element</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">addSimpleNode</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="p">[</span><span class="n">dst</span><span class="p">])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">subGenerated</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">counterGenerated</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">counter</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="n">subTree</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="k">for</span> <span class="n">dst</span> <span class="ow">in</span> <span class="n">element</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">tree</span><span class="o">.</span><span class="n">getTypeRecursiveDown</span><span class="p">(</span><span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="p">[</span><span class="n">dst</span><span class="p">])</span> <span class="ow">is</span> <span class="n">Countermeasure</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">element</span><span class="p">,</span> <span class="n">Threat</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="n">counterGenerated</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                            <span class="n">counter</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;countermeasures&#39;</span><span class="p">)</span>
+                            <span class="n">counterGenerated</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">addSimpleNode</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">counter</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="p">[</span><span class="n">dst</span><span class="p">])</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">subGenerated</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="n">counterGenerated</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+                                <span class="n">subTree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">Element</span><span class="p">(</span><span class="s1">&#39;subtree&#39;</span><span class="p">)</span>
+                                <span class="n">counter</span><span class="o">.</span><span class="n">addprevious</span><span class="p">(</span><span class="n">subTree</span><span class="p">)</span>
+                            <span class="k">else</span><span class="p">:</span>
+                                <span class="n">subTree</span> <span class="o">=</span> <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="s1">&#39;subtree&#39;</span><span class="p">)</span>
+                            <span class="n">subGenerated</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">addSimpleNode</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">subTree</span><span class="p">,</span> <span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="p">[</span><span class="n">dst</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">e</span></div>
+
+<div class="viewcode-block" id="Handler.addExtendedNodes"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.addExtendedNodes">[docs]</a>    <span class="k">def</span> <span class="nf">addExtendedNodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds nodes to the xml file in the extended format</span>
+
+<span class="sd">        :param tree: Tree from which are the nodes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xmlThreats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;threats&#39;</span><span class="p">)</span>
+        <span class="n">xmlCounter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;countermeasures&#39;</span><span class="p">)</span>
+        <span class="n">xmlConjunctions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;conjunctions&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Countermeasure</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">addNode</span><span class="p">(</span><span class="n">xmlCounter</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">Threat</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">addNode</span><span class="p">(</span><span class="n">xmlThreats</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">addNode</span><span class="p">(</span><span class="n">xmlConjunctions</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Handler.addExtendedEdges"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.addExtendedEdges">[docs]</a>    <span class="k">def</span> <span class="nf">addExtendedEdges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Adds edges to the xml file in the extended format</span>
+
+<span class="sd">        :param tree: Tree from which are the edges</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xmlConnection</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;connections&#39;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">edgeList</span><span class="p">:</span>
+            <span class="n">etree</span><span class="o">.</span><span class="n">SubElement</span><span class="p">(</span><span class="n">xmlConnection</span><span class="p">,</span> <span class="s1">&#39;connection&#39;</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">edge</span><span class="o">.</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="n">edge</span><span class="o">.</span><span class="n">destination</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Handler.saveToFile"><a class="viewcode-back" href="../../../attackTreeDraw.fileHandler/#fileHandler.xml.Handler.saveToFile">[docs]</a>    <span class="k">def</span> <span class="nf">saveToFile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves the xml to a file</span>
+
+<span class="sd">        :param file: File to save to</span>
+<span class="sd">        :return: True if saving was successfully else returns exception</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">pretty_print</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">xml_declaration</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">e</span>
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../">Documentation overview</a><ul>
+  <li><a href="../../">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Daniel Fischer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

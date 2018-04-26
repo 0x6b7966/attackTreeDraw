@@ -1,0 +1,46 @@
+gui package
+==========================
+
+Submodules
+----------
+
+gui.helper module
+--------------------------------
+
+.. automodule:: gui.helper
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+gui.items module
+-------------------------------
+
+.. automodule:: gui.items
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+gui.main module
+------------------------------
+
+.. automodule:: gui.main
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+gui.windows module
+---------------------------------
+
+.. automodule:: gui.windows
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: gui
+    :members:
+    :undoc-members:
+    :show-inheritance:

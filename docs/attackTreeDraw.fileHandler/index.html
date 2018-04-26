@@ -1,0 +1,340 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>fileHandler package &#8212;  1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="next" title="gui package" href="../attackTreeDraw.gui/" />
+    <link rel="prev" title="data package" href="../attackTreeDraw.data/" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="filehandler-package">
+<h1>fileHandler package<a class="headerlink" href="#filehandler-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-fileHandler.xml">
+<span id="filehandler-xml-module"></span><h2>fileHandler.xml module<a class="headerlink" href="#module-fileHandler.xml" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="fileHandler.xml.Handler">
+<em class="property">class </em><code class="descclassname">fileHandler.xml.</code><code class="descname">Handler</code><a class="reference internal" href="../_modules/fileHandler/xml/#Handler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class Handles all needed actions to save and load xml files</p>
+<dl class="method">
+<dt id="fileHandler.xml.Handler.addExtendedEdges">
+<code class="descname">addExtendedEdges</code><span class="sig-paren">(</span><em>tree</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.addExtendedEdges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.addExtendedEdges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds edges to the xml file in the extended format</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tree</strong> – Tree from which are the edges</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fileHandler.xml.Handler.addExtendedNodes">
+<code class="descname">addExtendedNodes</code><span class="sig-paren">(</span><em>tree</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.addExtendedNodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.addExtendedNodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds nodes to the xml file in the extended format</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tree</strong> – Tree from which are the nodes</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fileHandler.xml.Handler.addNode">
+<code class="descname">addNode</code><span class="sig-paren">(</span><em>root</em>, <em>element</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.addNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.addNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a node and inserts it as sub element of root</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>root</strong> – Parent element for edge</li>
+<li><strong>element</strong> – Element to insert</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Generated XML Element</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fileHandler.xml.Handler.addSimpleNode">
+<code class="descname">addSimpleNode</code><span class="sig-paren">(</span><em>tree</em>, <em>root</em>, <em>element</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.addSimpleNode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.addSimpleNode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds nodes to the xml file in the simple format</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>tree</strong> – Tree from which are the nodes</li>
+<li><strong>root</strong> – Root element of the tree</li>
+<li><strong>element</strong> – parent element</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fileHandler.xml.Handler.generateExtendedTree">
+<code class="descname">generateExtendedTree</code><span class="sig-paren">(</span><em>tree</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.generateExtendedTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.generateExtendedTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the tree in the extended format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tree</strong> – Tree to generate the xml from</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fileHandler.xml.Handler.generateMetaElements">
+<code class="descname">generateMetaElements</code><span class="sig-paren">(</span><em>elements</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.generateMetaElements"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.generateMetaElements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the elements in the ‘meta’-block of the xml file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>elements</strong> – The elements which will be in the meta block</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fileHandler.xml.Handler.generateSimpleTree">
+<code class="descname">generateSimpleTree</code><span class="sig-paren">(</span><em>tree</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.generateSimpleTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.generateSimpleTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the tree in the simple format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tree</strong> – Tree to generate the xml from</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fileHandler.xml.Handler.generateTemplate">
+<code class="descname">generateTemplate</code><span class="sig-paren">(</span><em>extended</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.generateTemplate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.generateTemplate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the frame for the xml-file</p>
+<p>The frame contains the main structure and the location for the XSD files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>extended</strong> – The format which needs to be generated</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fileHandler.xml.Handler.generateTree">
+<code class="descname">generateTree</code><span class="sig-paren">(</span><em>tree</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.generateTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.generateTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates the tree as a xml file.
+Before the generation it checks if it is a simple or extended tree</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>tree</strong> – Tree to generate the xml from</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fileHandler.xml.Handler.loadFile">
+<code class="descname">loadFile</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.loadFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.loadFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads a given file and validates it against the xsd files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file</strong> – a file to load from</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if file is valid, else False</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fileHandler.xml.Handler.saveToFile">
+<code class="descname">saveToFile</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.saveToFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.saveToFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the xml to a file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>file</strong> – File to save to</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if saving was successfully else returns exception</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fileHandler.xml.Handler.validate">
+<code class="descname">validate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.validate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.validate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if the given xml-file is in simple or extended format
+If the format is extended self.extended is True</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if validation was successful else false</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fileHandler.xml.Handler.validateExtended">
+<code class="descname">validateExtended</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.validateExtended"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.validateExtended" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates xml-file against the extended format</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if the xml-file is in extended format. else false</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="fileHandler.xml.Handler.validateSimple">
+<code class="descname">validateSimple</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fileHandler/xml/#Handler.validateSimple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#fileHandler.xml.Handler.validateSimple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Validates xml-file against the simple format</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if the xml-file is in simple format. else false</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-fileHandler">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-fileHandler" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">fileHandler package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-fileHandler.xml">fileHandler.xml module</a></li>
+<li><a class="reference internal" href="#module-fileHandler">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../">Documentation overview</a><ul>
+  <li><a href="../attackTreeDraw/">attackTreeDraw package</a><ul>
+      <li>Previous: <a href="../attackTreeDraw.data/" title="previous chapter">data package</a></li>
+      <li>Next: <a href="../attackTreeDraw.gui/" title="next chapter">gui package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/attackTreeDraw.fileHandler.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Daniel Fischer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/attackTreeDraw.fileHandler.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

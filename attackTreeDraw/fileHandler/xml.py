@@ -35,8 +35,8 @@ class Handler:
         """
         Loads a given file and validates it against the xsd files
 
-        @param file: a file to load from
-        @return: True if file is valid, else False
+        :param file: a file to load from
+        :return: True if file is valid, else False
         """
         try:
             self.xml = etree.parse(file)
@@ -50,7 +50,7 @@ class Handler:
         Checks if the given xml-file is in simple or extended format
         If the format is extended self.extended is True
 
-        @return: True if validation was successful else false
+        :return: True if validation was successful else false
         """
         if self.validateSimple():
             self.extended = False
@@ -65,7 +65,7 @@ class Handler:
         """
         Validates xml-file against the simple format
 
-        @return: True if the xml-file is in simple format. else false
+        :return: True if the xml-file is in simple format. else false
         """
         return self.simpleXSD.validate(self.xml)
 
@@ -73,7 +73,7 @@ class Handler:
         """
         Validates xml-file against the extended format
 
-        @return: True if the xml-file is in extended format. else false
+        :return: True if the xml-file is in extended format. else false
         """
         return self.extendedXSD.validate(self.xml)
 
@@ -83,8 +83,8 @@ class Handler:
 
         The frame contains the main structure and the location for the XSD files
 
-        @param extended: The format which needs to be generated
-        @return: True
+        :param extended: The format which needs to be generated
+        :return: True
         """
         self.extended = extended
         if extended is False:
@@ -103,8 +103,8 @@ class Handler:
         """
         Generates the elements in the 'meta'-block of the xml file
 
-        @param elements: The elements which will be in the meta block
-        @return: True
+        :param elements: The elements which will be in the meta block
+        :return: True
         """
         meta = self.xml.find('meta')
         meta.clear()
@@ -118,8 +118,8 @@ class Handler:
         Generates the tree as a xml file.
         Before the generation it checks if it is a simple or extended tree
 
-        @param tree: Tree to generate the xml from
-        @return: True
+        :param tree: Tree to generate the xml from
+        :return: True
         """
         if tree.extended is False:
             if tree.checkExtended() is not True:
@@ -132,7 +132,7 @@ class Handler:
         """
         Generates the tree in the simple format.
 
-        @param tree: Tree to generate the xml from
+        :param tree: Tree to generate the xml from
         """
         self.generateTemplate(False)
         self.extended = False
@@ -145,7 +145,7 @@ class Handler:
         """
         Generates the tree in the extended format.
 
-        @param tree: Tree to generate the xml from
+        :param tree: Tree to generate the xml from
         """
         self.generateTemplate(True)
         self.extended = True
@@ -158,9 +158,9 @@ class Handler:
         """
         Generates a node and inserts it as sub element of root
 
-        @param root: Parent element for edge
-        @param element: Element to insert
-        @return: Generated XML Element
+        :param root: Parent element for edge
+        :param element: Element to insert
+        :return: Generated XML Element
         """
         if isinstance(element, Conjunction):
             if self.extended is True:
@@ -185,9 +185,9 @@ class Handler:
         """
         Adds nodes to the xml file in the simple format
 
-        @param tree: Tree from which are the nodes
-        @param root: Root element of the tree
-        @param element: parent element
+        :param tree: Tree from which are the nodes
+        :param root: Root element of the tree
+        :param element: parent element
         """
         e = self.addNode(root, element)
 
@@ -221,7 +221,7 @@ class Handler:
         """
         Adds nodes to the xml file in the extended format
 
-        @param tree: Tree from which are the nodes
+        :param tree: Tree from which are the nodes
         """
         xmlThreats = self.xml.find('threats')
         xmlCounter = self.xml.find('countermeasures')
@@ -239,7 +239,7 @@ class Handler:
         """
         Adds edges to the xml file in the extended format
 
-        @param tree: Tree from which are the edges
+        :param tree: Tree from which are the edges
         """
         xmlConnection = self.xml.find('connections')
 
@@ -250,8 +250,8 @@ class Handler:
         """
         Saves the xml to a file
 
-        @param file: File to save to
-        @return: True if saving was successfully else returns exception
+        :param file: File to save to
+        :return: True if saving was successfully else returns exception
         """
         try:
             self.xml.write(file, pretty_print=True, xml_declaration=True, encoding="utf-8")

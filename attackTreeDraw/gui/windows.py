@@ -21,11 +21,11 @@ class MessageBox:
         Constructor for the message box.
         Sets all options
 
-        @param title: Title of the message box
-        @param text: Message box text
-        @param buttons: Buttons for the message box (default: ok)
-        @param icon: Icon for the message box (default: information)
-        @param default: default button to click (default: ok)
+        :param title: Title of the message box
+        :param text: Message box text
+        :param buttons: Buttons for the message box (default: ok)
+        :param icon: Icon for the message box (default: information)
+        :param default: default button to click (default: ok)
         """
         includePath = os.path.dirname(os.path.abspath(__file__))
         self.msgBox = QMessageBox()
@@ -39,7 +39,7 @@ class MessageBox:
     def run(self):
         """
         Runs the message box
-        @return: Status code
+        :return: Status code
         """
         return self.msgBox.exec()
 
@@ -54,8 +54,8 @@ class NodeEdit(QDialog):
         """
         Constructor for the node edit UI
 
-        @param node: Node to edit
-        @param parent: Parent widget
+        :param node: Node to edit
+        :param parent: Parent widget
         """
         QWidget.__init__(self)
         self.nodeItem = node
@@ -208,7 +208,7 @@ class AttributeTable(QtWidgets.QTableView):
         """
         Adds am context menu to the attributes table
 
-        @param event:
+        :param event:
         """
         if self.selectionModel().hasSelection():
             menu = QMenu()
@@ -235,7 +235,7 @@ class MetaEdit(QDialog):
         """
         Constructor for the meta edit UI
 
-        @param parent: Parent widget
+        :param parent: Parent widget
         """
         QWidget.__init__(self)
         self.parentWidget = parent
@@ -361,7 +361,7 @@ class Options(QWidget):
         """
         Constructor for the options UI
 
-        @param parent: Parent widget
+        :param parent: Parent widget
         """
         QWidget.__init__(self)
         self.parentWidget = parent
@@ -523,8 +523,8 @@ class Options(QWidget):
     def openColorPicker(self, parentType, childType):
         """
         Opens the color picker to choose a color for the node
-        @param parentType: Parent type for the color (Threat, Countermeasure, default)
-        @param childType: Conjunction type or node
+        :param parentType: Parent type for the color (Threat, Countermeasure, default)
+        :param childType: Conjunction type or node
         """
         picker = ColorPicker(self, parentType, childType)
         picker.exec()
@@ -556,7 +556,7 @@ class ColorPicker(QDialog):
         """
         Constructor for the color picker UI
 
-        @param parent: Parent widget
+        :param parent: Parent widget
         """
         QWidget.__init__(self)
         self.parentWidget = parent
@@ -656,8 +656,8 @@ class ColorLabel(QLabel):
         """
         Constructor for the node edit UI
 
-        @param color: Default color for the color picker
-        @param parent: Parent widget
+        :param color: Default color for the color picker
+        :param parent: Parent widget
         """
         super().__init__(parent)
 
@@ -674,7 +674,7 @@ class ColorLabel(QLabel):
         """
         Mouse event for the color picker
 
-        @param QMouseEvent: Mouse event
+        :param QMouseEvent: Mouse event
         """
         self.color = QColorDialog.getColor(QColor(self.color), self, "Pick a color", QColorDialog.DontUseNativeDialog)
         palette = self.palette()
@@ -689,7 +689,7 @@ class ConjunctionEdit(QDialog):
         """
         Constructor for the conjunction edit UI
 
-        @param parent: Parent widget
+        :param parent: Parent widget
         """
         QWidget.__init__(self)
         self.parentWidget = parent

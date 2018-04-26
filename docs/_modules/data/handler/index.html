@@ -1,0 +1,293 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>data.handler &#8212;  1.0.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex/" />
+    <link rel="search" title="Search" href="../../../search/" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for data.handler</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">.exceptions</span> <span class="k">import</span> <span class="n">ParserError</span>
+<span class="kn">from</span> <span class="nn">.types</span> <span class="k">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">fileHandler.xml</span> <span class="k">import</span> <span class="n">Handler</span> <span class="k">as</span> <span class="n">XmlHandler</span>
+
+
+<div class="viewcode-block" id="TreeHandler"><a class="viewcode-back" href="../../../attackTreeDraw.data/#data.handler.TreeHandler">[docs]</a><span class="k">class</span> <span class="nc">TreeHandler</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This Class handles loading and saving for the tree</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="TreeHandler.buildFromXML"><a class="viewcode-back" href="../../../attackTreeDraw.data/#data.handler.TreeHandler.buildFromXML">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">buildFromXML</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a Class which represents the tree in the given xml file</span>
+
+<span class="sd">        :param file: File to load the tree from</span>
+<span class="sd">        :return: data.Tree or None if format is not correct</span>
+<span class="sd">        :raises ParserError: if loading fails</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xmlHandler</span> <span class="o">=</span> <span class="n">XmlHandler</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">xmlHandler</span><span class="o">.</span><span class="n">loadFile</span><span class="p">(</span><span class="n">file</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParserError</span><span class="p">((</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t load </span><span class="si">%s</span><span class="s1">, check dir. Abort&#39;</span> <span class="o">%</span> <span class="n">file</span><span class="p">))</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">Tree</span><span class="p">(</span><span class="n">xmlHandler</span><span class="o">.</span><span class="n">extended</span><span class="p">)</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="n">xmlHandler</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;meta&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">meta</span><span class="o">.</span><span class="n">iterchildren</span><span class="p">():</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">tag</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">if</span> <span class="n">xmlHandler</span><span class="o">.</span><span class="n">extended</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">xTree</span> <span class="o">=</span> <span class="n">xmlHandler</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;tree&#39;</span><span class="p">)</span>
+            <span class="n">root</span> <span class="o">=</span> <span class="n">Parsers</span><span class="o">.</span><span class="n">parseSimpleNode</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">xTree</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">root</span><span class="o">.</span><span class="n">isRoot</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">xmlHandler</span><span class="o">.</span><span class="n">extended</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">threats</span> <span class="o">=</span> <span class="n">xmlHandler</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;threats&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">threats</span><span class="o">.</span><span class="n">iterchildren</span><span class="p">():</span>
+                <span class="n">Parsers</span><span class="o">.</span><span class="n">parseExtendedNode</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+            <span class="n">countermeasures</span> <span class="o">=</span> <span class="n">xmlHandler</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;countermeasures&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">countermeasures</span><span class="o">.</span><span class="n">iterchildren</span><span class="p">():</span>
+                <span class="n">Parsers</span><span class="o">.</span><span class="n">parseExtendedNode</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+            <span class="n">conjunctions</span> <span class="o">=</span> <span class="n">xmlHandler</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;conjunctions&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">conjunctions</span><span class="o">.</span><span class="n">iterchildren</span><span class="p">():</span>
+                <span class="n">Parsers</span><span class="o">.</span><span class="n">parseExtendedNode</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+            <span class="n">connections</span> <span class="o">=</span> <span class="n">xmlHandler</span><span class="o">.</span><span class="n">xml</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;connections&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">connections</span><span class="o">.</span><span class="n">iterchildren</span><span class="p">():</span>
+                <span class="n">Parsers</span><span class="o">.</span><span class="n">parseExtendedConnection</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">meta</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;root&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+            <span class="k">if</span> <span class="n">tree</span><span class="o">.</span><span class="n">root</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="p">[</span><span class="n">tree</span><span class="o">.</span><span class="n">root</span><span class="p">]</span><span class="o">.</span><span class="n">isRoot</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParserError</span><span class="p">(</span><span class="s1">&#39;Root Element with ID </span><span class="si">%s</span><span class="s1"> not found in node list&#39;</span> <span class="o">%</span> <span class="n">tree</span><span class="o">.</span><span class="n">root</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">tree</span></div>
+
+<div class="viewcode-block" id="TreeHandler.saveToXML"><a class="viewcode-back" href="../../../attackTreeDraw.data/#data.handler.TreeHandler.saveToXML">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">saveToXML</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Saves a given tree to a file</span>
+
+<span class="sd">        :param tree: Tree to save to file</span>
+<span class="sd">        :param file: File to save to</span>
+<span class="sd">        :return: True if saving was successfully else returns exception</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">xmlHandler</span> <span class="o">=</span> <span class="n">XmlHandler</span><span class="p">()</span>
+        <span class="n">xmlHandler</span><span class="o">.</span><span class="n">generateTree</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xmlHandler</span><span class="o">.</span><span class="n">saveToFile</span><span class="p">(</span><span class="n">file</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="Parsers"><a class="viewcode-back" href="../../../attackTreeDraw.data/#data.handler.Parsers">[docs]</a><span class="k">class</span> <span class="nc">Parsers</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This Class contains parsers for the xml items</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="Parsers.parseExtendedConnection"><a class="viewcode-back" href="../../../attackTreeDraw.data/#data.handler.Parsers.parseExtendedConnection">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parseExtendedConnection</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">edge</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses a edge from a xml file</span>
+
+<span class="sd">        :param tree: Tree to save generated files in</span>
+<span class="sd">        :param edge: Edge to parse</span>
+<span class="sd">        :raises ParserError: if edge can&#39;t be parsed</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">edge</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;destination&#39;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">tree</span><span class="o">.</span><span class="n">nodeList</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">tree</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">edge</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">),</span> <span class="n">edge</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;destination&#39;</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ParserError</span><span class="p">(</span><span class="s1">&#39;Destination node </span><span class="si">%s</span><span class="s1"> does not exist&#39;</span> <span class="o">%</span> <span class="n">edge</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;destination&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParserError</span><span class="p">(</span><span class="s1">&#39;Source node </span><span class="si">%s</span><span class="s1"> does not exist&#39;</span> <span class="o">%</span> <span class="n">edge</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;source&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="Parsers.parseNode"><a class="viewcode-back" href="../../../attackTreeDraw.data/#data.handler.Parsers.parseNode">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parseNode</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses a node and returns it</span>
+
+<span class="sd">        :param node: Node to parse</span>
+<span class="sd">        :return: Parsed node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;threat&#39;</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">Threat</span><span class="p">()</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;attribute&#39;</span><span class="p">):</span>
+                <span class="n">n</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;countermeasure&#39;</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">Countermeasure</span><span class="p">()</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s1">&#39;attribute&#39;</span><span class="p">):</span>
+                <span class="n">n</span><span class="o">.</span><span class="n">attributes</span><span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;key&#39;</span><span class="p">)]</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;title&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+        <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;alternative&#39;</span> <span class="ow">or</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;composition&#39;</span> <span class="ow">or</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;sequence&#39;</span> \
+                <span class="ow">or</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;threshold&#39;</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">Conjunction</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;conjunction&#39;</span><span class="p">:</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">Conjunction</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">),</span> <span class="n">node</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;type&#39;</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParserError</span><span class="p">(</span><span class="s1">&#39;Parsing failed for element </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">node</span><span class="o">.</span><span class="n">tag</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">n</span></div>
+
+<div class="viewcode-block" id="Parsers.parseExtendedNode"><a class="viewcode-back" href="../../../attackTreeDraw.data/#data.handler.Parsers.parseExtendedNode">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parseExtendedNode</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses a extended node and adds it to a tree</span>
+
+<span class="sd">        :param tree: Tree to add the node to</span>
+<span class="sd">        :param node: Node to parse</span>
+<span class="sd">        :return: Parsed node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">Parsers</span><span class="o">.</span><span class="n">parseNode</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="n">check</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">addNode</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParserError</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t add node </span><span class="si">%s</span><span class="s1">. NodeID exists&#39;</span> <span class="o">%</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParserError</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t add node </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">n</span></div>
+
+<div class="viewcode-block" id="Parsers.parseSimpleConjunction"><a class="viewcode-back" href="../../../attackTreeDraw.data/#data.handler.Parsers.parseSimpleConjunction">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parseSimpleConjunction</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses a simple conjunction and adds it to a tree</span>
+
+<span class="sd">        :param tree: Tree to add the node to</span>
+<span class="sd">        :param node: Node to parse</span>
+<span class="sd">        :param parent: paren from node</span>
+<span class="sd">        :return: Parsed node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">Parsers</span><span class="o">.</span><span class="n">parseNode</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">isRoot</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span>
+        <span class="n">check</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">addNode</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">subTreeNode</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">iterchildren</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">subTreeNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;alternative&#39;</span> <span class="ow">or</span> <span class="n">subTreeNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;composition&#39;</span> \
+                    <span class="ow">or</span> <span class="n">subTreeNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;sequence&#39;</span> <span class="ow">or</span> <span class="n">subTreeNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;threshold&#39;</span><span class="p">:</span>
+                <span class="n">conjunction</span> <span class="o">=</span> <span class="n">Parsers</span><span class="o">.</span><span class="n">parseSimpleConjunction</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">subTreeNode</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                <span class="n">tree</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">conjunction</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">subN</span> <span class="o">=</span> <span class="n">Parsers</span><span class="o">.</span><span class="n">parseSimpleNode</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">subTreeNode</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">tree</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">subN</span><span class="o">.</span><span class="n">id</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ParserError</span><span class="p">(</span><span class="s1">&#39;Cant</span><span class="se">\&#39;</span><span class="s1">t add Edge </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">subN</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParserError</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t add node </span><span class="si">%s</span><span class="s1">. NodeID exists&#39;</span> <span class="o">%</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParserError</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t add node </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">n</span></div>
+
+<div class="viewcode-block" id="Parsers.parseSimpleNode"><a class="viewcode-back" href="../../../attackTreeDraw.data/#data.handler.Parsers.parseSimpleNode">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">parseSimpleNode</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">parent</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Parses a simple node and adds it to a tree</span>
+
+<span class="sd">        :param tree: Tree to add the node to</span>
+<span class="sd">        :param node: Node to parse</span>
+<span class="sd">        :param parent: paren from node</span>
+<span class="sd">        :return: Parsed node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">Parsers</span><span class="o">.</span><span class="n">parseNode</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">parent</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">n</span><span class="o">.</span><span class="n">isRoot</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">tree</span><span class="o">.</span><span class="n">root</span> <span class="o">=</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span>
+        <span class="n">check</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">addNode</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;subtree&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">subTreeNode</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;subtree&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">subTreeNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;alternative&#39;</span> <span class="ow">or</span> <span class="n">subTreeNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;composition&#39;</span> \
+                        <span class="ow">or</span> <span class="n">subTreeNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;sequence&#39;</span> <span class="ow">or</span> <span class="n">subTreeNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;threshold&#39;</span><span class="p">:</span>
+                    <span class="n">conjunction</span> <span class="o">=</span> <span class="n">Parsers</span><span class="o">.</span><span class="n">parseSimpleConjunction</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">subTreeNode</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                    <span class="n">tree</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">conjunction</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">subN</span> <span class="o">=</span> <span class="n">Parsers</span><span class="o">.</span><span class="n">parseSimpleNode</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">subTreeNode</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">tree</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">subN</span><span class="o">.</span><span class="n">id</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">ParserError</span><span class="p">(</span><span class="s1">&#39;Cant</span><span class="se">\&#39;</span><span class="s1">t add Edge </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1"> with </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">subN</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="s1">&#39;singleNode&#39;</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;countermeasures&#39;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">subTreeNode</span> <span class="ow">in</span> <span class="n">node</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;countermeasures&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">subTreeNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;alternative&#39;</span> <span class="ow">or</span> <span class="n">subTreeNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;composition&#39;</span> \
+                        <span class="ow">or</span> <span class="n">subTreeNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;sequence&#39;</span> <span class="ow">or</span> <span class="n">subTreeNode</span><span class="o">.</span><span class="n">tag</span> <span class="o">==</span> <span class="s1">&#39;threshold&#39;</span><span class="p">:</span>
+                    <span class="n">conjunction</span> <span class="o">=</span> <span class="n">Parsers</span><span class="o">.</span><span class="n">parseSimpleConjunction</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">subTreeNode</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                    <span class="n">tree</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">conjunction</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">subN</span> <span class="o">=</span> <span class="n">Parsers</span><span class="o">.</span><span class="n">parseSimpleNode</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">subTreeNode</span><span class="p">,</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">tree</span><span class="o">.</span><span class="n">addEdge</span><span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">subN</span><span class="o">.</span><span class="n">id</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="n">ParserError</span><span class="p">(</span><span class="s1">&#39;Cant</span><span class="se">\&#39;</span><span class="s1">t add Edge </span><span class="si">%s</span><span class="s1"> to </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">subN</span><span class="o">.</span><span class="n">id</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">check</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParserError</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t add node </span><span class="si">%s</span><span class="s1">. NodeID exists&#39;</span> <span class="o">%</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ParserError</span><span class="p">(</span><span class="s1">&#39;Can</span><span class="se">\&#39;</span><span class="s1">t add node </span><span class="si">%s</span><span class="s1">.&#39;</span> <span class="o">%</span> <span class="n">n</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">n</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../">Documentation overview</a><ul>
+  <li><a href="../../">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Daniel Fischer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

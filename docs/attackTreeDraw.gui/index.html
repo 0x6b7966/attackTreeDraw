@@ -1,0 +1,1310 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>gui package &#8212;  1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex/" />
+    <link rel="search" title="Search" href="../search/" />
+    <link rel="prev" title="fileHandler package" href="../attackTreeDraw.fileHandler/" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="gui-package">
+<h1>gui package<a class="headerlink" href="#gui-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-gui.helper">
+<span id="gui-helper-module"></span><h2>gui.helper module<a class="headerlink" href="#module-gui.helper" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gui.helper.Configuration">
+<em class="property">class </em><code class="descclassname">gui.helper.</code><code class="descname">Configuration</code><a class="reference internal" href="../_modules/gui/helper/#Configuration"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.helper.Configuration" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>This class is the handler for the configuration.
+It holds the colors for the nodes and the font</p>
+<dl class="staticmethod">
+<dt id="gui.helper.Configuration.checkConfigFile">
+<em class="property">static </em><code class="descname">checkConfigFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/helper/#Configuration.checkConfigFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.helper.Configuration.checkConfigFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if there is a config file in $HOME/.attackTreeDraw
+If there is none an initial file will be created</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gui.helper.Configuration.colors">
+<code class="descname">colors</code><em class="property"> = {'countermeasure': {'node': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}, 'composition': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}, 'alternative': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}, 'sequence': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}, 'threshold': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}}, 'default': {'node': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}, 'composition': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}, 'alternative': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}, 'sequence': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}, 'threshold': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}}, 'threat': {'node': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}, 'composition': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}, 'alternative': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}, 'sequence': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}, 'threshold': {'background': '#ffffff', 'border': '#000000', 'font': '#000000'}}}</em><a class="headerlink" href="#gui.helper.Configuration.colors" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="gui.helper.Configuration.font">
+<code class="descname">font</code><em class="property"> = None</em><a class="headerlink" href="#gui.helper.Configuration.font" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="gui.helper.Configuration.loadConfigFile">
+<em class="property">static </em><code class="descname">loadConfigFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/helper/#Configuration.loadConfigFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.helper.Configuration.loadConfigFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Loads the configuration from the config file
+Calls Configuration.checkConfigFile() before to be sure there is a file</p>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="gui.helper.Configuration.saveConfig">
+<em class="property">static </em><code class="descname">saveConfig</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/helper/#Configuration.saveConfig"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.helper.Configuration.saveConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the configuration to the config file at $HOME/.attackTreeDraw</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-gui.items">
+<span id="gui-items-module"></span><h2>gui.items module<a class="headerlink" href="#module-gui.items" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gui.items.AttackTreeScene">
+<em class="property">class </em><code class="descclassname">gui.items.</code><code class="descname">AttackTreeScene</code><span class="sig-paren">(</span><em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QGraphicsScene</span></code></p>
+<p>This Class Implements the click actions for the graphics scene</p>
+<dl class="method">
+<dt id="gui.items.AttackTreeScene.addAlternative">
+<code class="descname">addAlternative</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene.addAlternative"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene.addAlternative" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an alternative as edge</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.AttackTreeScene.addComposition">
+<code class="descname">addComposition</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene.addComposition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene.addComposition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an composition as edge</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.AttackTreeScene.addEdge">
+<code class="descname">addEdge</code><span class="sig-paren">(</span><em>type</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene.addEdge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene.addEdge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an edge to the graph with the specific type
+:param type: Type of the edge (alternative|alternative|sequence|threshold)</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.AttackTreeScene.addSequence">
+<code class="descname">addSequence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene.addSequence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene.addSequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an sequence as edge</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.AttackTreeScene.addThreshold">
+<code class="descname">addThreshold</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene.addThreshold"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene.addThreshold" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an threshold as edge</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.AttackTreeScene.contextMenuEvent">
+<code class="descname">contextMenuEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene.contextMenuEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene.contextMenuEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the event to open a context menu on a node
+The event will open a context menu to edit the node</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> – context menu Event</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.AttackTreeScene.deleteEdge">
+<code class="descname">deleteEdge</code><span class="sig-paren">(</span><em>edge</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene.deleteEdge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene.deleteEdge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes an edge
+:param edge: Edge to delete</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.AttackTreeScene.deleteSelected">
+<code class="descname">deleteSelected</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene.deleteSelected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene.deleteSelected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes an selection</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.AttackTreeScene.mouseMoveEvent">
+<code class="descname">mouseMoveEvent</code><span class="sig-paren">(</span><em>mouseEvent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene.mouseMoveEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene.mouseMoveEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handler for the move event of the mouse.
+If the mode is to draw a line (3) it will update the feedback line</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mouseEvent</strong> – Mouse Event</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.AttackTreeScene.mousePressEvent">
+<code class="descname">mousePressEvent</code><span class="sig-paren">(</span><em>mouseEvent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene.mousePressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene.mousePressEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the press event for the mouse
+On click it will insert a node or set the start position for a conjunction</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mouseEvent</strong> – Mouse Event</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.AttackTreeScene.mouseReleaseEvent">
+<code class="descname">mouseReleaseEvent</code><span class="sig-paren">(</span><em>mouseEvent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene.mouseReleaseEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene.mouseReleaseEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles the mouse release event.
+In this event the edge will be completed or the item to delete are certain</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>mouseEvent</strong> – Mouse Event</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.AttackTreeScene.reset">
+<code class="descname">reset</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene.reset"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene.reset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets all actions if a mode was selected.
+Also deletes the Line for inserting a edge</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.AttackTreeScene.selectNodesChildren">
+<code class="descname">selectNodesChildren</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#AttackTreeScene.selectNodesChildren"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.AttackTreeScene.selectNodesChildren" title="Permalink to this definition">¶</a></dt>
+<dd><p>Selects all children of the selection</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gui.items.Conjunction">
+<em class="property">class </em><code class="descclassname">gui.items.</code><code class="descname">Conjunction</code><span class="sig-paren">(</span><em>node</em>, <em>parent</em>, <em>x=0</em>, <em>y=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Conjunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Conjunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gui.items.Node" title="gui.items.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">gui.items.Node</span></code></a></p>
+<p>This class handles the gui for a countermeasure node</p>
+<dl class="method">
+<dt id="gui.items.Conjunction.edit">
+<code class="descname">edit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Conjunction.edit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Conjunction.edit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the edit dialog for conjunction to change the conjunction type</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Conjunction.paint">
+<code class="descname">paint</code><span class="sig-paren">(</span><em>painter</em>, <em>options</em>, <em>widget=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Conjunction.paint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Conjunction.paint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reimplementation for the paint function of the QGraphicsItemGroup.
+The Reimplementation is needed to print a proper border when the item is selected</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>painter</strong> – The painter, which draws the node</li>
+<li><strong>options</strong> – options for the paint job</li>
+<li><strong>widget</strong> – widget of the Item</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Conjunction.redraw">
+<code class="descname">redraw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Conjunction.redraw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Conjunction.redraw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redraws the node with the colors set in the options menu</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gui.items.ConjunctionRect">
+<em class="property">class </em><code class="descclassname">gui.items.</code><code class="descname">ConjunctionRect</code><a class="reference internal" href="../_modules/gui/items/#ConjunctionRect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.ConjunctionRect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QGraphicsRectItem</span></code></p>
+<dl class="method">
+<dt id="gui.items.ConjunctionRect.paint">
+<code class="descname">paint</code><span class="sig-paren">(</span><em>painter</em>, <em>options</em>, <em>widget=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#ConjunctionRect.paint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.ConjunctionRect.paint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reimplementation for the paint function of the QGraphicsItem.
+This is needed to draw a rounded rectangle
+The Reimplementation is also needed to print a proper border when the item is selected</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>painter</strong> – The painter, which draws the node</li>
+<li><strong>options</strong> – options for the paint job</li>
+<li><strong>widget</strong> – widget of the Item</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gui.items.Countermeasure">
+<em class="property">class </em><code class="descclassname">gui.items.</code><code class="descname">Countermeasure</code><span class="sig-paren">(</span><em>node</em>, <em>parent</em>, <em>x=0</em>, <em>y=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Countermeasure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Countermeasure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gui.items.Node" title="gui.items.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">gui.items.Node</span></code></a></p>
+<p>This class handles the gui for a countermeasure node</p>
+<dl class="method">
+<dt id="gui.items.Countermeasure.redraw">
+<code class="descname">redraw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Countermeasure.redraw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Countermeasure.redraw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redraws the node with the colors set in the options menu</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gui.items.Edge">
+<em class="property">class </em><code class="descclassname">gui.items.</code><code class="descname">Edge</code><span class="sig-paren">(</span><em>start</em>, <em>dst</em>, <em>offset</em>, <em>color=2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Edge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Edge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QGraphicsLineItem</span></code></p>
+<p>Implements an Edge to two nodes</p>
+<dl class="method">
+<dt id="gui.items.Edge.boundingRect">
+<code class="descname">boundingRect</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Edge.boundingRect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Edge.boundingRect" title="Permalink to this definition">¶</a></dt>
+<dd><p>New calculation of the bounding rect, because the arrow is not only a line</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">new bounding rectangle</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Edge.paint">
+<code class="descname">paint</code><span class="sig-paren">(</span><em>painter</em>, <em>options</em>, <em>widget=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Edge.paint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Edge.paint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Painter implementation for the arrow.
+First it draws the line and then the triangle on the end</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>painter</strong> – The painter, which draws the node</li>
+<li><strong>options</strong> – options for the paint job</li>
+<li><strong>widget</strong> – widget of the Item</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Edge.selectChildren">
+<code class="descname">selectChildren</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Edge.selectChildren"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Edge.selectChildren" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select all children of the destination</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Edge.shape">
+<code class="descname">shape</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Edge.shape"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Edge.shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculation of the shape of the arrow</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">shape of the arrow</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Edge.updatePosition">
+<code class="descname">updatePosition</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Edge.updatePosition"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Edge.updatePosition" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the position of the arrow</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gui.items.Node">
+<em class="property">class </em><code class="descclassname">gui.items.</code><code class="descname">Node</code><span class="sig-paren">(</span><em>node</em>, <em>parent</em>, <em>background</em>, <em>border</em>, <em>text</em>, <em>x=0</em>, <em>y=0</em>, <em>offset=20</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QGraphicsItemGroup</span></code></p>
+<p>Parent class for all types of nodes.</p>
+<p>It contains all necessary functions to print a node in the GUI</p>
+<dl class="method">
+<dt id="gui.items.Node.actualizeEdges">
+<code class="descname">actualizeEdges</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.actualizeEdges"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.actualizeEdges" title="Permalink to this definition">¶</a></dt>
+<dd><p>Actualizes all child edges of this node so they start at the right position</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.addEdge">
+<code class="descname">addEdge</code><span class="sig-paren">(</span><em>dst</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.addEdge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.addEdge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an child edge to this node an places the start of the arrow in the right place
+:param dst: destination node for the edge</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deletes this node</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.dropEvent">
+<code class="descname">dropEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.dropEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.dropEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the correct position to the data node if the item is drag &amp; dropped</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> – Drop event</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Changed Value</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.edit">
+<code class="descname">edit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.edit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.edit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the edit dialog</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.fixParentEdgeRec">
+<code class="descname">fixParentEdgeRec</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.fixParentEdgeRec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.fixParentEdgeRec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fixes all starts of the parent edges so they start at the right position</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.getLeftRightChildren">
+<code class="descname">getLeftRightChildren</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.getLeftRightChildren"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.getLeftRightChildren" title="Permalink to this definition">¶</a></dt>
+<dd><p>Splits the children in to arrays with the same size
+:return: Tuple (left, right) with child elements split in to arrays</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.getTypeRecursiveDown">
+<code class="descname">getTypeRecursiveDown</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.getTypeRecursiveDown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.getTypeRecursiveDown" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches the children of a node to get a node with type != Conjunction
+If there is no other node with type != Conjunction, Conjunction will be returned
+:return: type of first child node with type != Conjunction or Conjunction</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.getTypeRecursiveUp">
+<code class="descname">getTypeRecursiveUp</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.getTypeRecursiveUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.getTypeRecursiveUp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Searches the parents of a node to get a node with type != Conjunction
+If there is no other node with type != Conjunction, Conjunction will be returned
+:return: type of first parent node with type != Conjunction or Conjunction</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.mouseDoubleClickEvent">
+<code class="descname">mouseDoubleClickEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.mouseDoubleClickEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.mouseDoubleClickEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Handles a double click on the node.
+The double click opens the edit window for this node</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> – click event</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.paint">
+<code class="descname">paint</code><span class="sig-paren">(</span><em>painter</em>, <em>options</em>, <em>widget=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.paint"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.paint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reimplementation for the paint function of the QGraphicsItemGroup.
+The Reimplementation is needed to print a proper border when the item is selected</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>painter</strong> – The painter, which draws the node</li>
+<li><strong>options</strong> – options for the paint job</li>
+<li><strong>widget</strong> – widget of the Item</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.printAttributes">
+<code class="descname">printAttributes</code><span class="sig-paren">(</span><em>background</em>, <em>border</em>, <em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.printAttributes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.printAttributes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints the attributes of the node
+The attributes are a key, value pair</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>background</strong> – background color of the node</li>
+<li><strong>border</strong> – border color for the node</li>
+<li><strong>text</strong> – text color for the node</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.printFooter">
+<code class="descname">printFooter</code><span class="sig-paren">(</span><em>background</em>, <em>border</em>, <em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.printFooter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.printFooter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prototype function for the footer.
+Implemented in the child classes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>background</strong> – background color of the node</li>
+<li><strong>border</strong> – border color for the node</li>
+<li><strong>text</strong> – text color for the node</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.printHeader">
+<code class="descname">printHeader</code><span class="sig-paren">(</span><em>background</em>, <em>border</em>, <em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.printHeader"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.printHeader" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints the the header of the node.
+It contains the Node id, title and type</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>background</strong> – background color of the node</li>
+<li><strong>border</strong> – border color for the node</li>
+<li><strong>text</strong> – text color for the node</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.redraw">
+<code class="descname">redraw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.redraw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.redraw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redraws the node with standard colors</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.redrawOptions">
+<code class="descname">redrawOptions</code><span class="sig-paren">(</span><em>background</em>, <em>border</em>, <em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.redrawOptions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.redrawOptions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redraws the node with option for the background, border and text color</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>background</strong> – background color of the node</li>
+<li><strong>border</strong> – border color for the node</li>
+<li><strong>text</strong> – text color for the node</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.selectChildren">
+<code class="descname">selectChildren</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.selectChildren"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.selectChildren" title="Permalink to this definition">¶</a></dt>
+<dd><p>Select all children</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Node.setPos">
+<code class="descname">setPos</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Node.setPos"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Node.setPos" title="Permalink to this definition">¶</a></dt>
+<dd><p>Overloads setPos to set the position of the visible node in the data node</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>x</strong> – X part of the position</li>
+<li><strong>y</strong> – Y part of the position</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gui.items.Threat">
+<em class="property">class </em><code class="descclassname">gui.items.</code><code class="descname">Threat</code><span class="sig-paren">(</span><em>node</em>, <em>parent</em>, <em>x=0</em>, <em>y=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Threat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Threat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#gui.items.Node" title="gui.items.Node"><code class="xref py py-class docutils literal notranslate"><span class="pre">gui.items.Node</span></code></a></p>
+<p>This class handles the gui for a threat node</p>
+<dl class="method">
+<dt id="gui.items.Threat.printFooter">
+<code class="descname">printFooter</code><span class="sig-paren">(</span><em>background</em>, <em>border</em>, <em>text</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Threat.printFooter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Threat.printFooter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints the footer for the threat node
+The footer contains two columns where the conjunction will start from</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>background</strong> – background color of the node</li>
+<li><strong>border</strong> – border color for the node</li>
+<li><strong>text</strong> – text color for the node</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.items.Threat.redraw">
+<code class="descname">redraw</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/items/#Threat.redraw"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.items.Threat.redraw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redraws the node with the colors set in the options menu</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-gui.main">
+<span id="gui-main-module"></span><h2>gui.main module<a class="headerlink" href="#module-gui.main" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gui.main.Main">
+<em class="property">class </em><code class="descclassname">gui.main.</code><code class="descname">Main</code><a class="reference internal" href="../_modules/gui/main/#Main"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QMainWindow</span></code></p>
+<p>This Class is the main window for attackTreeDraw.
+It sets up the window and handles the GraphicsView for the Tree</p>
+<dl class="method">
+<dt id="gui.main.Main.about">
+<code class="descname">about</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.about"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.about" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints a simple about box</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.addLastAction">
+<code class="descname">addLastAction</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.addLastAction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.addLastAction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds the last undo action to the undo stack</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.checkCollRec">
+<code class="descname">checkCollRec</code><span class="sig-paren">(</span><em>item</em>, <em>toCheckList</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.checkCollRec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.checkCollRec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks recursively if there is a collision between an item or a list of times and a list of times</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>item</strong> – item or list to check for collisions</li>
+<li><strong>toCheckList</strong> – list to check the collision with item</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if there is a collision</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.closeEvent">
+<code class="descname">closeEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.closeEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.closeEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reimplemented the close event to ask if the user wants to save the changes
+:param event: The close event</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.copy">
+<code class="descname">copy</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.copy"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the selected elements in the copyBuffer</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gui.main.Main.copyBuffer">
+<code class="descname">copyBuffer</code><em class="property"> = None</em><a class="headerlink" href="#gui.main.Main.copyBuffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>0: default
+1: add threat
+2: add countermeasure
+3: add conjunction
+4: new edge
+5: delete item
+6: paste item</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.cut">
+<code class="descname">cut</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.cut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.cut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Saves the selected elements in the copyBuffer and deletes them from view</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.delete">
+<code class="descname">delete</code><span class="sig-paren">(</span><em>action</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the edit mode to delete items</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param action:</th><td class="field-body">Button for the edit mode</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.editMeta">
+<code class="descname">editMeta</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.editMeta"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.editMeta" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the meta edit dialog</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.exceptionHook">
+<code class="descname">exceptionHook</code><span class="sig-paren">(</span><em>exctype</em>, <em>value</em>, <em>tb</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.exceptionHook"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.exceptionHook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Hook for exceptions to print a message instead of crashing the program</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>exctype</strong> – Type of the exception</li>
+<li><strong>value</strong> – Value of the exception</li>
+<li><strong>tb</strong> – Traceback</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.exportPDF">
+<code class="descname">exportPDF</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.exportPDF"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.exportPDF" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a dialog to export the tree as pdf.
+Saves the tree to the declared location</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if saving was successful</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.exportPNG">
+<code class="descname">exportPNG</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.exportPNG"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.exportPNG" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a dialog to export the tree as png.
+Saves the tree to the declared location</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True if saving was successful</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.fixCollision">
+<code class="descname">fixCollision</code><span class="sig-paren">(</span><em>left</em>, <em>right</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.fixCollision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.fixCollision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if there is a collision between l and r
+If there is one both parts will be moved to the left or right side</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>left</strong> – left part of the subtree</li>
+<li><strong>right</strong> – right part of the subtree</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True if there was an collision</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.generateSimple">
+<code class="descname">generateSimple</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.generateSimple"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.generateSimple" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates an simple tree and redraws the tree</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.help">
+<code class="descname">help</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.help"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints a simple help box</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.initUI">
+<code class="descname">initUI</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.initUI"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.initUI" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialisation of the UI.
+Sets up all menus and  toolbars
+Registers function for buttons</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.insertCopyBuffer">
+<code class="descname">insertCopyBuffer</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.insertCopyBuffer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.insertCopyBuffer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Inserts the copied elements at the position (x,y)
+:param x: X part of the position
+:param y: Y part of the position</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.loadFile">
+<code class="descname">loadFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.loadFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.loadFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a dialog to load a file.
+Also checks if the file is compatible and tries to load it</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="gui.main.Main.mode">
+<code class="descname">mode</code><em class="property"> = None</em><a class="headerlink" href="#gui.main.Main.mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the hook to print unhandled exceptions in the GUI</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.mouse">
+<code class="descname">mouse</code><span class="sig-paren">(</span><em>action=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.mouse"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.mouse" title="Permalink to this definition">¶</a></dt>
+<dd><blockquote>
+<div>Sets the edit mode to normal mouse mode</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> – Button for the edit mode</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.moveRec">
+<code class="descname">moveRec</code><span class="sig-paren">(</span><em>item</em>, <em>x</em>, <em>y</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.moveRec"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.moveRec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves an item or a list of items by (x,y)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>item</strong> – item or list of item in graphicsScene</li>
+<li><strong>x</strong> – x-offset to move</li>
+<li><strong>y</strong> – y-offset to move</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.new">
+<code class="descname">new</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.new"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.new" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the Scene</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.newConjunction">
+<code class="descname">newConjunction</code><span class="sig-paren">(</span><em>action</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.newConjunction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.newConjunction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the edit mode to composition insertion</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param action:</th><td class="field-body">Button for the edit mode</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.newCountermeasure">
+<code class="descname">newCountermeasure</code><span class="sig-paren">(</span><em>action</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.newCountermeasure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.newCountermeasure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the edit mode to countermeasure insertion</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> – Button for the edit mode</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.newEdge">
+<code class="descname">newEdge</code><span class="sig-paren">(</span><em>action</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.newEdge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.newEdge" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the edit mode to composition insertion</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param action:</th><td class="field-body">Button for the edit mode</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.newThreat">
+<code class="descname">newThreat</code><span class="sig-paren">(</span><em>action</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.newThreat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.newThreat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the edit mode to threat insertion</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">param action:</th><td class="field-body">Button for the edit mode</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.options">
+<code class="descname">options</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the options dialog</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.paste">
+<code class="descname">paste</code><span class="sig-paren">(</span><em>action=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.paste"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.paste" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the edit mode to insert the  items from the copy buffer</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>action</strong> – Button for the edit mode</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.print">
+<code class="descname">print</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.print"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens an printing dialog</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.printGraph">
+<code class="descname">printGraph</code><span class="sig-paren">(</span><em>fixedPositions=False</em>, <em>doReorderTree=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.printGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.printGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints the attack tree onto the graphics view
+after the full graph was printed it will be reordered to have a nice graph
+:param fixedPositions: prints the node at a fixed position
+:param doReorderTree:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.printGraphRecursion">
+<code class="descname">printGraphRecursion</code><span class="sig-paren">(</span><em>node</em>, <em>x</em>, <em>y</em>, <em>parent=None</em>, <em>fixedPositions=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.printGraphRecursion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.printGraphRecursion" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints a node recursively with its child nodes
+returns a tuple in the style of:
+(node, ([left_half_of_children], [right_half_of_children])</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>fixedPositions</strong> – prints the node at a fixed position</li>
+<li><strong>node</strong> – data node to print</li>
+<li><strong>x</strong> – x position of the node</li>
+<li><strong>y</strong> – y position of the mode</li>
+<li><strong>parent</strong> – parent node</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.redo">
+<code class="descname">redo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.redo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.redo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Undos the last undid action</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.redrawGraph">
+<code class="descname">redrawGraph</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.redrawGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.redrawGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redraws the graph.
+Before the redrawing it checks the meta information of the tree</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.redrawItems">
+<code class="descname">redrawItems</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.redrawItems"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.redrawItems" title="Permalink to this definition">¶</a></dt>
+<dd><p>Redraws a single item</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.refreshGraph">
+<code class="descname">refreshGraph</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.refreshGraph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.refreshGraph" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refreshes the graph.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.reorderTree">
+<code class="descname">reorderTree</code><span class="sig-paren">(</span><em>g</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.reorderTree"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.reorderTree" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reoders the tree recursively.
+The function splits the tree into two parts when it’s possible</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>g</strong> – Part of the graph</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True if no collisions where found</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.saveFile">
+<code class="descname">saveFile</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.saveFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.saveFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a dialog to save the tree.
+It checks if all information are correct
+and does a check for an cycle
+:return: True if saving was successful</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.saveFileAs">
+<code class="descname">saveFileAs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.saveFileAs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.saveFileAs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens a dialog to save the tree to a specific file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.undo">
+<code class="descname">undo</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.undo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.undo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Undos the last action</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.zoomIn">
+<code class="descname">zoomIn</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.zoomIn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.zoomIn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zoom in</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.main.Main.zoomOut">
+<code class="descname">zoomOut</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/main/#Main.zoomOut"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.main.Main.zoomOut" title="Permalink to this definition">¶</a></dt>
+<dd><p>Zoom out</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-gui.windows">
+<span id="gui-windows-module"></span><h2>gui.windows module<a class="headerlink" href="#module-gui.windows" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="gui.windows.AttributeTable">
+<em class="property">class </em><code class="descclassname">gui.windows.</code><code class="descname">AttributeTable</code><a class="reference internal" href="../_modules/gui/windows/#AttributeTable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.AttributeTable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QTableView</span></code></p>
+<dl class="method">
+<dt id="gui.windows.AttributeTable.contextMenuEvent">
+<code class="descname">contextMenuEvent</code><span class="sig-paren">(</span><em>event</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#AttributeTable.contextMenuEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.AttributeTable.contextMenuEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds am context menu to the attributes table</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>event</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.windows.AttributeTable.deleteSelected">
+<code class="descname">deleteSelected</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#AttributeTable.deleteSelected"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.AttributeTable.deleteSelected" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delets the selected row</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gui.windows.ColorLabel">
+<em class="property">class </em><code class="descclassname">gui.windows.</code><code class="descname">ColorLabel</code><span class="sig-paren">(</span><em>color</em>, <em>parent=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#ColorLabel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.ColorLabel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QLabel</span></code></p>
+<p>This class implements an color picker for the options GUI</p>
+<dl class="method">
+<dt id="gui.windows.ColorLabel.mousePressEvent">
+<code class="descname">mousePressEvent</code><span class="sig-paren">(</span><em>QMouseEvent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#ColorLabel.mousePressEvent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.ColorLabel.mousePressEvent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mouse event for the color picker</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>QMouseEvent</strong> – Mouse event</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gui.windows.ColorPicker">
+<em class="property">class </em><code class="descclassname">gui.windows.</code><code class="descname">ColorPicker</code><span class="sig-paren">(</span><em>parent</em>, <em>parentType</em>, <em>childType</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#ColorPicker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.ColorPicker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDialog</span></code></p>
+<p>Dialog box to edit the options of the GUI
+The user can change the color of the nodes</p>
+<dl class="method">
+<dt id="gui.windows.ColorPicker.setupUi">
+<code class="descname">setupUi</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#ColorPicker.setupUi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.ColorPicker.setupUi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets up the UI.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.windows.ColorPicker.submit">
+<code class="descname">submit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#ColorPicker.submit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.ColorPicker.submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function saves the input of the color picker to the parent widget and redraws the tree</p>
+<p>After that the window will be closed</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gui.windows.ConjunctionEdit">
+<em class="property">class </em><code class="descclassname">gui.windows.</code><code class="descname">ConjunctionEdit</code><span class="sig-paren">(</span><em>node</em>, <em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#ConjunctionEdit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.ConjunctionEdit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDialog</span></code></p>
+<dl class="method">
+<dt id="gui.windows.ConjunctionEdit.setupUi">
+<code class="descname">setupUi</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#ConjunctionEdit.setupUi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.ConjunctionEdit.setupUi" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="gui.windows.ConjunctionEdit.submit">
+<code class="descname">submit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#ConjunctionEdit.submit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.ConjunctionEdit.submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Changes the type of the conjunction on submit</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gui.windows.MessageBox">
+<em class="property">class </em><code class="descclassname">gui.windows.</code><code class="descname">MessageBox</code><span class="sig-paren">(</span><em>title</em>, <em>text</em>, <em>buttons=1024</em>, <em>icon=1</em>, <em>default=1024</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#MessageBox"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.MessageBox" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Class to display a message box with options</p>
+<dl class="method">
+<dt id="gui.windows.MessageBox.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#MessageBox.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.MessageBox.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Runs the message box
+:return: Status code</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gui.windows.MetaEdit">
+<em class="property">class </em><code class="descclassname">gui.windows.</code><code class="descname">MetaEdit</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#MetaEdit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.MetaEdit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDialog</span></code></p>
+<p>Dialog box to edit the meta information of the tree
+The user can change the title, author, date, description and the root node</p>
+<dl class="method">
+<dt id="gui.windows.MetaEdit.setupUi">
+<code class="descname">setupUi</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#MetaEdit.setupUi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.MetaEdit.setupUi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets up the UI.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.windows.MetaEdit.submit">
+<code class="descname">submit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#MetaEdit.submit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.MetaEdit.submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks if the input in the form is correct.
+If the check is false it will print an error message</p>
+<p>After all checks where successful the Window will be closed and the node updated</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gui.windows.NodeEdit">
+<em class="property">class </em><code class="descclassname">gui.windows.</code><code class="descname">NodeEdit</code><span class="sig-paren">(</span><em>node</em>, <em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#NodeEdit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.NodeEdit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QDialog</span></code></p>
+<p>Dialog box to edit nodes
+The user can change the title or attributes of a node in this window</p>
+<dl class="method">
+<dt id="gui.windows.NodeEdit.rowCheck">
+<code class="descname">rowCheck</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#NodeEdit.rowCheck"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.NodeEdit.rowCheck" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks if there are empty rows and adds an empty row to the end of the tableView</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.windows.NodeEdit.setupUi">
+<code class="descname">setupUi</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#NodeEdit.setupUi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.NodeEdit.setupUi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets up the UI.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.windows.NodeEdit.submit">
+<code class="descname">submit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#NodeEdit.submit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.NodeEdit.submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks if the input in the form is correct.
+If the check is false it will print an error message</p>
+<p>After all checks where successful the Window will be closed and the node updated</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="gui.windows.Options">
+<em class="property">class </em><code class="descclassname">gui.windows.</code><code class="descname">Options</code><span class="sig-paren">(</span><em>parent</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#Options"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.Options" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">PyQt5.QtWidgets.QWidget</span></code></p>
+<p>Dialog box to edit the options of the GUI
+The user can change the color of the nodes</p>
+<dl class="method">
+<dt id="gui.windows.Options.openColorPicker">
+<code class="descname">openColorPicker</code><span class="sig-paren">(</span><em>parentType</em>, <em>childType</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#Options.openColorPicker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.Options.openColorPicker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the color picker to choose a color for the node
+:param parentType: Parent type for the color (Threat, Countermeasure, default)
+:param childType: Conjunction type or node</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.windows.Options.openFontPicker">
+<code class="descname">openFontPicker</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#Options.openFontPicker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.Options.openFontPicker" title="Permalink to this definition">¶</a></dt>
+<dd><p>Opens the font picker for the font of the nodes</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.windows.Options.setupUi">
+<code class="descname">setupUi</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#Options.setupUi"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.Options.setupUi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets up the UI.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="gui.windows.Options.submit">
+<code class="descname">submit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/gui/windows/#Options.submit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#gui.windows.Options.submit" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function saves the config and calls the configuration helper to save it to the config file</p>
+<p>After that the window will be closed</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-gui">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-gui" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">gui package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-gui.helper">gui.helper module</a></li>
+<li><a class="reference internal" href="#module-gui.items">gui.items module</a></li>
+<li><a class="reference internal" href="#module-gui.main">gui.main module</a></li>
+<li><a class="reference internal" href="#module-gui.windows">gui.windows module</a></li>
+<li><a class="reference internal" href="#module-gui">Module contents</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../">Documentation overview</a><ul>
+  <li><a href="../attackTreeDraw/">attackTreeDraw package</a><ul>
+      <li>Previous: <a href="../attackTreeDraw.fileHandler/" title="previous chapter">fileHandler package</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/attackTreeDraw.gui.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Daniel Fischer.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.4</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/attackTreeDraw.gui.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

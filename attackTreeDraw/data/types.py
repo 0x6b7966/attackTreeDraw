@@ -59,8 +59,8 @@ class Conjunction(Node):
         Constructor for conjunctions.
         sets the conjunction type and the id, calls Node.__init__()
 
-        @param id: ID of the node
-        @param conjunctionType: Type for this conjunction
+        :param id: ID of the node
+        :param conjunctionType: Type for this conjunction
         """
         super().__init__()
 
@@ -87,7 +87,7 @@ class Edge:
     def __hash__(self):
         """
         Returns an hash of the edge
-        @return: hash of the edge
+        :return: hash of the edge
         """
         return '%s-%s' % (self.source, self.destination)
 
@@ -102,7 +102,7 @@ class Tree:
         Constructor for Tree
         This function initialises a tree with the given format
 
-        @param extended: Format of the tree
+        :param extended: Format of the tree
         """
         self.extended = extended
 
@@ -126,8 +126,8 @@ class Tree:
         The function searches downwards.
         If there was no other element it will return Conjunction
 
-        @param node: Node to start the search from
-        @return: Type of node
+        :param node: Node to start the search from
+        :return: Type of node
         """
         if isinstance(node, Conjunction):
             for c in node.children:
@@ -145,8 +145,8 @@ class Tree:
         The function searches upwards.
         If there was no other element it will return Conjunction
 
-        @param node: Node to start the search from
-        @return: Type of node
+        :param node: Node to start the search from
+        :return: Type of node
         """
         if isinstance(node, Conjunction):
             for c in node.parents:
@@ -164,8 +164,8 @@ class Tree:
         The function searches downwards.
         If there was no other element it will return the Conjunction
 
-        @param node: Node to start the search from
-        @return: node
+        :param node: Node to start the search from
+        :return: node
         """
         if isinstance(node, Conjunction):
             for c in node.parents:
@@ -183,8 +183,8 @@ class Tree:
         The function searches upwards.
         If there was no other element it will return the Conjunction
 
-        @param node: Node to start the search from
-        @return: node
+        :param node: Node to start the search from
+        :return: node
         """
         if isinstance(node, Conjunction):
             for c in node.parents:
@@ -200,8 +200,8 @@ class Tree:
         """
         Adds a node to the tree
 
-        @param node: node to add to the tree
-        @return: True if succeed else false
+        :param node: node to add to the tree
+        :return: True if succeed else false
         """
         if node.id is None:
             node.id = self.getNextID()
@@ -218,9 +218,9 @@ class Tree:
         """
         Adds a edge to the tree
 
-        @param sourceId: Id of the source node
-        @param destinationId: Id of the destination node
-        @return: True if add was successful else false
+        :param sourceId: Id of the source node
+        :param destinationId: Id of the destination node
+        :return: True if add was successful else false
         """
         if sourceId not in self.nodeList:
             return False
@@ -271,7 +271,7 @@ class Tree:
         """
         Checks if the needed meta information are there
 
-        @return: True if meta information are correct else false
+        :return: True if meta information are correct else false
         """
         if 'author' not in self.meta or self.meta['author'] == '' \
                 or 'title' not in self.meta or self.meta['title'] == '' or self.root is None:
@@ -283,7 +283,7 @@ class Tree:
         """
         Checks if all nodes have needed parameters and saves them into falseNodes
 
-        @return: False if len(falseNodes) > 0 else True
+        :return: False if len(falseNodes) > 0 else True
         """
         self.falseNodes = []
         for k, v in self.nodeList.items():
@@ -295,7 +295,7 @@ class Tree:
         """
         Checks if the Tree is an extended or an simple tree
 
-        @return: True if tree is extended else false
+        :return: True if tree is extended else false
         """
         for node in self.nodeList.values():
             if isinstance(node, Conjunction) and len(node.children) == 0:
@@ -313,7 +313,7 @@ class Tree:
     def checkCycle(self):
         """
         Checks if the tree has a cycle with the dfs
-        @return: True if the tree has no cycle else false
+        :return: True if the tree has no cycle else false
         """
         for k, n in self.nodeList.items():
             n.initDFS()
@@ -327,8 +327,8 @@ class Tree:
         """
         Depth-first search to check the tree for a cycle
 
-        @param node: Node to check
-        @return: True if node is finished false if a cycle is detected
+        :param node: Node to check
+        :return: True if node is finished false if a cycle is detected
         """
         if node.finished:
             return True
@@ -347,8 +347,8 @@ class Tree:
         """
         Gets the next free id for a node in the format N[0-9]{4}
 
-        @param: keyList list of keys already used
-        @return: next free node id
+        :param: keyList list of keys already used
+        :return: next free node id
         """
         if keyList is None:
             keyList = []
@@ -361,8 +361,8 @@ class Tree:
     def removeNode(self, nodeId):
         """
         Removes a node and all edges to an from this node
-        @param nodeId: Id of the node which need to deleted
-        @return: True if it was successful else false
+        :param nodeId: Id of the node which need to deleted
+        :return: True if it was successful else false
         """
         if nodeId in self.nodeList:
             parents = copy.copy(self.nodeList[nodeId].parents)
@@ -382,8 +382,8 @@ class Tree:
         """
         Removes an edge
 
-        @param edgeId: Id of the edge (hash)
-        @return: True if successful else false
+        :param edgeId: Id of the edge (hash)
+        :return: True if successful else false
         """
         edge = None
         for e in self.edgeList:

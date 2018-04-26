@@ -1,0 +1,38 @@
+data package
+===========================
+
+Submodules
+----------
+
+data.exceptions module
+-------------------------------------
+
+.. automodule:: data.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+data.handler module
+----------------------------------
+
+.. automodule:: data.handler
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+data.types module
+--------------------------------
+
+.. automodule:: data.types
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: data
+    :members:
+    :undoc-members:
+    :show-inheritance:
