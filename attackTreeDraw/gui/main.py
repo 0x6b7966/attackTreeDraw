@@ -542,7 +542,7 @@ class Main(QMainWindow):
             self.scene.clear()
             self.scene.setSceneRect(self.scene.itemsBoundingRect())
             self.printGraph(doReorderTree=False)
-            self.scene.setSceneRect(self.scene.itemsBoundingRect())
+            self.scene.setSceneRect(QRectF(None))
             self.graphicsView.setScene(self.scene)
             self.graphicsView.update()
         except Exception:
@@ -668,6 +668,7 @@ class Main(QMainWindow):
 
                 self.scene.render(p)
                 p.end()
+                self.scene.setSceneRect(QRectF(None))
             except Exception as e:
                 MessageBox('Error while saving to pdf', str(e))
                 return False
@@ -692,7 +693,7 @@ class Main(QMainWindow):
                 self.scene.setSceneRect(self.scene.itemsBoundingRect())
                 self.scene.render(p)
                 p.end()
-                self.scene.setSceneRect(None)
+                self.scene.setSceneRect(QRectF(None))
             except Exception as e:
                 MessageBox('Error while printing', e)
 
@@ -716,6 +717,7 @@ class Main(QMainWindow):
         self.graphicsView.setScene(self.scene)
         self.graphicsView.update()
         self.graphicsView.viewport().update()
+        self.scene.setSceneRect(QRectF())
 
     def redrawGraph(self):
         """
